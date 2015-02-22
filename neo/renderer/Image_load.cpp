@@ -1653,7 +1653,6 @@ void	idImage::ActuallyLoadImage( bool checkForPrecompressed, bool fromBackEnd ) 
 		imageHash = MD4_BlockChecksum( pic, width * height * 4 );
 
 		GenerateImage( pic, width, height, filter, allowDownSize, repeat, depth );
-		timestamp = timestamp;
 		precompressedFile = false;
 
 		R_StaticFree( pic );
