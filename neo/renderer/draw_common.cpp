@@ -151,7 +151,7 @@ void RB_PrepareStageTexturing( const shaderStage_t *pStage,  const drawSurf_t *s
 	}
 
 	if ( pStage->texture.texgen == TG_GLASSWARP ) {
-		if ( tr.backEndRenderer == BE_ARB2 /*|| tr.backEndRenderer == BE_NV30*/ ) {
+		if ( tr.backEndRenderer == BE_ARB2 ) {
 			qglBindProgramARB( GL_FRAGMENT_PROGRAM_ARB, FPROG_GLASSWARP );
 			qglEnable( GL_FRAGMENT_PROGRAM_ARB );
 
@@ -256,8 +256,7 @@ void RB_FinishStageTexturing( const shaderStage_t *pStage, const drawSurf_t *sur
 		qglDisable( GL_POLYGON_OFFSET_FILL );
 	}
 
-	if ( pStage->texture.texgen == TG_DIFFUSE_CUBE || pStage->texture.texgen == TG_SKYBOX_CUBE
-		|| pStage->texture.texgen == TG_WOBBLESKY_CUBE ) {
+	if ( pStage->texture.texgen == TG_DIFFUSE_CUBE || pStage->texture.texgen == TG_SKYBOX_CUBE || pStage->texture.texgen == TG_WOBBLESKY_CUBE ) {
 		qglTexCoordPointer( 2, GL_FLOAT, sizeof( idDrawVert ), (void *)&ac->st );
 	}
 
@@ -273,7 +272,7 @@ void RB_FinishStageTexturing( const shaderStage_t *pStage, const drawSurf_t *sur
 	}
 
 	if ( pStage->texture.texgen == TG_GLASSWARP ) {
-		if ( tr.backEndRenderer == BE_ARB2 /*|| tr.backEndRenderer == BE_NV30*/ ) {
+		if ( tr.backEndRenderer == BE_ARB2 ) {
 			GL_SelectTexture( 2 );
 			globalImages->BindNull();
 
@@ -507,7 +506,6 @@ void RB_T_FillDepthBuffer( const drawSurf_t *surf ) {
 	if ( shader->GetSort() == SS_SUBVIEW ) {
 		GL_State( GLS_DEPTHFUNC_LESS );
 	}
-
 }
 
 /*
@@ -558,7 +556,6 @@ void RB_STD_FillDepthBuffer( drawSurf_t **drawSurfs, int numDrawSurfs ) {
 		qglDisable( GL_TEXTURE_GEN_S );
 		GL_SelectTexture( 0 );
 	}
-
 }
 
 /*
@@ -1060,7 +1057,12 @@ static void RB_T_Shadow( const drawSurf_t *surf ) {
 
 		R_GlobalPointToLocal( surf->space->modelMatrix, backEnd.vLight->globalLightOrigin, localLight.ToVec3() );
 		localLight.w = 0.0f;
+
+		if ( tr.backEndRenderer == BE_ARB2 ) {
 		qglProgramEnvParameter4fvARB( GL_VERTEX_PROGRAM_ARB, PP_LIGHT_ORIGIN, localLight.ToFloatPtr() );
+		} else if ( tr.backEndRenderer == BE_GLSL ) {
+			qglUniform4fvARB( stencilShadowShader.localLightOrigin, 1, localLight.ToFloatPtr() );
+		}
 	}
 
 	tri = surf->geo;
@@ -1145,24 +1147,40 @@ static void RB_T_Shadow( const drawSurf_t *surf ) {
 
 	// patent-free work around
 	if ( !external ) {
-		// "preload" the stencil buffer with the number of volumes
-		// that get clipped by the near or far clip plane
-		qglStencilOp( GL_KEEP, tr.stencilDecr, tr.stencilDecr );
-		GL_Cull( CT_FRONT_SIDED );
-		RB_DrawShadowElementsWithCounters( tri, numIndexes );
-		qglStencilOp( GL_KEEP, tr.stencilIncr, tr.stencilIncr );
-		GL_Cull( CT_BACK_SIDED );
-		RB_DrawShadowElementsWithCounters( tri, numIndexes );
+		// depth-fail stencil shadows
+		if( r_useTwoSidedStencil.GetBool() && glConfig.twoSidedStencilAvailable ) {
+			qglStencilOpSeparate( backEnd.viewDef->isMirror ? GL_FRONT : GL_BACK, GL_KEEP, tr.stencilDecr, GL_KEEP );
+			qglStencilOpSeparate( backEnd.viewDef->isMirror ? GL_BACK : GL_FRONT, GL_KEEP, tr.stencilIncr, GL_KEEP );
+			GL_Cull( CT_TWO_SIDED );
+			RB_DrawShadowElementsWithCounters( tri, numIndexes );
+		} else {
+            // "preload" the stencil buffer with the number of volumes
+            // that get clipped by the near or far clip plane
+            qglStencilOp( GL_KEEP, tr.stencilDecr, tr.stencilDecr );
+            GL_Cull( CT_FRONT_SIDED );
+            RB_DrawShadowElementsWithCounters( tri, numIndexes );
+	
+            qglStencilOp( GL_KEEP, tr.stencilIncr, tr.stencilIncr );
+            GL_Cull( CT_BACK_SIDED );
+            RB_DrawShadowElementsWithCounters( tri, numIndexes );
+        }
+	} else {
+        // traditional depth-pass stencil shadows
+		if( r_useTwoSidedStencil.GetBool() && glConfig.twoSidedStencilAvailable ) {
+			qglStencilOpSeparate( backEnd.viewDef->isMirror ? GL_FRONT : GL_BACK, GL_KEEP, GL_KEEP, tr.stencilIncr );
+			qglStencilOpSeparate( backEnd.viewDef->isMirror ? GL_BACK : GL_FRONT, GL_KEEP, GL_KEEP, tr.stencilDecr );
+			GL_Cull( CT_TWO_SIDED );
+			RB_DrawShadowElementsWithCounters( tri, numIndexes );
+		} else {	
+            qglStencilOp( GL_KEEP, GL_KEEP, tr.stencilIncr );
+            GL_Cull( CT_FRONT_SIDED );
+            RB_DrawShadowElementsWithCounters( tri, numIndexes );
+
+            qglStencilOp( GL_KEEP, GL_KEEP, tr.stencilDecr );
+            GL_Cull( CT_BACK_SIDED );
+            RB_DrawShadowElementsWithCounters( tri, numIndexes );
+		}
 	}
-
-	// traditional depth-pass stencil shadows
-	qglStencilOp( GL_KEEP, GL_KEEP, tr.stencilIncr );
-	GL_Cull( CT_FRONT_SIDED );
-	RB_DrawShadowElementsWithCounters( tri, numIndexes );
-
-	qglStencilOp( GL_KEEP, GL_KEEP, tr.stencilDecr );
-	GL_Cull( CT_BACK_SIDED );
-	RB_DrawShadowElementsWithCounters( tri, numIndexes );
 }
 
 /*
@@ -1691,6 +1709,9 @@ void	RB_STD_DrawView( void ) {
 		break;
 	case BE_ARB2:
 		RB_ARB2_DrawInteractions();
+		break;
+	case BE_GLSL:
+		RB_GLSL_DrawInteractions();
 		break;
 	case BE_NV20:
 		RB_NV20_DrawInteractions();
