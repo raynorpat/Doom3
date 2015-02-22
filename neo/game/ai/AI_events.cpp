@@ -160,6 +160,8 @@ const idEventDef AI_CanReachPosition( "canReachPosition", "v", 'd' );
 const idEventDef AI_CanReachEntity( "canReachEntity", "E", 'd' );
 const idEventDef AI_CanReachEnemy( "canReachEnemy", NULL, 'd' );
 const idEventDef AI_GetReachableEntityPosition( "getReachableEntityPosition", "e", 'v' );
+const idEventDef AI_Vagary_ChooseObjectToThrow( "vagary_ChooseObjectToThrow", "vvfff", 'e' );
+const idEventDef AI_Vagary_ThrowObjectAtEnemy( "vagary_ThrowObjectAtEnemy", "ef" );
 
 CLASS_DECLARATION( idActor, idAI )
 	EVENT( EV_Activate,							idAI::Event_Activate )
@@ -290,6 +292,8 @@ CLASS_DECLARATION( idActor, idAI )
 	EVENT( AI_CanReachEntity,					idAI::Event_CanReachEntity )
 	EVENT( AI_CanReachEnemy,					idAI::Event_CanReachEnemy )
 	EVENT( AI_GetReachableEntityPosition,		idAI::Event_GetReachableEntityPosition )
+    EVENT( AI_Vagary_ChooseObjectToThrow,       idAI::Event_ChooseObjectToThrow )
+    EVENT( AI_Vagary_ThrowObjectAtEnemy,        idAI::Event_ThrowObjectAtEnemy )
 END_CLASS
 
 /*
@@ -2705,3 +2709,95 @@ void idAI::Event_GetReachableEntityPosition( idEntity *ent ) {
 
 	idThread::ReturnVector( pos );
 }
+
+/*
+ ================
+ idAI::Event_ChooseObjectToThrow
+ ================
+ */
+void idAI::Event_ChooseObjectToThrow( const idVec3 &mins, const idVec3 &maxs, float speed, float minDist, float offset ) {
+    idEntity *	ent;
+    idEntity *	entityList[ MAX_GENTITIES ];
+    int			numListedEntities;
+    int			i, index;
+    float		dist;
+    idVec3		vel;
+    idVec3		offsetVec( 0, 0, offset );
+    idEntity	*enemyEnt = enemy.GetEntity();
+    
+    if ( !enemyEnt ) {
+        idThread::ReturnEntity( NULL );
+    }
+    
+    idVec3 enemyEyePos = lastVisibleEnemyPos + lastVisibleEnemyEyeOffset;
+    const idBounds &myBounds = physicsObj.GetAbsBounds();
+    idBounds checkBounds( mins, maxs );
+    checkBounds.TranslateSelf( physicsObj.GetOrigin() );
+    numListedEntities = gameLocal.clip.EntitiesTouchingBounds( checkBounds, -1, entityList, MAX_GENTITIES );
+    
+    index = gameLocal.random.RandomInt( numListedEntities );
+    for ( i = 0; i < numListedEntities; i++, index++ ) {
+        if ( index >= numListedEntities ) {
+            index = 0;
+        }
+        ent = entityList[ index ];
+        if ( !ent->IsType( idMoveable::Type ) ) {
+            continue;
+        }
+        
+        if ( ent->fl.hidden ) {
+            // don't throw hidden objects
+            continue;
+        }
+        
+        idPhysics *entPhys = ent->GetPhysics();
+        const idVec3 &entOrg = entPhys->GetOrigin();
+        dist = ( entOrg - enemyEyePos ).LengthFast();
+        if ( dist < minDist ) {
+            continue;
+        }
+        
+        idBounds expandedBounds = myBounds.Expand( entPhys->GetBounds().GetRadius() );
+        if ( expandedBounds.LineIntersection( entOrg, enemyEyePos ) ) {
+            // ignore objects that are behind us
+            continue;
+        }
+        
+        if ( PredictTrajectory( entPhys->GetOrigin() + offsetVec, enemyEyePos, speed, entPhys->GetGravity(),
+                               entPhys->GetClipModel(), entPhys->GetClipMask(), MAX_WORLD_SIZE, NULL, enemyEnt, ai_debugTrajectory.GetBool() ? 4000 : 0, vel ) ) {
+            idThread::ReturnEntity( ent );
+            return;
+        }
+    }
+    
+    idThread::ReturnEntity( NULL );
+}
+
+/*
+ ================
+ idAI::Event_ThrowObjectAtEnemy
+ ================
+ */
+void idAI::Event_ThrowObjectAtEnemy( idEntity *ent, float speed ) {
+    idVec3		vel;
+    idEntity	*enemyEnt;
+    idPhysics	*entPhys;
+    
+    entPhys	= ent->GetPhysics();
+    enemyEnt = enemy.GetEntity();
+    if ( !enemyEnt ) {
+        vel = ( viewAxis[ 0 ] * physicsObj.GetGravityAxis() ) * speed;
+    } else {
+        PredictTrajectory( entPhys->GetOrigin(), lastVisibleEnemyPos + lastVisibleEnemyEyeOffset, speed, entPhys->GetGravity(),
+                          entPhys->GetClipModel(), entPhys->GetClipMask(), MAX_WORLD_SIZE, NULL, enemyEnt, ai_debugTrajectory.GetBool() ? 4000 : 0, vel );
+        vel *= speed;
+    }
+    
+    entPhys->SetLinearVelocity( vel );
+    
+    if ( ent->IsType( idMoveable::Type ) ) {
+        idMoveable *ment = static_cast<idMoveable*>( ent );
+        ment->EnableDamage( true, 2.5f );
+    }
+}
+

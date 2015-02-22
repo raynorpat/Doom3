@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		2DFD49DB147F60B100C51B13 /* game.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 81225B8B0912C731005D34B9 /* game.dylib */; };
-		2DFD49DC147F60B100C51B13 /* game.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 25DD88370B31F5F00079B759 /* game.dylib */; };
 		2DFD49DD147F60B100C51B13 /* libidlib_pic.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 812259800912BF1D005D34B9 /* libidlib_pic.a */; };
 		812258110912BC79005D34B9 /* snd_efxfile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8122565F0912BC78005D34B9 /* snd_efxfile.cpp */; };
 		812258120912BC79005D34B9 /* GEWindowWrapper_stub.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 812256620912BC78005D34B9 /* GEWindowWrapper_stub.cpp */; };
@@ -244,13 +243,6 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		25DD88360B31F5F00079B759 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 25DD882E0B31F5F00079B759 /* d3xp.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = D2AAC0630554660B00DB518D;
-			remoteInfo = game;
-		};
 		8122597F0912BF1D005D34B9 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 812259790912BF1D005D34B9 /* idlib.xcodeproj */;
@@ -304,7 +296,6 @@
 
 /* Begin PBXFileReference section */
 		089C165DFE840E0CC02AAC07 /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/InfoPlist.strings; sourceTree = "<group>"; };
-		25DD882E0B31F5F00079B759 /* d3xp.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = d3xp.xcodeproj; sourceTree = "<group>"; };
 		29B97319FDCFA39411CA2CEA /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/MainMenu.nib; sourceTree = "<group>"; };
 		8122565F0912BC78005D34B9 /* snd_efxfile.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = snd_efxfile.cpp; path = ../../sound/snd_efxfile.cpp; sourceTree = SOURCE_ROOT; };
 		812256620912BC78005D34B9 /* GEWindowWrapper_stub.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = GEWindowWrapper_stub.cpp; path = ../../tools/guied/GEWindowWrapper_stub.cpp; sourceTree = SOURCE_ROOT; };
@@ -678,7 +669,6 @@
 				D7D7BBE9189532D9000A495C /* Cocoa.framework in Frameworks */,
 				D796927A17607FEE00A42598 /* libcurl.dylib in Frameworks */,
 				2DFD49DB147F60B100C51B13 /* game.dylib in Frameworks */,
-				2DFD49DC147F60B100C51B13 /* game.dylib in Frameworks */,
 				2DFD49DD147F60B100C51B13 /* libidlib_pic.a in Frameworks */,
 				812259940912BF87005D34B9 /* liboggVorbis_nopic.a in Frameworks */,
 				812259930912BF7F005D34B9 /* libidlib_nopic.a in Frameworks */,
@@ -696,14 +686,6 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		25DD882F0B31F5F00079B759 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				25DD88370B31F5F00079B759 /* game.dylib */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
 		29B97314FDCFA39411CA2CEA /* Doom3 */ = {
 			isa = PBXGroup;
 			children = (
@@ -714,7 +696,6 @@
 				812259790912BF1D005D34B9 /* idlib.xcodeproj */,
 				812259890912BF38005D34B9 /* oggVorbis.xcodeproj */,
 				81225B840912C731005D34B9 /* game.xcodeproj */,
-				25DD882E0B31F5F00079B759 /* d3xp.xcodeproj */,
 			);
 			name = Doom3;
 			sourceTree = "<group>";
@@ -1329,10 +1310,6 @@
 			projectDirPath = "";
 			projectReferences = (
 				{
-					ProductGroup = 25DD882F0B31F5F00079B759 /* Products */;
-					ProjectRef = 25DD882E0B31F5F00079B759 /* d3xp.xcodeproj */;
-				},
-				{
 					ProductGroup = 81225B850912C731005D34B9 /* Products */;
 					ProjectRef = 81225B840912C731005D34B9 /* game.xcodeproj */;
 				},
@@ -1353,13 +1330,6 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
-		25DD88370B31F5F00079B759 /* game.dylib */ = {
-			isa = PBXReferenceProxy;
-			fileType = "compiled.mach-o.dylib";
-			path = game.dylib;
-			remoteRef = 25DD88360B31F5F00079B759 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
 		812259800912BF1D005D34B9 /* libidlib_pic.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
@@ -1708,7 +1678,6 @@
 					"$(MAIN_CPP_DEFINES)",
 					"ID_ENFORCE_KEY=0",
 					MACOS_X,
-					__DOOM_DLL__,
 					"ID_ENABLE_CURL=1",
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
@@ -1743,7 +1712,6 @@
 					"$(MAIN_CPP_DEFINES)",
 					"ID_ENFORCE_KEY=0",
 					MACOS_X,
-					__DOOM_DLL__,
 					"ID_ENABLE_CURL=1",
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;

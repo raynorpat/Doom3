@@ -25,7 +25,6 @@
 		81225AD20912C42F005D34B9 /* AI.h in Headers */ = {isa = PBXBuildFile; fileRef = 81225A4A0912C42F005D34B9 /* AI.h */; };
 		81225AD30912C42F005D34B9 /* AI_events.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 81225A4B0912C42F005D34B9 /* AI_events.cpp */; };
 		81225AD40912C42F005D34B9 /* AI_pathing.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 81225A4C0912C42F005D34B9 /* AI_pathing.cpp */; };
-		81225AD50912C42F005D34B9 /* AI_Vagary.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 81225A4D0912C42F005D34B9 /* AI_Vagary.cpp */; };
 		81225AD60912C42F005D34B9 /* Anim.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 81225A4F0912C42F005D34B9 /* Anim.cpp */; };
 		81225AD70912C42F005D34B9 /* Anim.h in Headers */ = {isa = PBXBuildFile; fileRef = 81225A500912C42F005D34B9 /* Anim.h */; };
 		81225AD80912C42F005D34B9 /* Anim_Blend.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 81225A510912C42F005D34B9 /* Anim_Blend.cpp */; };
@@ -184,7 +183,6 @@
 		81225A4A0912C42F005D34B9 /* AI.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = AI.h; sourceTree = "<group>"; };
 		81225A4B0912C42F005D34B9 /* AI_events.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = AI_events.cpp; sourceTree = "<group>"; };
 		81225A4C0912C42F005D34B9 /* AI_pathing.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = AI_pathing.cpp; sourceTree = "<group>"; };
-		81225A4D0912C42F005D34B9 /* AI_Vagary.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = AI_Vagary.cpp; sourceTree = "<group>"; };
 		81225A4F0912C42F005D34B9 /* Anim.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = Anim.cpp; sourceTree = "<group>"; };
 		81225A500912C42F005D34B9 /* Anim.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = Anim.h; sourceTree = "<group>"; };
 		81225A510912C42F005D34B9 /* Anim_Blend.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = Anim_Blend.cpp; sourceTree = "<group>"; };
@@ -424,7 +422,6 @@
 				81225A4A0912C42F005D34B9 /* AI.h */,
 				81225A4B0912C42F005D34B9 /* AI_events.cpp */,
 				81225A4C0912C42F005D34B9 /* AI_pathing.cpp */,
-				81225A4D0912C42F005D34B9 /* AI_Vagary.cpp */,
 			);
 			name = ai;
 			path = ../../game/ai;
@@ -686,7 +683,6 @@
 				81225AD10912C42F005D34B9 /* AI.cpp in Sources */,
 				81225AD30912C42F005D34B9 /* AI_events.cpp in Sources */,
 				81225AD40912C42F005D34B9 /* AI_pathing.cpp in Sources */,
-				81225AD50912C42F005D34B9 /* AI_Vagary.cpp in Sources */,
 				81225AD60912C42F005D34B9 /* Anim.cpp in Sources */,
 				81225AD80912C42F005D34B9 /* Anim_Blend.cpp in Sources */,
 				81225AD90912C42F005D34B9 /* Anim_Import.cpp in Sources */,
@@ -768,21 +764,19 @@
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
 				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_MODEL_TUNING = G5;
+				GCC_MODEL_TUNING = "";
 				GCC_ONE_BYTE_BOOL = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(MAIN_CPP_DEFINES)",
 					MACOS_X,
-					GAME_DLL,
-					__WITH_PB__,
 				);
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INSTALL_PATH = /usr/local/lib;
 				LIBRARY_STYLE = DYNAMIC;
-				MACH_O_TYPE = mh_dylib;
+				MACH_O_TYPE = staticlib;
 				MAIN_CPP_DEFINES = _DEBUG;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CPLUSPLUSFLAGS = (
@@ -810,12 +804,10 @@
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(MAIN_CPP_DEFINES)",
 					MACOS_X,
-					GAME_DLL,
-					__WITH_PB__,
 				);
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				LIBRARY_STYLE = DYNAMIC;
-				MACH_O_TYPE = mh_dylib;
+				MACH_O_TYPE = staticlib;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = (
 					"-finline",
