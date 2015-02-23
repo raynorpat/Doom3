@@ -74,9 +74,6 @@
 		8122586E0912BC79005D34B9 /* draw_arb2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8122570E0912BC79005D34B9 /* draw_arb2.cpp */; };
 		8122586F0912BC79005D34B9 /* draw_common.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8122570F0912BC79005D34B9 /* draw_common.cpp */; };
 		812258710912BC79005D34B9 /* draw_exp_stub.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 812257110912BC79005D34B9 /* draw_exp_stub.cpp */; };
-		812258720912BC79005D34B9 /* draw_nv10.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 812257120912BC79005D34B9 /* draw_nv10.cpp */; };
-		812258730912BC79005D34B9 /* draw_nv20.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 812257130912BC79005D34B9 /* draw_nv20.cpp */; };
-		812258740912BC79005D34B9 /* draw_r200.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 812257140912BC79005D34B9 /* draw_r200.cpp */; };
 		812258750912BC79005D34B9 /* GuiModel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 812257160912BC79005D34B9 /* GuiModel.cpp */; };
 		812258760912BC79005D34B9 /* Image_files.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 812257190912BC79005D34B9 /* Image_files.cpp */; };
 		812258770912BC79005D34B9 /* Image_init.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8122571A0912BC79005D34B9 /* Image_init.cpp */; };
@@ -387,9 +384,6 @@
 		8122570F0912BC79005D34B9 /* draw_common.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = draw_common.cpp; sourceTree = "<group>"; };
 		812257100912BC79005D34B9 /* draw_exp.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = draw_exp.cpp; sourceTree = "<group>"; };
 		812257110912BC79005D34B9 /* draw_exp_stub.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = draw_exp_stub.cpp; sourceTree = "<group>"; };
-		812257120912BC79005D34B9 /* draw_nv10.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = draw_nv10.cpp; sourceTree = "<group>"; };
-		812257130912BC79005D34B9 /* draw_nv20.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = draw_nv20.cpp; sourceTree = "<group>"; };
-		812257140912BC79005D34B9 /* draw_r200.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = draw_r200.cpp; sourceTree = "<group>"; };
 		812257150912BC79005D34B9 /* glext.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = glext.h; sourceTree = "<group>"; };
 		812257160912BC79005D34B9 /* GuiModel.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = GuiModel.cpp; sourceTree = "<group>"; };
 		812257170912BC79005D34B9 /* GuiModel.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = GuiModel.h; sourceTree = "<group>"; };
@@ -945,9 +939,6 @@
 				8122570F0912BC79005D34B9 /* draw_common.cpp */,
 				812257100912BC79005D34B9 /* draw_exp.cpp */,
 				812257110912BC79005D34B9 /* draw_exp_stub.cpp */,
-				812257120912BC79005D34B9 /* draw_nv10.cpp */,
-				812257130912BC79005D34B9 /* draw_nv20.cpp */,
-				812257140912BC79005D34B9 /* draw_r200.cpp */,
 				E51F8DED1A9A2EEC000D5575 /* draw_glsl.cpp */,
 				E51F8DEF1A9ACB9B000D5575 /* tr_glsl.cpp */,
 				812257150912BC79005D34B9 /* glext.h */,
@@ -1447,9 +1438,6 @@
 				8122586E0912BC79005D34B9 /* draw_arb2.cpp in Sources */,
 				8122586F0912BC79005D34B9 /* draw_common.cpp in Sources */,
 				812258710912BC79005D34B9 /* draw_exp_stub.cpp in Sources */,
-				812258720912BC79005D34B9 /* draw_nv10.cpp in Sources */,
-				812258730912BC79005D34B9 /* draw_nv20.cpp in Sources */,
-				812258740912BC79005D34B9 /* draw_r200.cpp in Sources */,
 				812258750912BC79005D34B9 /* GuiModel.cpp in Sources */,
 				812258760912BC79005D34B9 /* Image_files.cpp in Sources */,
 				812258770912BC79005D34B9 /* Image_init.cpp in Sources */,

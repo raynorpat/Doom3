@@ -65,11 +65,9 @@ typedef struct glconfig_s {
 	bool				textureLODBiasAvailable;
 	bool				textureEnvAddAvailable;
 	bool				textureEnvCombineAvailable;
-	bool				registerCombinersAvailable;
 	bool				cubeMapAvailable;
 	bool				envDot3Available;
 	bool				texture3DAvailable;
-	bool				sharedTexturePaletteAvailable;
 	bool				ARBVertexBufferObjectAvailable;
 	bool				ARBVertexProgramAvailable;
 	bool				ARBFragmentProgramAvailable;
@@ -78,19 +76,12 @@ typedef struct glconfig_s {
 	bool				depthBoundsTestAvailable;
 	bool				GLSLAvailable;
 
-	// ati r200 extensions
-	bool				atiFragmentShaderAvailable;
-
 	int					vidWidth, vidHeight;	// passed to R_BeginFrame
 
 	int					displayFrequency;
 
 	bool				isFullscreen;
 
-	bool				allowNV30Path;
-	bool				allowNV20Path;
-	bool				allowNV10Path;
-	bool				allowR200Path;
 	bool				allowARB2Path;
 	bool				allowGLSLPath;
 

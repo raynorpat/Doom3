@@ -790,9 +790,6 @@ const int MAX_GUI_SURFACES	= 1024;		// default size of the drawSurfs list for gu
 
 typedef enum {
 	BE_ARB,
-	BE_NV10,
-	BE_NV20,
-	BE_R200,
 	BE_ARB2,
 	BE_GLSL,
 	BE_BAD
@@ -970,7 +967,6 @@ extern idCVar r_renderer;				// arb, nv10, nv20, r200, glsl, etc
 
 extern idCVar r_checkBounds;			// compare all surface bounds with precalculated ones
 
-extern idCVar r_useNV20MonoLights;		// 1 = allow an interaction pass optimization
 extern idCVar r_useLightPortalFlow;		// 1 = do a more precise area reference determination
 extern idCVar r_useTripleTextureARB;	// 1 = cards with 3+ texture units do a two pass instead of three pass
 extern idCVar r_useShadowSurfaceScissor;// 1 = scissor shadows by the scissor rect of the interaction surfaces
@@ -997,11 +993,9 @@ extern idCVar r_useShadowProjectedCull;	// 1 = discard triangles outside light v
 extern idCVar r_useDeferredTangents;	// 1 = don't always calc tangents after deform
 extern idCVar r_useCachedDynamicModels;	// 1 = cache snapshots of dynamic models
 extern idCVar r_useTwoSidedStencil;		// 1 = do stencil shadows in one pass with different ops on each side
-extern idCVar r_useInfiniteFarZ;		// 1 = use the no-far-clip-plane trick
 extern idCVar r_useScissor;				// 1 = scissor clip as portals and lights are processed
 extern idCVar r_usePortals;				// 1 = use portals to perform area culling, otherwise draw everything
 extern idCVar r_useStateCaching;		// avoid redundant state changes in GL_*() calls
-extern idCVar r_useCombinerDisplayLists;// if 1, put all nvidia register combiner programming in display lists
 extern idCVar r_useVertexBuffers;		// if 0, don't use ARB_vertex_buffer_object for vertexes
 extern idCVar r_useIndexBuffers;		// if 0, don't use ARB_vertex_buffer_object for indexes
 extern idCVar r_useEntityCallbacks;		// if 0, issue the callback immediately at update time, rather than defering
@@ -1426,15 +1420,6 @@ DRAW_*
 */
 
 void	RB_ARB_DrawInteractions( void );
-
-void	R_R200_Init( void );
-void	RB_R200_DrawInteractions( void );
-
-void	R_NV10_Init( void );
-void	RB_NV10_DrawInteractions( void );
-
-void	R_NV20_Init( void );
-void	RB_NV20_DrawInteractions( void );
 
 void	R_ARB2_Init( void );
 void	RB_ARB2_DrawInteractions( void );
