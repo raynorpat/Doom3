@@ -125,7 +125,23 @@ void RB_LogComment( const char *comment, ... ) {
 
 //=============================================================================
 
-
+/*
+ ==================
+ GL_BindProgram
+ ==================
+ */
+void GL_BindProgram( shaderProgram_t *program ) {
+    if ( !program ) {
+        backEnd.glState.program = NULL;
+        
+        qglUseProgram( 0 );
+        return;
+    }
+    
+    backEnd.glState.program = program;
+    
+    qglUseProgram( program->program );
+}
 
 /*
 ====================

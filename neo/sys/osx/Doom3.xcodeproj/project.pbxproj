@@ -240,6 +240,7 @@
 		D7D7BBF118953310000A495C /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D7D7BBF018953310000A495C /* CoreAudio.framework */; };
 		D7D7BBF31895331A000A495C /* OpenAL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D7D7BBF21895331A000A495C /* OpenAL.framework */; };
 		E51F8DEE1A9A2EEC000D5575 /* draw_glsl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E51F8DED1A9A2EEC000D5575 /* draw_glsl.cpp */; };
+		E51F8DF01A9ACB9B000D5575 /* tr_glsl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E51F8DEF1A9ACB9B000D5575 /* tr_glsl.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -653,6 +654,7 @@
 		D7D7BBF018953310000A495C /* CoreAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudio.framework; path = System/Library/Frameworks/CoreAudio.framework; sourceTree = SDKROOT; };
 		D7D7BBF21895331A000A495C /* OpenAL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenAL.framework; path = System/Library/Frameworks/OpenAL.framework; sourceTree = SDKROOT; };
 		E51F8DED1A9A2EEC000D5575 /* draw_glsl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = draw_glsl.cpp; path = ../../../Doom3/neo/renderer/draw_glsl.cpp; sourceTree = "<group>"; };
+		E51F8DEF1A9ACB9B000D5575 /* tr_glsl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = tr_glsl.cpp; path = ../../../Doom3/neo/renderer/tr_glsl.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -934,7 +936,6 @@
 		812257060912BC79005D34B9 /* renderer */ = {
 			isa = PBXGroup;
 			children = (
-				E51F8DED1A9A2EEC000D5575 /* draw_glsl.cpp */,
 				812257070912BC79005D34B9 /* Model_ma.cpp */,
 				812257080912BC79005D34B9 /* Model_sprite.cpp */,
 				8122570B0912BC79005D34B9 /* Cinematic.cpp */,
@@ -947,6 +948,8 @@
 				812257120912BC79005D34B9 /* draw_nv10.cpp */,
 				812257130912BC79005D34B9 /* draw_nv20.cpp */,
 				812257140912BC79005D34B9 /* draw_r200.cpp */,
+				E51F8DED1A9A2EEC000D5575 /* draw_glsl.cpp */,
+				E51F8DEF1A9ACB9B000D5575 /* tr_glsl.cpp */,
 				812257150912BC79005D34B9 /* glext.h */,
 				812257160912BC79005D34B9 /* GuiModel.cpp */,
 				812257170912BC79005D34B9 /* GuiModel.h */,
@@ -1461,6 +1464,7 @@
 				812258800912BC79005D34B9 /* jcdctmgr.c in Sources */,
 				812258810912BC79005D34B9 /* jchuff.c in Sources */,
 				812258820912BC79005D34B9 /* jcinit.c in Sources */,
+				E51F8DF01A9ACB9B000D5575 /* tr_glsl.cpp in Sources */,
 				812258830912BC79005D34B9 /* jcmainct.c in Sources */,
 				812258840912BC79005D34B9 /* jcmarker.c in Sources */,
 				812258850912BC79005D34B9 /* jcmaster.c in Sources */,
@@ -1669,7 +1673,7 @@
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
 				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = 1;
+				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = NO;
 				GCC_PREFIX_HEADER = "";
 				GCC_PREPROCESSOR_DEFINITIONS = (

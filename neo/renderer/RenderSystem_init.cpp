@@ -300,53 +300,54 @@ PFNGLBINDPROGRAMARBPROC					qglBindProgramARB;
 PFNGLGENPROGRAMSARBPROC					qglGenProgramsARB;
 PFNGLPROGRAMENVPARAMETER4FVARBPROC		qglProgramEnvParameter4fvARB;
 PFNGLPROGRAMLOCALPARAMETER4FVARBPROC	qglProgramLocalParameter4fvARB;
+GLint (APIENTRY *qglGetAttribLocation)(GLuint programObj, const GLchar *name);
+void (APIENTRY *qglBindAttribLocation)(GLuint programObj, GLuint index, const GLchar *name);
+void (APIENTRY *qglBindFragDataLocation)(GLuint programObj, GLuint index, const GLchar *name);
 
 // GL_EXT_depth_bounds_test
 PFNGLDEPTHBOUNDSEXTPROC                 qglDepthBoundsEXT;
 
 // GL_ARB_shading_language_100
-void ( APIENTRY * qglDeleteObjectARB )( GLhandleARB obj );
-GLhandleARB ( APIENTRY * qglGetHandleARB )( GLenum pname );
-void ( APIENTRY * qglDetachObjectARB )( GLhandleARB containerObj, GLhandleARB attachedObj );
-GLhandleARB ( APIENTRY * qglCreateShaderObjectARB )( GLenum shaderType );
-void ( APIENTRY * qglShaderSourceARB )( GLhandleARB shaderObj, GLsizei count, const GLcharARB* *string, const GLint *length ); void ( APIENTRY * qglCompileShaderARB )( GLhandleARB shaderObj );
-GLhandleARB ( APIENTRY * qglCreateProgramObjectARB )( void ); 
-void ( APIENTRY * qglAttachObjectARB )( GLhandleARB containerObj, GLhandleARB obj );
-void ( APIENTRY * qglLinkProgramARB )( GLhandleARB programObj );
-void ( APIENTRY * qglUseProgramObjectARB )( GLhandleARB programObj );
-void ( APIENTRY * qglValidateProgramARB )( GLhandleARB programObj );
-void ( APIENTRY * qglUniform1fARB )( GLint location, GLfloat v0 );
-void ( APIENTRY * qglUniform2fARB )( GLint location, GLfloat v0, GLfloat v1 );
-void ( APIENTRY * qglUniform3fARB )( GLint location, GLfloat v0, GLfloat v1, GLfloat v2 );
-void ( APIENTRY * qglUniform4fARB )( GLint location, GLfloat v0, GLfloat v1, GLfloat v2, GLfloat v3 );
-void ( APIENTRY * qglUniform1iARB )( GLint location, GLint v0 );
-void ( APIENTRY * qglUniform2iARB )( GLint location, GLint v0, GLint v1 );
-void ( APIENTRY * qglUniform3iARB )( GLint location, GLint v0, GLint v1, GLint v2 );
-void ( APIENTRY * qglUniform4iARB )( GLint location, GLint v0, GLint v1, GLint v2, GLint v3 );
-void ( APIENTRY * qglUniform2fvARB )( GLint location, GLsizei count, const GLfloat *value );
-void ( APIENTRY * qglUniform3fvARB )( GLint location, GLsizei count, const GLfloat *value );
-void ( APIENTRY * qglUniform4fvARB )( GLint location, GLsizei count, const GLfloat *value );
-void ( APIENTRY * qglUniform2ivARB )( GLint location, GLsizei count, const GLint *value );
-void ( APIENTRY * qglUniform3ivARB )( GLint location, GLsizei count, const GLint *value );
-void ( APIENTRY * qglUniform4ivARB )( GLint location, GLsizei count, const GLint *value );
-void ( APIENTRY * qglUniformMatrix2fvARB )( GLint location, GLsizei count, GLboolean transpose, const GLfloat *value );
-void ( APIENTRY * qglUniformMatrix3fvARB )( GLint location, GLsizei count, GLboolean transpose, const GLfloat *value );
-void ( APIENTRY * qglUniformMatrix4fvARB )( GLint location, GLsizei count, GLboolean transpose, const GLfloat *value );
-void ( APIENTRY * qglGetObjectParameterfvARB )( GLhandleARB obj, GLenum pname, GLfloat *params );
-void ( APIENTRY * qglGetObjectParameterivARB )( GLhandleARB obj, GLenum pname, GLint *params );
-void ( APIENTRY * qglGetInfoLogARB )( GLhandleARB obj, GLsizei maxLength, GLsizei *length, GLcharARB *infoLog );
-void ( APIENTRY * qglGetAttachedObjectsARB )( GLhandleARB containerObj, GLsizei maxCount, GLsizei *count, GLhandleARB *obj );
-GLint ( APIENTRY * qglGetUniformLocationARB )( GLhandleARB programObj, const GLcharARB *name );
-void ( APIENTRY * qglGetActiveUniformARB )( GLhandleARB programObj, GLuint index, GLsizei maxIndex, GLsizei *length, GLint *size, GLenum *type, GLcharARB *name );
-void ( APIENTRY * qglGetUniformfvARB )( GLhandleARB programObj, GLint location, GLfloat *params );
-void ( APIENTRY * qglGetUniformivARB )( GLhandleARB programObj, GLint location, GLint *params );
-void ( APIENTRY * qglGetShaderSourceARB )( GLhandleARB obj, GLsizei maxLength, GLsizei *length, GLcharARB *source );
-void ( APIENTRY * qglGetShaderiv )(GLuint shader, GLenum pname, GLint* param);
-void ( APIENTRY * qglDeleteShader )(GLuint shader);
-void ( APIENTRY * qglGetShaderInfoLog )(GLuint shader, GLsizei bufSize, GLsizei* length, GLchar* infoLog);
-void ( APIENTRY * qglBindAttribLocationARB )( GLhandleARB programObj, GLuint index, const GLcharARB *name );
-void ( APIENTRY * qglGetActiveAttribARB )( GLhandleARB programObj, GLuint index, GLsizei maxLength, GLsizei *length, GLint *size, GLenum *type, GLcharARB *name );
-GLint ( APIENTRY * qglGetAttribLocationARB )( GLhandleARB programObj, const GLcharARB *name );
+void (APIENTRY *qglDeleteShader)(GLuint obj);
+void (APIENTRY *qglDeleteProgram)(GLuint obj);
+void (APIENTRY *qglDetachShader)(GLuint containerObj, GLuint attachedObj);
+GLuint (APIENTRY *qglCreateShader)(GLenum shaderType);
+void (APIENTRY *qglShaderSource)(GLuint shaderObj, GLsizei count, const GLchar **string, const GLint *length);
+void (APIENTRY *qglCompileShader)(GLuint shaderObj);
+GLuint (APIENTRY *qglCreateProgram)(void);
+void (APIENTRY *qglAttachShader)(GLuint containerObj, GLuint obj);
+void (APIENTRY *qglLinkProgram)(GLuint programObj);
+void (APIENTRY *qglUseProgram)(GLuint programObj);
+void (APIENTRY *qglValidateProgram)(GLuint programObj);
+void (APIENTRY *qglUniform1f)(GLint location, GLfloat v0);
+void (APIENTRY *qglUniform2f)(GLint location, GLfloat v0, GLfloat v1);
+void (APIENTRY *qglUniform3f)(GLint location, GLfloat v0, GLfloat v1, GLfloat v2);
+void (APIENTRY *qglUniform4f)(GLint location, GLfloat v0, GLfloat v1, GLfloat v2, GLfloat v3);
+void (APIENTRY *qglUniform1i)(GLint location, GLint v0);
+void (APIENTRY *qglUniform2i)(GLint location, GLint v0, GLint v1);
+void (APIENTRY *qglUniform3i)(GLint location, GLint v0, GLint v1, GLint v2);
+void (APIENTRY *qglUniform4i)(GLint location, GLint v0, GLint v1, GLint v2, GLint v3);
+void (APIENTRY *qglUniform1fv)(GLint location, GLsizei count, const GLfloat *value);
+void (APIENTRY *qglUniform2fv)(GLint location, GLsizei count, const GLfloat *value);
+void (APIENTRY *qglUniform3fv)(GLint location, GLsizei count, const GLfloat *value);
+void (APIENTRY *qglUniform4fv)(GLint location, GLsizei count, const GLfloat *value);
+void (APIENTRY *qglUniform1iv)(GLint location, GLsizei count, const GLint *value);
+void (APIENTRY *qglUniform2iv)(GLint location, GLsizei count, const GLint *value);
+void (APIENTRY *qglUniform3iv)(GLint location, GLsizei count, const GLint *value);
+void (APIENTRY *qglUniform4iv)(GLint location, GLsizei count, const GLint *value);
+void (APIENTRY *qglUniformMatrix2fv)(GLint location, GLsizei count, GLboolean transpose, const GLfloat *value);
+void (APIENTRY *qglUniformMatrix3fv)(GLint location, GLsizei count, GLboolean transpose, const GLfloat *value);
+void (APIENTRY *qglUniformMatrix4fv)(GLint location, GLsizei count, GLboolean transpose, const GLfloat *value);
+void (APIENTRY *qglGetShaderiv)(GLuint obj, GLenum pname, GLint *params);
+void (APIENTRY *qglGetProgramiv)(GLuint obj, GLenum pname, GLint *params);
+void (APIENTRY *qglGetShaderInfoLog)(GLuint obj, GLsizei maxLength, GLsizei *length, GLchar *infoLog);
+void (APIENTRY *qglGetProgramInfoLog)(GLuint obj, GLsizei maxLength, GLsizei *length, GLchar *infoLog);
+void (APIENTRY *qglGetAttachedShaders)(GLuint containerObj, GLsizei maxCount, GLsizei *count, GLuint *obj);
+GLint (APIENTRY *qglGetUniformLocation)(GLuint programObj, const GLchar *name);
+void (APIENTRY *qglGetActiveUniform)(GLuint programObj, GLuint index, GLsizei maxLength, GLsizei *length, GLint *size, GLenum *type, GLchar *name);
+void (APIENTRY *qglGetUniformfv)(GLuint programObj, GLint location, GLfloat *params);
+void (APIENTRY *qglGetUniformiv)(GLuint programObj, GLint location, GLint *params);
+void (APIENTRY *qglGetShaderSource)(GLuint obj, GLsizei maxLength, GLsizei *length, GLchar *source);
 
 /*
 =================
@@ -541,6 +542,9 @@ static void R_CheckPortableExtensions( void ) {
 		qglGenProgramsARB = (PFNGLGENPROGRAMSARBPROC)GLimp_ExtensionPointer( "glGenProgramsARB" );
 		qglProgramEnvParameter4fvARB = (PFNGLPROGRAMENVPARAMETER4FVARBPROC)GLimp_ExtensionPointer( "glProgramEnvParameter4fvARB" );
 		qglProgramLocalParameter4fvARB = (PFNGLPROGRAMLOCALPARAMETER4FVARBPROC)GLimp_ExtensionPointer( "glProgramLocalParameter4fvARB" );
+        qglGetAttribLocation = (GLint (APIENTRY *)(GLuint programObj, const GLchar *name))GLimp_ExtensionPointer( "glGetAttribLocation" );
+        qglBindAttribLocation = (void (APIENTRY *)(GLuint programObj, GLuint index, const GLchar *name))GLimp_ExtensionPointer( "glBindAttribLocation" );
+        qglBindFragDataLocation = (void (APIENTRY *)(GLuint programObj, GLuint index, const GLchar *name))GLimp_ExtensionPointer( "glBindFragDataLocation" );
 	}
 
 	// ARB_fragment_program
@@ -572,49 +576,44 @@ static void R_CheckPortableExtensions( void ) {
 	// GL_ARB_shading_language_100
 	glConfig.GLSLAvailable = R_CheckExtension( "GL_ARB_shading_language_100" );
 	if (glConfig.GLSLAvailable) {
-		qglDeleteObjectARB = (PFNGLDELETEOBJECTARBPROC)GLimp_ExtensionPointer( "glDeleteObjectARB" );
-		qglGetHandleARB = (PFNGLGETHANDLEARBPROC)GLimp_ExtensionPointer( "glGetHandleARB" );
-		qglDetachObjectARB = (PFNGLDETACHOBJECTARBPROC)GLimp_ExtensionPointer( "glDetachObjectARB" );
-		qglCreateShaderObjectARB = (PFNGLCREATESHADEROBJECTARBPROC)GLimp_ExtensionPointer( "glCreateShaderObjectARB" );
-		qglShaderSourceARB = (PFNGLSHADERSOURCEARBPROC)GLimp_ExtensionPointer( "glShaderSourceARB" );
-		qglCompileShaderARB = (PFNGLCOMPILESHADERARBPROC)GLimp_ExtensionPointer( "glCompileShaderARB" );
-		qglCreateProgramObjectARB = (PFNGLCREATEPROGRAMOBJECTARBPROC)GLimp_ExtensionPointer( "glCreateProgramObjectARB" );
-		qglAttachObjectARB = (PFNGLATTACHOBJECTARBPROC)GLimp_ExtensionPointer( "glAttachObjectARB" );
-		qglLinkProgramARB = (PFNGLLINKPROGRAMARBPROC)GLimp_ExtensionPointer( "glLinkProgramARB" );
-		qglUseProgramObjectARB = (PFNGLUSEPROGRAMOBJECTARBPROC)GLimp_ExtensionPointer( "glUseProgramObjectARB" );
-		qglValidateProgramARB = (PFNGLVALIDATEPROGRAMARBPROC)GLimp_ExtensionPointer( "glValidateProgramARB" );
-		qglUniform1fARB = (PFNGLUNIFORM1FARBPROC)GLimp_ExtensionPointer( "glUniform1fARB" );
-		qglUniform2fARB = (PFNGLUNIFORM2FARBPROC)GLimp_ExtensionPointer( "glUniform2fARB" );
-		qglUniform3fARB = (PFNGLUNIFORM3FARBPROC)GLimp_ExtensionPointer( "glUniform3fARB" );
-		qglUniform4fARB = (PFNGLUNIFORM4FARBPROC)GLimp_ExtensionPointer( "glUniform4fARB" );
-		qglUniform1iARB = (PFNGLUNIFORM1IARBPROC)GLimp_ExtensionPointer( "glUniform1iARB" );
-		qglUniform2iARB = (PFNGLUNIFORM2IARBPROC)GLimp_ExtensionPointer( "glUniform2iARB" );
-		qglUniform3iARB = (PFNGLUNIFORM3IARBPROC)GLimp_ExtensionPointer( "glUniform3iARB" );
-		qglUniform4iARB = (PFNGLUNIFORM4IARBPROC)GLimp_ExtensionPointer( "glUniform4iARB" );
-		qglUniform2fvARB = (PFNGLUNIFORM2FVARBPROC)GLimp_ExtensionPointer( "glUniform2fvARB" );
-		qglUniform3fvARB = (PFNGLUNIFORM3FVARBPROC)GLimp_ExtensionPointer( "glUniform3fvARB" );
-		qglUniform4fvARB = (PFNGLUNIFORM4FVARBPROC)GLimp_ExtensionPointer( "glUniform4fvARB" );
-		qglUniform2ivARB = (PFNGLUNIFORM2IVARBPROC)GLimp_ExtensionPointer( "glUniform2ivARB" );
-		qglUniform3ivARB = (PFNGLUNIFORM3IVARBPROC)GLimp_ExtensionPointer( "glUniform3ivARB" );
-		qglUniform4ivARB = (PFNGLUNIFORM4IVARBPROC)GLimp_ExtensionPointer( "glUniform4ivARB" );
-		qglUniformMatrix2fvARB = (PFNGLUNIFORMMATRIX2FVARBPROC)GLimp_ExtensionPointer( "glUniformMatrix2fvARB" );
-		qglUniformMatrix3fvARB = (PFNGLUNIFORMMATRIX3FVARBPROC)GLimp_ExtensionPointer( "glUniformMatrix3fvARB" );
-		qglUniformMatrix4fvARB = (PFNGLUNIFORMMATRIX4FVARBPROC)GLimp_ExtensionPointer( "glUniformMatrix4fvARB" );
-		qglGetObjectParameterfvARB = (PFNGLGETOBJECTPARAMETERFVARBPROC)GLimp_ExtensionPointer( "glGetObjectParameterfvARB" );
-		qglGetObjectParameterivARB = (PFNGLGETOBJECTPARAMETERIVARBPROC)GLimp_ExtensionPointer( "glGetObjectParameterivARB" );
-		qglGetInfoLogARB = (PFNGLGETINFOLOGARBPROC)GLimp_ExtensionPointer( "glGetInfoLogARB" );
-		qglGetAttachedObjectsARB = (PFNGLGETATTACHEDOBJECTSARBPROC)GLimp_ExtensionPointer( "glGetAttachedObjectsARB" );
-		qglGetUniformLocationARB = (PFNGLGETUNIFORMLOCATIONARBPROC)GLimp_ExtensionPointer( "glGetUniformLocationARB" );
-		qglGetActiveUniformARB = (PFNGLGETACTIVEUNIFORMARBPROC)GLimp_ExtensionPointer( "glGetActiveUniformARB" );
-		qglGetUniformfvARB = (PFNGLGETUNIFORMFVARBPROC)GLimp_ExtensionPointer( "glGetUniformfvARB" );
-		qglGetUniformivARB = (PFNGLGETUNIFORMIVARBPROC)GLimp_ExtensionPointer( "glGetUniformivARB" );
-		qglGetShaderSourceARB = (PFNGLGETSHADERSOURCEARBPROC)GLimp_ExtensionPointer( "glGetShaderSourceARB" );
-		qglBindAttribLocationARB = (PFNGLBINDATTRIBLOCATIONARBPROC)GLimp_ExtensionPointer( "glBindAttribLocationARB" );
-		qglGetActiveAttribARB = (PFNGLGETACTIVEATTRIBARBPROC)GLimp_ExtensionPointer( "glGetActiveAttribARB" );
-		qglGetAttribLocationARB = (PFNGLGETATTRIBLOCATIONARBPROC)GLimp_ExtensionPointer( "glGetAttribLocationARB" );
-		qglGetShaderiv = (void ( APIENTRY * )(GLuint shader, GLenum pname, GLint* param))GLimp_ExtensionPointer( "glGetShaderiv" );
-		qglDeleteShader = (void ( APIENTRY * )(GLuint shader))GLimp_ExtensionPointer( "glDeleteShader" );
-		qglGetShaderInfoLog = (void ( APIENTRY * )(GLuint shader, GLsizei bufSize, GLsizei* length, GLchar* infoLog))GLimp_ExtensionPointer( "glGetShaderInfoLog" );
+		qglDeleteShader = (void (APIENTRY *)(GLuint obj))GLimp_ExtensionPointer( "glDeleteShader" );
+		qglDeleteProgram = (void (APIENTRY *)(GLuint obj))GLimp_ExtensionPointer( "glDeleteProgram" );
+		qglDetachShader = (void (APIENTRY *)(GLuint containerObj, GLuint attachedObj))GLimp_ExtensionPointer( "glDetachShader" );
+		qglCreateShader = (GLuint (APIENTRY *)(GLenum shaderType))GLimp_ExtensionPointer( "glCreateShader" );
+		qglShaderSource = (void (APIENTRY *)(GLuint shaderObj, GLsizei count, const GLchar **string, const GLint *length))GLimp_ExtensionPointer( "glShaderSource" );
+		qglCompileShader = (void (APIENTRY *)(GLuint shaderObj))GLimp_ExtensionPointer( "glCompileShader" );
+		qglCreateProgram = (GLuint (APIENTRY *)(void))GLimp_ExtensionPointer( "glCreateProgram" );
+		qglAttachShader = (void (APIENTRY *)(GLuint containerObj, GLuint obj))GLimp_ExtensionPointer( "glAttachShader" );
+		qglLinkProgram = (void (APIENTRY *)(GLuint programObj))GLimp_ExtensionPointer( "glLinkProgram" );
+		qglUseProgram = (void (APIENTRY *)(GLuint programObj))GLimp_ExtensionPointer( "glUseProgram" );
+		qglValidateProgram = (void (APIENTRY *)(GLuint programObj))GLimp_ExtensionPointer( "glValidateProgram" );
+		qglUniform1f = (void (APIENTRY *)(GLint location, GLfloat v0))GLimp_ExtensionPointer( "glUniform1f" );
+		qglUniform2f = (void (APIENTRY *)(GLint location, GLfloat v0, GLfloat v1))GLimp_ExtensionPointer( "glUniform2f" );
+		qglUniform3f = (void (APIENTRY *)(GLint location, GLfloat v0, GLfloat v1, GLfloat v2))GLimp_ExtensionPointer( "glUniform3f" );
+		qglUniform4f = (void (APIENTRY *)(GLint location, GLfloat v0, GLfloat v1, GLfloat v2, GLfloat v3))GLimp_ExtensionPointer( "glUniform4f" );
+		qglUniform1i = (void (APIENTRY *)(GLint location, GLint v0))GLimp_ExtensionPointer( "glUniform1i" );
+		qglUniform2i = (void (APIENTRY *)(GLint location, GLint v0, GLint v1))GLimp_ExtensionPointer( "glUniform2i" );
+		qglUniform3i = (void (APIENTRY *)(GLint location, GLint v0, GLint v1, GLint v2))GLimp_ExtensionPointer( "glUniform3i" );
+		qglUniform4i = (void (APIENTRY *)(GLint location, GLint v0, GLint v1, GLint v2, GLint v3))GLimp_ExtensionPointer( "glUniform4i" );
+		qglUniform2fv = (void (APIENTRY *)(GLint location, GLsizei count, const GLfloat *value))GLimp_ExtensionPointer( "glUniform2fv" );
+		qglUniform3fv = (void (APIENTRY *)(GLint location, GLsizei count, const GLfloat *value))GLimp_ExtensionPointer( "glUniform3fv" );
+		qglUniform4fv = (void (APIENTRY *)(GLint location, GLsizei count, const GLfloat *value))GLimp_ExtensionPointer( "glUniform4fv" );
+		qglUniform2iv = (void (APIENTRY *)(GLint location, GLsizei count, const GLint *value))GLimp_ExtensionPointer( "glUniform2iv" );
+		qglUniform3iv = (void (APIENTRY *)(GLint location, GLsizei count, const GLint *value))GLimp_ExtensionPointer( "glUniform3iv" );
+		qglUniform4iv = (void (APIENTRY *)(GLint location, GLsizei count, const GLint *value))GLimp_ExtensionPointer( "glUniform4iv" );
+		qglUniformMatrix2fv = (void (APIENTRY *)(GLint location, GLsizei count, GLboolean transpose, const GLfloat *value))GLimp_ExtensionPointer( "glUniformMatrix2fv" );
+		qglUniformMatrix3fv = (void (APIENTRY *)(GLint location, GLsizei count, GLboolean transpose, const GLfloat *value))GLimp_ExtensionPointer( "glUniformMatrix3fv" );
+		qglUniformMatrix4fv = (void (APIENTRY *)(GLint location, GLsizei count, GLboolean transpose, const GLfloat *value))GLimp_ExtensionPointer( "glUniformMatrix4fv" );
+		qglGetShaderiv = (void (APIENTRY *)(GLuint obj, GLenum pname, GLint *params))GLimp_ExtensionPointer( "glGetShaderiv" );
+		qglGetProgramiv = (void (APIENTRY *)(GLuint obj, GLenum pname, GLint *params))GLimp_ExtensionPointer( "glGetProgramiv" );
+		qglGetShaderInfoLog = (void (APIENTRY *)(GLuint obj, GLsizei maxLength, GLsizei *length, GLchar *infoLog))GLimp_ExtensionPointer( "glGetShaderInfoLog" );
+		qglGetProgramInfoLog = (void (APIENTRY *)(GLuint obj, GLsizei maxLength, GLsizei *length, GLchar *infoLog))GLimp_ExtensionPointer( "glGetProgramInfoLog" );
+		qglGetAttachedShaders = (void (APIENTRY *)(GLuint containerObj, GLsizei maxCount, GLsizei *count, GLuint *obj))GLimp_ExtensionPointer( "glGetAttachedShaders" );
+		qglGetUniformLocation = (GLint (APIENTRY *)(GLuint programObj, const GLchar *name))GLimp_ExtensionPointer( "glGetUniformLocation" );
+		qglGetActiveUniform = (void (APIENTRY *)(GLuint programObj, GLuint index, GLsizei maxLength, GLsizei *length, GLint *size, GLenum *type, GLchar *name))GLimp_ExtensionPointer( "glGetActiveUniform" );
+		qglGetUniformfv = (void (APIENTRY *)(GLuint programObj, GLint location, GLfloat *params))GLimp_ExtensionPointer( "glGetUniformfv" );
+		qglGetUniformiv = (void (APIENTRY *)(GLuint programObj, GLint location, GLint *params))GLimp_ExtensionPointer( "glGetUniformiv" );
+		qglGetShaderSource = (void (APIENTRY *)(GLuint obj, GLsizei maxLength, GLsizei *length, GLchar *source))GLimp_ExtensionPointer( "glGetShaderSource" );
  	}
 
 }
@@ -775,9 +774,10 @@ void R_InitOpenGL( void ) {
 	R_ARB2_Init();
 	R_GLSL_Init();
 
-    cmdSystem->AddCommand( "reloadGLSLshaders", R_ReloadGLSLShaders_f, CMD_FL_RENDERER, "reloads GLSL shader programs" );
+    cmdSystem->AddCommand( "reloadGLSLprograms", R_ReloadGLSLPrograms_f, CMD_FL_RENDERER, "reloads GLSL shader programs" );
 	cmdSystem->AddCommand( "reloadARBprograms", R_ReloadARBPrograms_f, CMD_FL_RENDERER, "reloads ARB programs" );
 	R_ReloadARBPrograms_f( idCmdArgs() );
+    R_ReloadGLSLPrograms_f( idCmdArgs() );
 
 	// allocate the vertex array range or vertex objects
 	vertexCache.Init();

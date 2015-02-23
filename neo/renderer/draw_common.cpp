@@ -1051,17 +1051,18 @@ static void RB_T_Shadow( const drawSurf_t *surf ) {
 	const srfTriangles_t	*tri;
 
 	// set the light position if we are using a vertex program to project the rear surfaces
-	if ( tr.backEndRendererHasVertexPrograms && r_useShadowVertexProgram.GetBool()
-		&& surf->space != backEnd.currentSpace ) {
+	if ( tr.backEndRendererHasVertexPrograms && r_useShadowVertexProgram.GetBool() && surf->space != backEnd.currentSpace ) {
 		idVec4 localLight;
-
+        stencilShadowParms_t *parms;
+        parms = &backEnd.stencilShadowParms;
+        
 		R_GlobalPointToLocal( surf->space->modelMatrix, backEnd.vLight->globalLightOrigin, localLight.ToVec3() );
 		localLight.w = 0.0f;
 
 		if ( tr.backEndRenderer == BE_ARB2 ) {
-		qglProgramEnvParameter4fvARB( GL_VERTEX_PROGRAM_ARB, PP_LIGHT_ORIGIN, localLight.ToFloatPtr() );
+            qglProgramEnvParameter4fvARB( GL_VERTEX_PROGRAM_ARB, PP_LIGHT_ORIGIN, localLight.ToFloatPtr() );
 		} else if ( tr.backEndRenderer == BE_GLSL ) {
-			qglUniform4fvARB( stencilShadowShader.localLightOrigin, 1, localLight.ToFloatPtr() );
+            R_UniformVector4( parms->localLightOrigin, localLight );
 		}
 	}
 
@@ -1201,6 +1202,10 @@ void RB_StencilShadowPass( const drawSurf_t *drawSurfs ) {
 	}
 
 	RB_LogComment( "---------- RB_StencilShadowPass ----------\n" );
+    
+    if ( tr.backEndRenderer == BE_GLSL && r_useShadowVertexProgram.GetBool() ) {
+        qglUseProgram( tr.stencilShadowProgram->program );
+    }
 
 	globalImages->BindNull();
 	qglDisableClientState( GL_TEXTURE_COORD_ARRAY );
@@ -1246,6 +1251,10 @@ void RB_StencilShadowPass( const drawSurf_t *drawSurfs ) {
 
 	qglStencilFunc( GL_GEQUAL, 128, 255 );
 	qglStencilOp( GL_KEEP, GL_KEEP, GL_KEEP );
+    
+    if ( tr.backEndRenderer == BE_GLSL && r_useShadowVertexProgram.GetBool() ) {
+        qglUseProgram( NULL );
+    }
 }
 
 

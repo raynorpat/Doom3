@@ -561,9 +561,121 @@ bool R_GlobalShaderOverride( const idMaterial **shader );
 // this does various checks before calling the idDeclSkin
 const idMaterial *R_RemapShaderBySkin( const idMaterial *shader, const idDeclSkin *customSkin, const idMaterial *customShader );
 
-
 //====================================================
 
+typedef enum {
+    VA_NORMAL				= BIT(0),
+    VA_TANGENT				= BIT(1),
+    VA_BITANGENT			= BIT(2),
+    VA_TEXCOORD				= BIT(3),
+    VA_COLOR				= BIT(4),
+} vertexAttrib_t;
+
+#define MAX_SHADERS							512
+
+typedef struct shader_s {
+    char					name[MAX_OSPATH];
+    bool					compiled;
+    
+    GLenum                  type;
+    int						references;
+    
+    unsigned int			shaderId;
+    
+    struct shader_s *		nextHash;
+} shader_t;
+
+#define MAX_PROGRAMS						256
+#define MAX_PROGRAM_UNIFORMS				64
+
+#define MAX_UNIFORM_NAME_LENGTH				64
+
+typedef enum {
+    UT_CLIP_PLANE,
+    UT_VIEW_ORIGIN,
+    UT_VIEW_AXIS,
+    UT_ENTITY_ORIGIN,
+    UT_ENTITY_AXIS,
+    UT_SUN_ORIGIN,
+    UT_SUN_DIRECTION,
+    UT_SUN_COLOR,
+    UT_SCREEN_MATRIX,
+    UT_COORD_SCALE_AND_BIAS,
+    UT_COLOR_SCALE_AND_BIAS,
+    UT_CUSTOM
+} uniformType_t;
+
+typedef struct {
+    char					name[MAX_UNIFORM_NAME_LENGTH];
+    
+    uniformType_t			type;
+    int						size;
+    unsigned int			format;
+    int						location;
+    
+    int						unit;
+    
+    float					values[4];
+} uniform_t;
+
+typedef struct shaderProgram_s
+{
+    char                    name[MAX_OSPATH];
+    bool                    linked;
+    
+    unsigned int            program;					// program = vertex + fragment shader
+    
+    shader_t                *vertexShader;
+    shader_t                *fragmentShader;
+    
+    int                     vertexAttribs;
+    
+    int                     numUniforms;
+    uniform_t               *uniforms;
+} shaderProgram_t;
+
+typedef struct {
+    uniform_t *				localLightOrigin;
+} stencilShadowParms_t;
+
+typedef struct {
+    uniform_t *				modelMatrix;
+    uniform_t *				localLightOrigin;
+    uniform_t *				localViewOrigin;
+    uniform_t *				lightProjectionS;
+    uniform_t *				lightProjectionT;
+    uniform_t *				lightProjectionQ;
+    uniform_t *				lightFalloff;
+    uniform_t *				bumpMatrixS;
+    uniform_t *				bumpMatrixT;
+    uniform_t *				diffuseMatrixS;
+    uniform_t *				diffuseMatrixT;
+    uniform_t *				specularMatrixS;
+    uniform_t *				specularMatrixT;
+    uniform_t *				colorModulate;
+    uniform_t *				colorAdd;
+    uniform_t *				diffuseColor;
+    uniform_t *				specularColor;
+} interactionParms_t;
+
+typedef struct {
+    uniform_t *				modelMatrix;
+    uniform_t *				localLightOrigin;
+    uniform_t *				localViewOrigin;
+    uniform_t *				lightProjectionS;
+    uniform_t *				lightProjectionT;
+    uniform_t *				lightProjectionQ;
+    uniform_t *				lightFalloff;
+    uniform_t *				bumpMatrixS;
+    uniform_t *				bumpMatrixT;
+    uniform_t *				diffuseMatrixS;
+    uniform_t *				diffuseMatrixT;
+    uniform_t *				colorModulate;
+    uniform_t *				colorAdd;
+    uniform_t *				diffuseColor;
+} interactionAmbientParms_t;
+
+//====================================================
 
 /*
 ** performanceCounters_t
@@ -603,6 +715,8 @@ const int MAX_MULTITEXTURE_UNITS =	8;
 typedef struct {
 	tmu_t		tmu[MAX_MULTITEXTURE_UNITS];
 	int			currenttmu;
+    
+    GLhandleARB program;
 
 	int			faceCulling;
 	int			glStateBits;
@@ -661,6 +775,11 @@ typedef struct {
 
 	// our OpenGL state deltas
 	glstate_t			glState;
+    
+    // GLSL shader program uniforms
+    stencilShadowParms_t stencilShadowParms;
+    interactionParms_t  interactionParms;
+    interactionAmbientParms_t interactionAmbientParms;
 
 	int					c_copyFrameBuffer;
 } backEndState_t;
@@ -797,6 +916,11 @@ public:
 
 	renderCrop_t			renderCrops[MAX_RENDER_CROPS];
 	int						currentRenderCrop;
+    
+    // GLSL shader programs
+    shaderProgram_t *		stencilShadowProgram;
+    shaderProgram_t *		interactionProgram;
+    shaderProgram_t *		interactionAmbientProgram;
 
 	// GUI drawing variables for surface creation
 	int						guiRecursionLevel;		// to prevent infinite overruns
@@ -993,6 +1117,7 @@ GL wrapper/helper functions
 ====================================================================
 */
 
+void    GL_BindProgram( shaderProgram_t *program );
 void	GL_SelectTexture( int unit );
 void	GL_CheckErrors( void );
 void	GL_ClearStateDelta( void );
@@ -1043,6 +1168,13 @@ const int GLS_ATEST_GE_128						= 0x40000000;
 const int GLS_ATEST_BITS						= 0x70000000;
 
 const int GLS_DEFAULT							= GLS_DEPTHFUNC_ALWAYS;
+
+enum {
+    GLVA_TEXCOORD = 8,
+    GLVA_TANGENT,
+    GLVA_BITANGENT,
+    GLVA_NORMAL
+};
 
 void R_Init( void );
 void R_InitOpenGL( void );
@@ -1310,8 +1442,44 @@ void	R_ReloadARBPrograms_f( const idCmdArgs &args );
 int		R_FindARBProgram( GLenum target, const char *program );
 
 void	R_GLSL_Init( void );
-void	R_ReloadGLSLShaders_f( const idCmdArgs &args );
 void	RB_GLSL_DrawInteractions( void );
+
+void	R_ReloadGLSLPrograms_f( const idCmdArgs &args );
+
+void    R_InitShaders (void);
+void    R_ShutdownShaders (void);
+shader_t *R_FindShader ( const char *name, GLenum type );
+
+void    R_InitPrograms (void);
+void    R_ShutdownPrograms (void);
+shaderProgram_t *R_FindProgram ( const char *name, shader_t *vertexShader, shader_t *fragmentShader );
+
+uniform_t *R_GetProgramUniform (shaderProgram_t *program, const char *name);
+uniform_t *R_GetProgramUniformExplicit (shaderProgram_t *program, const char *name, int size, uint format);
+
+void	R_SetProgramSampler (shaderProgram_t *program, uniform_t *uniform, int unit);
+void	R_SetProgramSamplerExplicit (shaderProgram_t *program, const char *name, int size, uint format, int unit);
+
+void	R_UniformFloat (uniform_t *uniform, float v0);
+void	R_UniformFloat2 (uniform_t *uniform, float v0, float v1);
+void	R_UniformFloat3 (uniform_t *uniform, float v0, float v1, float v2);
+void	R_UniformFloat4 (uniform_t *uniform, float v0, float v1, float v2, float v3);
+void	R_UniformFloatArray (uniform_t *uniform, int count, const float *v);
+
+void	R_UniformVector2 (uniform_t *uniform, const idVec2 &v);
+void	R_UniformVector2Array (uniform_t *uniform, int count, const idVec2 *v);
+
+void	R_UniformVector3 (uniform_t *uniform, const idVec3 &v);
+void	R_UniformVector3Array (uniform_t *uniform, int count, const idVec3 *v);
+
+void	R_UniformVector4 (uniform_t *uniform, const idVec4 &v);
+void	R_UniformVector4Array (uniform_t *uniform, int count, const idVec4 *v);
+
+void	R_UniformMatrix3 (uniform_t *uniform, const idMat3 &m);
+void	R_UniformMatrix3Array (uniform_t *uniform, int count, const idMat3 *m);
+
+void	R_UniformMatrix4 (uniform_t *uniform, const idMat4 &m);
+void	R_UniformMatrix4Array (uniform_t *uniform, int count, const idMat4 *m);
 
 typedef enum {
 	PROG_INVALID,
@@ -1335,48 +1503,6 @@ typedef enum {
 	FPROG_GLASSWARP,
 	PROG_USER
 } program_t;
-
-typedef struct shaderProgram_s
-{
-	GLhandleARB     program;					// program = vertex + fragment shader
-
-	GLhandleARB     vertexShader;
-	GLhandleARB     fragmentShader;
-
-	// uniform parameters
-	GLint			u_normalTexture;
-	GLint			u_lightFalloffTexture;
-	GLint			u_lightProjectionTexture;
-	GLint			u_diffuseTexture;
-	GLint			u_specularTexture;
-
-	GLint			modelMatrix;
-
-	GLint			localLightOrigin;
-	GLint			localViewOrigin;
-
-	GLint			lightProjectionS;
-	GLint			lightProjectionT;
-	GLint			lightProjectionQ;
-	GLint			lightFalloff;
-
-	GLint			bumpMatrixS;
-	GLint			bumpMatrixT;
-	GLint			diffuseMatrixS;
-	GLint			diffuseMatrixT;
-	GLint			specularMatrixS;
-	GLint			specularMatrixT;
-
-	GLint			colorModulate;
-	GLint			colorAdd;
-
-	GLint			diffuseColor;
-	GLint			specularColor;
-} shaderProgram_t;
-
-extern shaderProgram_t  interactionShader;
-extern shaderProgram_t  ambientInteractionShader;
-extern shaderProgram_t	stencilShadowShader;
 
 /*
 
