@@ -816,5 +816,3 @@ void R_UniformMatrix4Array (uniform_t *uniform, int count, const idMat4 *m){
     
     qglUniformMatrix4fv(uniform->location, count, GL_TRUE, m->ToFloatPtr());
 }
-
-// ============================================================================

@@ -874,13 +874,15 @@ if there are three values, 4 = 1.0
 void idMaterial::ParseVertexParm( idLexer &src, newShaderStage_t *newStage ) {
 	idToken				token;
 
+#if 0
 	src.ReadTokenOnLine( &token );
 	int	parm = token.GetIntValue();
-	if ( !token.IsNumeric() || parm < 0 || parm >= MAX_VERTEX_PARMS ) {
+	if ( !token.IsNumeric() || parm < 0 || parm >= MAX_SHADER_PARMS ) {
 		common->Warning( "bad vertexParm number\n" );
 		SetMaterialFlag( MF_DEFAULTED );
 		return;
 	}
+ 
 	if ( parm >= newStage->numVertexParms ) {
 		newStage->numVertexParms = parm+1;
 	}
@@ -913,6 +915,35 @@ void idMaterial::ParseVertexParm( idLexer &src, newShaderStage_t *newStage ) {
 	}
 
 	newStage->vertexParms[parm][3] = ParseExpression( src );
+#else
+    shaderParm_t    *shaderParm;
+    int             i, parms;
+    
+    shaderParm = &newStage->shaderParms[newStage->numShaderParms++];
+    
+    src.ReadTokenOnLine( &token );
+    shaderParm->uniform = R_GetProgramUniform( newStage->program, token.c_str() );
+    
+    if (shaderParm->uniform->format == GL_FLOAT)
+        parms = 1;
+    else if (shaderParm->uniform->format == GL_FLOAT_VEC2)
+        parms = 2;
+    else if (shaderParm->uniform->format == GL_FLOAT_VEC3)
+        parms = 3;
+    else if (shaderParm->uniform->format == GL_FLOAT_VEC4)
+        parms = 4;
+    
+    for (i = 0; i < parms; i++){
+        shaderParm->registers[i] = ParseExpression( src );
+        
+        if (i < parms - 1){
+            src.ReadTokenOnLine( &token );
+            if (!!token[0] || token.Icmp( "," )) {
+                return;
+            }
+        }
+    }
+#endif
 }
 
 
@@ -952,6 +983,11 @@ void idMaterial::ParseFragmentMap( idLexer &src, newShaderStage_t *newStage ) {
 	if ( unit >= newStage->numFragmentProgramImages ) {
 		newStage->numFragmentProgramImages = unit+1;
 	}
+    shaderMap_t *shaderMap;
+    shaderMap = &newStage->shaderMaps[newStage->numFragmentProgramImages++];
+    
+    shaderMap->uniform = R_GetProgramUniform( newStage->program, token.c_str() );
+    R_SetProgramSampler( newStage->program, shaderMap->uniform, newStage->numFragmentProgramImages - 1 );
 
 	while( 1 ) {
 		src.ReadTokenOnLine( &token );
@@ -1487,6 +1523,7 @@ void idMaterial::ParseStage( idLexer &src, const textureRepeat_t trpDefault ) {
 			ss->conditionRegister = ParseExpression( src );
 			continue;
 		}
+#if 0
 		if ( !token.Icmp( "program" ) ) {
 			if ( src.ReadTokenOnLine( &token ) ) {
 				newStage.vertexProgram = R_FindARBProgram( GL_VERTEX_PROGRAM_ARB, token.c_str() );
@@ -1519,12 +1556,52 @@ void idMaterial::ParseStage( idLexer &src, const textureRepeat_t trpDefault ) {
 				continue;
 			}
 		}
-
-
-		if ( !token.Icmp( "vertexParm" ) ) {
-			ParseVertexParm( src, &newStage );
-			continue;
-		}
+        
+        if ( !token.Icmp( "vertexParm" ) ) {
+            ParseVertexParm( src, &newStage );
+            continue;
+        }
+#else
+        if ( !token.Icmp( "shaderProgram" ) ) {
+            if ( src.ReadTokenOnLine( &token ) ) {
+                newStage.vertexShader = R_FindShader( token.c_str(), GL_VERTEX_SHADER );
+                newStage.fragmentShader = R_FindShader( token.c_str(), GL_FRAGMENT_SHADER );
+                newStage.program = R_FindProgram( token.c_str(), newStage.vertexShader, newStage.fragmentShader);
+            }
+            continue;
+        }
+        if ( !token.Icmp( "fragmentShader" ) ) {
+            if ( src.ReadTokenOnLine( &token ) ) {
+                newStage.fragmentShader = R_FindShader( token.c_str(), GL_FRAGMENT_SHADER );
+                
+                if (newStage.vertexShader) {
+                    if (!token.Icmp(newStage.vertexShader->name))
+                        newStage.program = R_FindProgram(NULL, newStage.vertexShader, newStage.fragmentShader);
+                    else
+                        newStage.program = R_FindProgram(token.c_str(), newStage.vertexShader, newStage.fragmentShader);
+                }
+            }
+            continue;
+        }
+        if ( !token.Icmp( "vertexShader" ) ) {
+            if ( src.ReadTokenOnLine( &token ) ) {
+                newStage.vertexShader = R_FindShader( token.c_str(), GL_VERTEX_SHADER );
+                
+                if (newStage.fragmentShader){
+                    if (!token.Icmp(newStage.fragmentShader->name))
+                        newStage.program = R_FindProgram(NULL, newStage.vertexShader, newStage.fragmentShader);
+                    else
+                        newStage.program = R_FindProgram(token.c_str(), newStage.vertexShader, newStage.fragmentShader);
+                }
+            }
+            continue;
+        }
+        
+        if ( !token.Icmp( "shaderParm" ) ) {
+            ParseVertexParm( src, &newStage );
+            continue;
+        }
+#endif
 
 		if (  !token.Icmp( "fragmentMap" ) ) {	
 			ParseFragmentMap( src, &newStage );
@@ -1539,7 +1616,7 @@ void idMaterial::ParseStage( idLexer &src, const textureRepeat_t trpDefault ) {
 
 
 	// if we are using newStage, allocate a copy of it
-	if ( newStage.fragmentProgram || newStage.vertexProgram ) {
+	if ( newStage.program ) {
 		ss->newStage = (newShaderStage_t *)Mem_Alloc( sizeof( newStage ) );
 		*(ss->newStage) = newStage;
 	}

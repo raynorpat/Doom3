@@ -783,12 +783,16 @@ void RB_STD_T_RenderShaderPasses( const drawSurf_t *surf ) {
 			//--------------------------
 
 			// completely skip the stage if we don't have the capability
-			if ( tr.backEndRenderer != BE_ARB2 ) {
+			if ( tr.backEndRenderer != BE_GLSL ) {
 				continue;
 			}
-			if ( r_skipNewAmbient.GetBool() ) {
+			if ( r_skipNewShaderStage.GetBool() ) {
 				continue;
 			}
+            
+            uniform_t		*uniform;
+            shaderParm_t	*shaderParm;
+            
 			qglColorPointer( 4, GL_UNSIGNED_BYTE, sizeof( idDrawVert ), (void *)&ac->color );
 			qglVertexAttribPointerARB( 9, 3, GL_FLOAT, false, sizeof( idDrawVert ), ac->tangents[0].ToFloatPtr() );
 			qglVertexAttribPointerARB( 10, 3, GL_FLOAT, false, sizeof( idDrawVert ), ac->tangents[1].ToFloatPtr() );
@@ -801,9 +805,57 @@ void RB_STD_T_RenderShaderPasses( const drawSurf_t *surf ) {
 
 			GL_State( pStage->drawStateBits );
 			
-			qglBindProgramARB( GL_VERTEX_PROGRAM_ARB, newStage->vertexProgram );
-			qglEnable( GL_VERTEX_PROGRAM_ARB );
+            GL_BindProgram( newStage->program );
 
+            // Set up the predefined uniforms
+            for (int i = 0; i < newStage->program->numUniforms; i++, uniform++) {
+                uniform = newStage->program->uniforms;
+                
+                if (uniform->type == UT_CUSTOM)
+                    continue;
+                /*
+                switch (uniform->type) {
+                    case UT_CLIP_PLANE:
+                        R_UniformVector4(uniform, backEnd.localParms.clipPlane);
+                        break;
+                    case UT_VIEW_ORIGIN:
+                        R_UniformVector3(uniform, backEnd.localParms.viewOrigin);
+                        break;
+                    case UT_VIEW_AXIS:
+                        R_UniformMatrix3(uniform, backEnd.localParms.viewAxis);
+                        break;
+                    case UT_ENTITY_ORIGIN:
+                        R_UniformVector3(uniform, backEnd.entity->e.origin);
+                        break;
+                    case UT_ENTITY_AXIS:
+                        R_UniformMatrix3(uniform, backEnd.entity->e.axis);
+                        break;
+                    case UT_SUN_ORIGIN:
+                        // TODO: just random values for testing (actually get from def)
+                        R_UniformFloat3(uniform, 99614720.0f, -225443840.0f, 188743680.0f);
+                        break;
+                    case UT_SUN_DIRECTION:
+                        // TODO: just random values for testing (actually get from def)
+                        R_UniformFloat3(uniform, 0.3208836f, 0.7262104f, -0.6079901f);
+                        break;
+                    case UT_SUN_COLOR:
+                        // TODO: just random values for testing (actually get from def)
+                        R_UniformFloat3(uniform, 0.988f * r_lightScale->floatValue, 0.839f * r_lightScale->floatValue, 0.580f * r_lightScale->floatValue);
+                        break;
+                    case UT_SCREEN_MATRIX:
+                        R_UniformMatrix4(uniform, backEnd.viewParms.projectionMatrix * backEnd.localParms.viewMatrix);
+                        break;
+                    case UT_COORD_SCALE_AND_BIAS:
+                        R_UniformFloat4(uniform, backEnd.coordScale[0], backEnd.coordScale[1], backEnd.coordBias[0], backEnd.coordBias[1]);
+                        break;
+                    case UT_COLOR_SCALE_AND_BIAS:
+                        R_UniformVector2(uniform, shaderStage->colorScaleAndBias);
+                        break;
+                }
+                 */
+            }
+            
+#if 0
 			// megaTextures bind a lot of images and set a lot of parameters
 			if ( newStage->megaTexture ) {
 				newStage->megaTexture->SetMappingForSurface( tri );
@@ -811,44 +863,56 @@ void RB_STD_T_RenderShaderPasses( const drawSurf_t *surf ) {
 				R_GlobalPointToLocal( surf->space->modelMatrix, backEnd.viewDef->renderView.vieworg, localViewer );
 				newStage->megaTexture->BindForViewOrigin( localViewer );
 			}
+#endif
 
-			for ( int i = 0 ; i < newStage->numVertexParms ; i++ ) {
-				float	parm[4];
-				parm[0] = regs[ newStage->vertexParms[i][0] ];
-				parm[1] = regs[ newStage->vertexParms[i][1] ];
-				parm[2] = regs[ newStage->vertexParms[i][2] ];
-				parm[3] = regs[ newStage->vertexParms[i][3] ];
-				qglProgramLocalParameter4fvARB( GL_VERTEX_PROGRAM_ARB, i, parm );
-			}
+            // set shader program parameters
+            for (int i = 0; i < newStage->numShaderParms; i++, shaderParm++){
+                shaderParm = newStage->shaderParms;
+                
+                switch (shaderParm->uniform->format){
+                    case GL_FLOAT:
+                        R_UniformFloat(shaderParm->uniform, regs[shaderParm->registers[0]]);
+                        break;
+                    case GL_FLOAT_VEC2:
+                        R_UniformFloat2(shaderParm->uniform, regs[shaderParm->registers[0]], regs[shaderParm->registers[1]]);
+                        break;
+                    case GL_FLOAT_VEC3:
+                        R_UniformFloat3(shaderParm->uniform, regs[shaderParm->registers[0]], regs[shaderParm->registers[1]], regs[shaderParm->registers[2]]);
+                        break;
+                    case GL_FLOAT_VEC4:
+                        R_UniformFloat4(shaderParm->uniform, regs[shaderParm->registers[0]], regs[shaderParm->registers[1]], regs[shaderParm->registers[2]], regs[shaderParm->registers[3]]);
+                        break;
+                }
+            }
 
+            // bind images
 			for ( int i = 0 ; i < newStage->numFragmentProgramImages ; i++ ) {
 				if ( newStage->fragmentProgramImages[i] ) {
 					GL_SelectTexture( i );
 					newStage->fragmentProgramImages[i]->Bind();
 				}
 			}
-			qglBindProgramARB( GL_FRAGMENT_PROGRAM_ARB, newStage->fragmentProgram );
-			qglEnable( GL_FRAGMENT_PROGRAM_ARB );
 
 			// draw it
 			RB_DrawElementsWithCounters( tri );
 
+            // reset state
 			for ( int i = 1 ; i < newStage->numFragmentProgramImages ; i++ ) {
 				if ( newStage->fragmentProgramImages[i] ) {
 					GL_SelectTexture( i );
 					globalImages->BindNull();
 				}
 			}
+
+#if 0
 			if ( newStage->megaTexture ) {
 				newStage->megaTexture->Unbind();
 			}
+#endif
 
 			GL_SelectTexture( 0 );
 
-			qglDisable( GL_VERTEX_PROGRAM_ARB );
-			qglDisable( GL_FRAGMENT_PROGRAM_ARB );
-			// Fixme: Hack to get around an apparent bug in ATI drivers.  Should remove as soon as it gets fixed.
-			qglBindProgramARB( GL_VERTEX_PROGRAM_ARB, 0 );
+            GL_BindProgram( 0 );
 
 			qglDisableClientState( GL_COLOR_ARRAY );
 			qglDisableVertexAttribArrayARB( 9 );
