@@ -62,19 +62,27 @@ static void RB_GLSL_ForwardDrawInteraction( const drawInteraction_t *din ) {
     interactionParms_t *parms;
     
     // Set up the program uniforms
-    parms = &backEnd.interactionParms;
+    if ( din->surf->material->IsAmbientLight() ) {
+        parms = &backEnd.interactionAmbientParms;
+    } else {
+        parms = &backEnd.interactionParms;
+    }
     
     // set matrices
     R_UniformVector4( parms->bumpMatrixS, din->bumpMatrix[0] );
     R_UniformVector4( parms->bumpMatrixT, din->bumpMatrix[1] );
     R_UniformVector4( parms->diffuseMatrixS, din->diffuseMatrix[0] );
     R_UniformVector4( parms->diffuseMatrixT, din->diffuseMatrix[1] );
-    R_UniformVector4( parms->specularMatrixS, din->specularMatrix[0] );
-    R_UniformVector4( parms->specularMatrixT, din->specularMatrix[1] );
+    if ( !din->surf->material->IsAmbientLight() ) {
+        R_UniformVector4( parms->specularMatrixS, din->specularMatrix[0] );
+        R_UniformVector4( parms->specularMatrixT, din->specularMatrix[1] );
+    }
 
     // set the light parameters
     R_UniformVector4( parms->localLightOrigin, din->localLightOrigin );
-    R_UniformVector4( parms->localViewOrigin, din->localViewOrigin );
+    if ( !din->surf->material->IsAmbientLight() ) {
+        R_UniformVector4( parms->localViewOrigin, din->localViewOrigin );
+    }
     
     R_UniformVector4( parms->lightProjectionS, din->lightProjection[0] );
     R_UniformVector4( parms->lightProjectionT, din->lightProjection[1] );
@@ -99,7 +107,9 @@ static void RB_GLSL_ForwardDrawInteraction( const drawInteraction_t *din ) {
 	
 	// set the color modifiers
     R_UniformVector4( parms->diffuseColor, din->diffuseColor );
-    R_UniformVector4( parms->specularColor, din->specularColor );
+    if ( !din->surf->material->IsAmbientLight() ) {
+        R_UniformVector4( parms->specularColor, din->specularColor );
+    }
 
 	// set the textures
 
@@ -119,9 +129,11 @@ static void RB_GLSL_ForwardDrawInteraction( const drawInteraction_t *din ) {
 	GL_SelectTextureNoClient( 3 );
 	din->diffuseImage->Bind();
 
-	// texture 4 is the per-surface specular map
-	GL_SelectTextureNoClient( 4 );
-	din->specularImage->Bind();
+    if ( !din->surf->material->IsAmbientLight() ) {
+        // texture 4 is the per-surface specular map
+        GL_SelectTextureNoClient( 4 );
+        din->specularImage->Bind();
+    }
 
 	// draw it
 	RB_DrawElementsWithCounters( din->surf->geo );
@@ -141,8 +153,12 @@ static void RB_GLSL_CreateForwardDrawInteractions( const drawSurf_t *surf ) {
 	// perform setup here that will be constant for all interactions
 	GL_State( GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHMASK | backEnd.depthFunc );
 
-	// bind the shader program
-	GL_BindProgram( tr.interactionProgram );
+	// bind the interaction program
+    if ( surf->material->IsAmbientLight() ) {
+        GL_BindProgram( tr.interactionAmbientProgram );
+    } else {
+        GL_BindProgram( tr.interactionProgram );
+    }
 
 	// enable the vertex arrays
 	qglEnableVertexAttribArrayARB( 8 );

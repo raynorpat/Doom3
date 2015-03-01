@@ -655,22 +655,6 @@ typedef struct {
 } interactionParms_t;
 
 typedef struct {
-    uniform_t *				localLightOrigin;
-    uniform_t *				localViewOrigin;
-    uniform_t *				lightProjectionS;
-    uniform_t *				lightProjectionT;
-    uniform_t *				lightProjectionQ;
-    uniform_t *				lightFalloff;
-    uniform_t *				bumpMatrixS;
-    uniform_t *				bumpMatrixT;
-    uniform_t *				diffuseMatrixS;
-    uniform_t *				diffuseMatrixT;
-    uniform_t *				colorModulate;
-    uniform_t *				colorAdd;
-    uniform_t *				diffuseColor;
-} interactionAmbientParms_t;
-
-typedef struct {
     uniform_t *				localViewOrigin;
 } cubeParms_t;
 
@@ -778,7 +762,7 @@ typedef struct {
     // GLSL shader program uniforms
     stencilShadowParms_t stencilShadowParms;
     interactionParms_t  interactionParms;
-    interactionAmbientParms_t interactionAmbientParms;
+    interactionParms_t interactionAmbientParms;
     cubeParms_t cubeNormalReflectParms;
     cubeParms_t cubeReflectParms;
 
