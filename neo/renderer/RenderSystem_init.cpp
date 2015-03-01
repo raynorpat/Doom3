@@ -1978,7 +1978,6 @@ void idRenderSystemLocal::Clear( void ) {
 	tiledViewport[0] = 0;
 	tiledViewport[1] = 0;
 	backEndRendererMaxLight = 999;
-	ambientLightVector.Zero();
 	sortOffset = 0;
 	worlds.Clear();
 	primaryWorld = NULL;
@@ -2016,12 +2015,6 @@ void idRenderSystemLocal::Init( void ) {
 	viewCount = 1;		// so cleared structures never match viewCount
 	// we used to memset tr, but now that it is a class, we can't, so
 	// there may be other state we need to reset
-
-	ambientLightVector[0] = 0.5f;
-	ambientLightVector[1] = 0.5f - 0.385f;
-	ambientLightVector[2] = 0.8925f;
-	ambientLightVector[3] = 1.0f;
-
 	memset( &backEnd, 0, sizeof( backEnd ) );
 
 	R_InitCvars();

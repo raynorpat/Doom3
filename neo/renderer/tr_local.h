@@ -636,7 +636,6 @@ typedef struct {
 } stencilShadowParms_t;
 
 typedef struct {
-    uniform_t *				modelMatrix;
     uniform_t *				localLightOrigin;
     uniform_t *				localViewOrigin;
     uniform_t *				lightProjectionS;
@@ -656,7 +655,6 @@ typedef struct {
 } interactionParms_t;
 
 typedef struct {
-    uniform_t *				modelMatrix;
     uniform_t *				localLightOrigin;
     uniform_t *				localViewOrigin;
     uniform_t *				lightProjectionS;
@@ -671,6 +669,10 @@ typedef struct {
     uniform_t *				colorAdd;
     uniform_t *				diffuseColor;
 } interactionAmbientParms_t;
+
+typedef struct {
+    uniform_t *				localViewOrigin;
+} cubeParms_t;
 
 //====================================================
 
@@ -777,6 +779,8 @@ typedef struct {
     stencilShadowParms_t stencilShadowParms;
     interactionParms_t  interactionParms;
     interactionAmbientParms_t interactionAmbientParms;
+    cubeParms_t cubeNormalReflectParms;
+    cubeParms_t cubeReflectParms;
 
 	int					c_copyFrameBuffer;
 } backEndState_t;
@@ -868,8 +872,6 @@ public:
 														// determines how much overbrighting needs
 														// to be done post-process
 
-	idVec4					ambientLightVector;	// used for "ambient bump mapping"
-
 	float					sortOffset;				// for determinist sorting of equal sort materials
 
 	idList<idRenderWorldLocal*>worlds;
@@ -904,6 +906,8 @@ public:
     shaderProgram_t *		stencilShadowProgram;
     shaderProgram_t *		interactionProgram;
     shaderProgram_t *		interactionAmbientProgram;
+    shaderProgram_t *		cubeNormalReflectProgram;
+    shaderProgram_t *		cubeReflectProgram;
 
 	// GUI drawing variables for surface creation
 	int						guiRecursionLevel;		// to prevent infinite overruns

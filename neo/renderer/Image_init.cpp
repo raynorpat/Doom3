@@ -144,42 +144,6 @@ static void R_RampImage( idImage *image ) {
 		TF_NEAREST, false, TR_CLAMP, TD_HIGH_QUALITY );
 }
 
-/*
-================
-R_SpecularTableImage
-
-Creates a ramp that matches our fudged specular calculation
-================
-*/
-static void R_SpecularTableImage( idImage *image ) {
-	int		x;
-	byte	data[256][4];
-
-	for (x=0 ; x<256 ; x++) {
-		float f = x/255.f;
-#if 0
-		f = pow(f, 16);
-#else
-		// this is the behavior of the hacked up fragment programs that
-		// can't really do a power function
-		f = (f-0.75)*4;
-		if ( f < 0 ) {
-			f = 0;
-		}
-		f = f * f;
-#endif
-		int		b = (int)(f * 255);
-
-		data[x][0] = 
-		data[x][1] = 
-		data[x][2] = 
-		data[x][3] = b;
-	}
-
-	image->GenerateImage( (byte *)data, 256, 1, 
-		TF_LINEAR, false, TR_CLAMP, TD_HIGH_QUALITY );
-}
-
 
 /*
 ================
@@ -390,28 +354,6 @@ static void R_FlatNormalImage( idImage *image ) {
 	image->GenerateImage( (byte *)data, 2, 2, 
 		TF_DEFAULT, true, TR_REPEAT, TD_HIGH_QUALITY );
 }
-
-static void R_AmbientNormalImage( idImage *image ) {
-	byte	data[DEFAULT_SIZE][DEFAULT_SIZE][4];
-	int		i;
-
-	int red = ( globalImages->image_useNormalCompression.GetInteger() == 1 ) ? 0 : 3;
-	int alpha = ( red == 0 ) ? 3 : 0;
-	// flat normal map for default bunp mapping
-	for ( i = 0 ; i < 4 ; i++ ) {
-		data[0][i][red] = (byte)(255 * tr.ambientLightVector[0]);
-		data[0][i][1] = (byte)(255 * tr.ambientLightVector[1]);
-		data[0][i][2] = (byte)(255 * tr.ambientLightVector[2]);
-		data[0][i][alpha] = 255;
-	}
-	const byte	*pics[6];
-	for ( i = 0 ; i < 6 ; i++ ) {
-		pics[i] = data[0][0];
-	}
-	// this must be a cube map for fragment programs to simply substitute for the normalization cube map
-	image->GenerateCubeImage( pics, 2, TF_DEFAULT, true, TD_HIGH_QUALITY );
-}
-
 
 static void CreateSquareLight( void ) {
 	byte		*buffer;
@@ -1901,14 +1843,11 @@ void idImageManager::Init() {
 	blackImage = ImageFromFunction( "_black", R_BlackImage );
 	borderClampImage = ImageFromFunction( "_borderClamp", R_BorderClampImage );
 	flatNormalMap = ImageFromFunction( "_flat", R_FlatNormalImage );
-	ambientNormalMap = ImageFromFunction( "_ambient", R_AmbientNormalImage );
-	specularTableImage = ImageFromFunction( "_specularTable", R_SpecularTableImage );
 	rampImage = ImageFromFunction( "_ramp", R_RampImage );
 	alphaRampImage = ImageFromFunction( "_alphaRamp", R_RampImage );
 	alphaNotchImage = ImageFromFunction( "_alphaNotch", R_AlphaNotchImage );
 	fogImage = ImageFromFunction( "_fog", R_FogImage );
 	fogEnterImage = ImageFromFunction( "_fogEnter", R_FogEnterImage );
-	normalCubeMapImage = ImageFromFunction( "_normalCubeMap", makeNormalizeVectorCubeMap );
 	noFalloffImage = ImageFromFunction( "_noFalloff", R_CreateNoFalloffImage );
 	ImageFromFunction( "_quadratic", R_QuadraticImage );
 

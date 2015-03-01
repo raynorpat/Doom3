@@ -818,10 +818,10 @@ void R_UniformMatrix4Array (uniform_t *uniform, int count, const idMat4 *m){
 
 /*
  ==================
- RB_GLSL_InitInternalShaders
+ RB_GLSL_InitInteractionShaders
  ==================
  */
-void RB_GLSL_InitInternalShaders( void ) {
+void RB_GLSL_InitInteractionShaders( void ) {
     shader_t *vertexShader, *fragmentShader;
     
     // load interation shader program
@@ -869,6 +869,41 @@ void RB_GLSL_InitInternalShaders( void ) {
 
 /*
  ==================
+ RB_GLSL_InitCommonShaders
+ ==================
+ */
+void RB_GLSL_InitCommonShaders( void ) {
+    shader_t *vertexShader, *fragmentShader;
+    
+    // load cube normal reflect program
+    vertexShader = R_FindShader( "common/cubeNormalReflect", GL_VERTEX_SHADER );
+    fragmentShader = R_FindShader( "common/cubeNormalReflect", GL_FRAGMENT_SHADER );
+    
+    tr.cubeNormalReflectProgram = R_FindProgram( "common/cubeNormalReflect", vertexShader, fragmentShader );
+    if (!tr.cubeNormalReflectProgram)
+        common->Error( "RB_GLSL_InitCommonShaders: invalid program '%s'", "common/cubeNormalReflect" );
+    
+    backEnd.cubeNormalReflectParms.localViewOrigin = R_GetProgramUniformExplicit( tr.cubeNormalReflectProgram, "u_ViewOrigin", 1, GL_FLOAT_VEC3 );
+    
+    R_SetProgramSamplerExplicit( tr.cubeNormalReflectProgram, "u_envMap", 1, GL_SAMPLER_CUBE, 0 );
+    R_SetProgramSamplerExplicit( tr.cubeNormalReflectProgram, "u_normalMap", 1, GL_SAMPLER_2D, 1 );
+    
+    // load cube reflect program
+    vertexShader = R_FindShader( "common/cubeReflect", GL_VERTEX_SHADER );
+    fragmentShader = R_FindShader( "common/cubeReflect", GL_FRAGMENT_SHADER );
+    
+    tr.cubeReflectProgram = R_FindProgram( "common/cubeReflect", vertexShader, fragmentShader );
+    if (!tr.cubeReflectProgram)
+        common->Error( "RB_GLSL_InitCommonShaders: invalid program '%s'", "common/cubeReflect" );
+
+    backEnd.cubeReflectParms.localViewOrigin = R_GetProgramUniformExplicit( tr.cubeReflectProgram, "u_ViewOrigin", 1, GL_FLOAT_VEC3 );
+
+    R_SetProgramSamplerExplicit( tr.cubeReflectProgram, "u_envMap", 1, GL_SAMPLER_CUBE, 0 );
+}
+
+
+/*
+ ==================
  R_ReloadGLSLPrograms_f
  ==================
  */
@@ -880,7 +915,8 @@ void R_ReloadGLSLPrograms_f( const idCmdArgs &args ) {
     R_InitShaders();
     R_InitPrograms();
     
-    RB_GLSL_InitInternalShaders();
+    RB_GLSL_InitCommonShaders();
+    RB_GLSL_InitInteractionShaders();
     
     common->Printf( "-------------------------------\n" );
 }
