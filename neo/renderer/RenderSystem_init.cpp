@@ -42,13 +42,10 @@ glconfig_t	glConfig;
 
 static void GfxInfo_f( void );
 
-const char *r_rendererArgs[] = { "best", "arb", "arb2", "glsl", "exp", NULL };
-
-idCVar r_inhibitFragmentProgram( "r_inhibitFragmentProgram", "0", CVAR_RENDERER | CVAR_BOOL, "ignore the fragment program extension" );
 idCVar r_glDriver( "r_glDriver", "", CVAR_RENDERER, "\"opengl32\", etc." );
 idCVar r_useLightPortalFlow( "r_useLightPortalFlow", "1", CVAR_RENDERER | CVAR_BOOL, "use a more precise area reference determination" );
 idCVar r_multiSamples( "r_multiSamples", "0", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_INTEGER, "number of antialiasing samples" );
-idCVar r_mode( "r_mode", "3", CVAR_ARCHIVE | CVAR_RENDERER | CVAR_INTEGER, "video mode number" );
+idCVar r_mode( "r_mode", "5", CVAR_ARCHIVE | CVAR_RENDERER | CVAR_INTEGER, "video mode number" );
 idCVar r_displayRefresh( "r_displayRefresh", "0", CVAR_RENDERER | CVAR_INTEGER | CVAR_NOCHEAT, "optional display refresh rate option for vid mode", 0.0f, 200.0f );
 idCVar r_fullscreen( "r_fullscreen", "0", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_BOOL, "0 = windowed, 1 = full screen" );
 idCVar r_customWidth( "r_customWidth", "720", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_INTEGER, "custom screen width. set r_mode to -1 to activate" );
@@ -57,11 +54,9 @@ idCVar r_singleTriangle( "r_singleTriangle", "0", CVAR_RENDERER | CVAR_BOOL, "on
 idCVar r_checkBounds( "r_checkBounds", "0", CVAR_RENDERER | CVAR_BOOL, "compare all surface bounds with precalculated ones" );
 
 idCVar r_useConstantMaterials( "r_useConstantMaterials", "1", CVAR_RENDERER | CVAR_BOOL, "use pre-calculated material registers if possible" );
-idCVar r_useTripleTextureARB( "r_useTripleTextureARB", "1", CVAR_RENDERER | CVAR_BOOL, "cards with 3+ texture units do a two pass instead of three pass" );
 idCVar r_useSilRemap( "r_useSilRemap", "1", CVAR_RENDERER | CVAR_BOOL, "consider verts with the same XYZ, but different ST the same for shadows" );
 idCVar r_useNodeCommonChildren( "r_useNodeCommonChildren", "1", CVAR_RENDERER | CVAR_BOOL, "stop pushing reference bounds early when possible" );
 idCVar r_useShadowProjectedCull( "r_useShadowProjectedCull", "1", CVAR_RENDERER | CVAR_BOOL, "discard triangles outside light volume before shadowing" );
-idCVar r_useShadowVertexProgram( "r_useShadowVertexProgram", "1", CVAR_RENDERER | CVAR_BOOL, "do the shadow projection in the vertex program on capable cards" );
 idCVar r_useShadowSurfaceScissor( "r_useShadowSurfaceScissor", "1", CVAR_RENDERER | CVAR_BOOL, "scissor shadows by the scissor rect of the interaction surfaces" );
 idCVar r_useInteractionTable( "r_useInteractionTable", "1", CVAR_RENDERER | CVAR_BOOL, "create a full entityDefs * lightDefs table to make finding interactions faster" );
 idCVar r_useTurboShadow( "r_useTurboShadow", "1", CVAR_RENDERER | CVAR_BOOL, "use the infinite projection with W technique for dynamic shadows" );
@@ -82,8 +77,6 @@ idCVar r_swapInterval( "r_swapInterval", "0", CVAR_RENDERER | CVAR_ARCHIVE | CVA
 
 idCVar r_gamma( "r_gamma", "1", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_FLOAT, "changes gamma tables", 0.5f, 3.0f );
 idCVar r_brightness( "r_brightness", "1", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_FLOAT, "changes gamma tables", 0.5f, 2.0f );
-
-idCVar r_renderer( "r_renderer", "best", CVAR_RENDERER | CVAR_ARCHIVE, "hardware specific renderer path to use", r_rendererArgs, idCmdSystem::ArgCompletion_String<r_rendererArgs> );
 
 idCVar r_jitter( "r_jitter", "0", CVAR_RENDERER | CVAR_BOOL, "randomly subpixel jitter the projection matrix" );
 
@@ -135,7 +128,6 @@ idCVar r_skipGuiShaders( "r_skipGuiShaders", "0", CVAR_RENDERER | CVAR_INTEGER, 
 idCVar r_skipParticles( "r_skipParticles", "0", CVAR_RENDERER | CVAR_INTEGER, "1 = skip all particle systems", 0, 1, idCmdSystem::ArgCompletion_Integer<0,1> );
 idCVar r_subviewOnly( "r_subviewOnly", "0", CVAR_RENDERER | CVAR_BOOL, "1 = don't render main view, allowing subviews to be debugged" );
 idCVar r_shadows( "r_shadows", "1", CVAR_RENDERER | CVAR_BOOL  | CVAR_ARCHIVE, "enable shadows" );
-idCVar r_testARBProgram( "r_testARBProgram", "0", CVAR_RENDERER | CVAR_BOOL, "experiment with vertex/fragment programs" );
 idCVar r_testGamma( "r_testGamma", "0", CVAR_RENDERER | CVAR_FLOAT, "if > 0 draw a grid pattern to test gamma levels", 0, 195 );
 idCVar r_testGammaBias( "r_testGammaBias", "0", CVAR_RENDERER | CVAR_FLOAT, "if > 0 draw a grid pattern to test gamma levels" );
 idCVar r_testStepGamma( "r_testStepGamma", "0", CVAR_RENDERER | CVAR_FLOAT, "if > 0 draw a grid pattern to test gamma levels" );
@@ -215,12 +207,11 @@ idCVar r_materialOverride( "r_materialOverride", "", CVAR_RENDERER, "overrides a
 
 idCVar r_debugRenderToTexture( "r_debugRenderToTexture", "0", CVAR_RENDERER | CVAR_INTEGER, "" );
 
+// ARB_multitexture
 void ( APIENTRY * qglMultiTexCoord2fARB )( GLenum texture, GLfloat s, GLfloat t );
 void ( APIENTRY * qglMultiTexCoord2fvARB )( GLenum texture, GLfloat *st );
 void ( APIENTRY * qglActiveTextureARB )( GLenum texture );
 void ( APIENTRY * qglClientActiveTextureARB )( GLenum texture );
-
-void (APIENTRY *qglTexImage3D)(GLenum, GLint, GLint, GLsizei, GLsizei, GLsizei, GLint, GLenum, GLenum, const GLvoid *);
 
 // separate stencil
 void ( APIENTRY *qglStencilOpSeparate )( GLenum face, GLenum sfail, GLenum dpfail, GLenum dppass );
@@ -243,15 +234,10 @@ PFNGLUNMAPBUFFERARBPROC					qglUnmapBufferARB;
 PFNGLGETBUFFERPARAMETERIVARBPROC		qglGetBufferParameterivARB;
 PFNGLGETBUFFERPOINTERVARBPROC			qglGetBufferPointervARB;
 
-// ARB_vertex_program / ARB_fragment_program
+// ARB_vertex_program
 PFNGLVERTEXATTRIBPOINTERARBPROC			qglVertexAttribPointerARB;
 PFNGLENABLEVERTEXATTRIBARRAYARBPROC		qglEnableVertexAttribArrayARB;
 PFNGLDISABLEVERTEXATTRIBARRAYARBPROC	qglDisableVertexAttribArrayARB;
-PFNGLPROGRAMSTRINGARBPROC				qglProgramStringARB;
-PFNGLBINDPROGRAMARBPROC					qglBindProgramARB;
-PFNGLGENPROGRAMSARBPROC					qglGenProgramsARB;
-PFNGLPROGRAMENVPARAMETER4FVARBPROC		qglProgramEnvParameter4fvARB;
-PFNGLPROGRAMLOCALPARAMETER4FVARBPROC	qglProgramLocalParameter4fvARB;
 GLint (APIENTRY *qglGetAttribLocation)(GLuint programObj, const GLchar *name);
 void (APIENTRY *qglBindAttribLocation)(GLuint programObj, GLuint index, const GLchar *name);
 void (APIENTRY *qglBindFragDataLocation)(GLuint programObj, GLuint index, const GLchar *name);
@@ -342,17 +328,8 @@ static void R_CheckPortableExtensions( void ) {
 		qglGetIntegerv( GL_MAX_TEXTURE_IMAGE_UNITS_ARB, (GLint *)&glConfig.maxTextureImageUnits );
 	}
 
-	// GL_ARB_texture_env_combine
-	glConfig.textureEnvCombineAvailable = R_CheckExtension( "GL_ARB_texture_env_combine" );
-
 	// GL_ARB_texture_cube_map
 	glConfig.cubeMapAvailable = R_CheckExtension( "GL_ARB_texture_cube_map" );
-
-	// GL_ARB_texture_env_dot3
-	glConfig.envDot3Available = R_CheckExtension( "GL_ARB_texture_env_dot3" );
-
-	// GL_ARB_texture_env_add
-	glConfig.textureEnvAddAvailable = R_CheckExtension( "GL_ARB_texture_env_add" );
 
 	// GL_ARB_texture_non_power_of_two
 	glConfig.textureNonPowerOfTwoAvailable = R_CheckExtension( "GL_ARB_texture_non_power_of_two" );
@@ -387,14 +364,6 @@ static void R_CheckPortableExtensions( void ) {
 		glConfig.textureLODBiasAvailable = false;
 	}
 
-	// GL_EXT_texture3D (not currently used for anything)
-	glConfig.texture3DAvailable = R_CheckExtension( "GL_EXT_texture3D" );
-	if ( glConfig.texture3DAvailable ) {
-		qglTexImage3D = 
-			(void (APIENTRY *)(GLenum, GLint, GLint, GLsizei, GLsizei, GLsizei, GLint, GLenum, GLenum, const GLvoid *) )
-			GLimp_ExtensionPointer( "glTexImage3D" );
-	}
-
 	// EXT_stencil_wrap
 	// This isn't very important, but some pathological case might cause a clamp error and give a shadow bug.
 	// Nvidia also believes that future hardware may be able to run faster with this enabled to avoid the
@@ -411,8 +380,10 @@ static void R_CheckPortableExtensions( void ) {
 	qglStencilOpSeparate = (void ( APIENTRY * )( GLenum face, GLenum sfail, GLenum dpfail, GLenum dppass ))GLimp_ExtensionPointer( "glStencilOpSeparate" );
     qglStencilFuncSeparate = (void ( APIENTRY * ) ( GLenum face, GLenum func, GLint ref, GLuint mask ))GLimp_ExtensionPointer( "glStencilFuncSeparate" );
 	if( qglStencilOpSeparate && qglStencilFuncSeparate ) {
+        common->Printf( "...using %s\n", "GL_2.0_separate_stencil" );
 		glConfig.twoSidedStencilAvailable = true;
 	} else {
+        common->Printf( "X..%s not found\n", "GL_2.0_separate_stencil" );
 		glConfig.twoSidedStencilAvailable = false;
 	}
 
@@ -435,37 +406,12 @@ static void R_CheckPortableExtensions( void ) {
 	// ARB_vertex_program
 	glConfig.ARBVertexProgramAvailable = R_CheckExtension( "GL_ARB_vertex_program" );
 	if (glConfig.ARBVertexProgramAvailable) {
-		qglVertexAttribPointerARB = (PFNGLVERTEXATTRIBPOINTERARBPROC)GLimp_ExtensionPointer( "glVertexAttribPointerARB" );
-		qglEnableVertexAttribArrayARB = (PFNGLENABLEVERTEXATTRIBARRAYARBPROC)GLimp_ExtensionPointer( "glEnableVertexAttribArrayARB" );
-		qglDisableVertexAttribArrayARB = (PFNGLDISABLEVERTEXATTRIBARRAYARBPROC)GLimp_ExtensionPointer( "glDisableVertexAttribArrayARB" );
-		qglProgramStringARB = (PFNGLPROGRAMSTRINGARBPROC)GLimp_ExtensionPointer( "glProgramStringARB" );
-		qglBindProgramARB = (PFNGLBINDPROGRAMARBPROC)GLimp_ExtensionPointer( "glBindProgramARB" );
-		qglGenProgramsARB = (PFNGLGENPROGRAMSARBPROC)GLimp_ExtensionPointer( "glGenProgramsARB" );
-		qglProgramEnvParameter4fvARB = (PFNGLPROGRAMENVPARAMETER4FVARBPROC)GLimp_ExtensionPointer( "glProgramEnvParameter4fvARB" );
-		qglProgramLocalParameter4fvARB = (PFNGLPROGRAMLOCALPARAMETER4FVARBPROC)GLimp_ExtensionPointer( "glProgramLocalParameter4fvARB" );
+        qglVertexAttribPointerARB = (PFNGLVERTEXATTRIBPOINTERARBPROC)GLimp_ExtensionPointer( "glVertexAttribPointerARB" );
+        qglEnableVertexAttribArrayARB = (PFNGLENABLEVERTEXATTRIBARRAYARBPROC)GLimp_ExtensionPointer( "glEnableVertexAttribArrayARB" );
+        qglDisableVertexAttribArrayARB = (PFNGLDISABLEVERTEXATTRIBARRAYARBPROC)GLimp_ExtensionPointer( "glDisableVertexAttribArrayARB" );
         qglGetAttribLocation = (GLint (APIENTRY *)(GLuint programObj, const GLchar *name))GLimp_ExtensionPointer( "glGetAttribLocation" );
         qglBindAttribLocation = (void (APIENTRY *)(GLuint programObj, GLuint index, const GLchar *name))GLimp_ExtensionPointer( "glBindAttribLocation" );
         qglBindFragDataLocation = (void (APIENTRY *)(GLuint programObj, GLuint index, const GLchar *name))GLimp_ExtensionPointer( "glBindFragDataLocation" );
-	}
-
-	// ARB_fragment_program
-	if ( r_inhibitFragmentProgram.GetBool() ) {
-		glConfig.ARBFragmentProgramAvailable = false;
-	} else {
-		glConfig.ARBFragmentProgramAvailable = R_CheckExtension( "GL_ARB_fragment_program" );
-		if (glConfig.ARBFragmentProgramAvailable) {
-			// these are the same as ARB_vertex_program
-			qglProgramStringARB = (PFNGLPROGRAMSTRINGARBPROC)GLimp_ExtensionPointer( "glProgramStringARB" );
-			qglBindProgramARB = (PFNGLBINDPROGRAMARBPROC)GLimp_ExtensionPointer( "glBindProgramARB" );
-			qglProgramEnvParameter4fvARB = (PFNGLPROGRAMENVPARAMETER4FVARBPROC)GLimp_ExtensionPointer( "glProgramEnvParameter4fvARB" );
-			qglProgramLocalParameter4fvARB = (PFNGLPROGRAMLOCALPARAMETER4FVARBPROC)GLimp_ExtensionPointer( "glProgramLocalParameter4fvARB" );
-		}
-	}
-
-	// check for minimum set
-	if ( !glConfig.multitextureAvailable || !glConfig.textureEnvCombineAvailable || !glConfig.cubeMapAvailable
-		|| !glConfig.envDot3Available ) {
-			common->Error( common->GetLanguageDict()->GetString( "#str_06780" ) );
 	}
 
  	// GL_EXT_depth_bounds_test
@@ -516,6 +462,11 @@ static void R_CheckPortableExtensions( void ) {
 		qglGetUniformiv = (void (APIENTRY *)(GLuint programObj, GLint location, GLint *params))GLimp_ExtensionPointer( "glGetUniformiv" );
 		qglGetShaderSource = (void (APIENTRY *)(GLuint obj, GLsizei maxLength, GLsizei *length, GLchar *source))GLimp_ExtensionPointer( "glGetShaderSource" );
  	}
+    
+    // check for minimum set
+    if ( !glConfig.multitextureAvailable || !glConfig.cubeMapAvailable || !glConfig.GLSLAvailable || !glConfig.ARBVertexProgramAvailable ) {
+        common->Error( common->GetLanguageDict()->GetString( "#str_06780" ) );
+    }
 }
 
 
@@ -663,25 +614,15 @@ void R_InitOpenGL( void ) {
 
 	glConfig.isInitialized = true;
 
-	// recheck all the extensions (FIXME: this might be dangerous)
+	// recheck all the extensions
 	R_CheckPortableExtensions();
 
-	// parse our vertex and fragment programs, possibly disable support for
-	// one of the paths if there was an error
-	R_ARB2_Init();
-	R_GLSL_Init();
-
+	// parse our vertex and fragment shaders
     cmdSystem->AddCommand( "reloadGLSLprograms", R_ReloadGLSLPrograms_f, CMD_FL_RENDERER, "reloads GLSL shader programs" );
-	cmdSystem->AddCommand( "reloadARBprograms", R_ReloadARBPrograms_f, CMD_FL_RENDERER, "reloads ARB programs" );
-	R_ReloadARBPrograms_f( idCmdArgs() );
     R_ReloadGLSLPrograms_f( idCmdArgs() );
 
 	// allocate the vertex array range or vertex objects
 	vertexCache.Init();
-
-	// select which renderSystem we are going to use
-	r_renderer.SetModified();
-	tr.SetBackEndRenderer();
 
 	// allocate the frame data, which may be more if smp is enabled
 	R_InitFrameData();
@@ -1779,21 +1720,6 @@ void GfxInfo_f( const idCmdArgs &args ) {
 	}
 	common->Printf( "CPU: %s\n", Sys_GetProcessorString() );
 
-	const char *active[2] = { "", " (ACTIVE)" };
-	common->Printf( "ARB path ENABLED%s\n", active[tr.backEndRenderer == BE_ARB] );
-
-	if ( glConfig.allowARB2Path ) {
-		common->Printf( "ARB2 path ENABLED%s\n", active[tr.backEndRenderer == BE_ARB2] );
-	} else {
-		common->Printf( "ARB2 path disabled\n" );
-	}
-
-	if ( glConfig.allowGLSLPath ) {
-		common->Printf( "GLSL path ENABLED%s\n", active[tr.backEndRenderer == BE_GLSL] );
-	} else {
-		common->Printf( "GLSL path disabled\n" );
-	}
-
 	//=============================
 
 	common->Printf( "-------\n" );
@@ -2051,9 +1977,7 @@ void idRenderSystemLocal::Clear( void ) {
 	viewportOffset[1] = 0;
 	tiledViewport[0] = 0;
 	tiledViewport[1] = 0;
-	backEndRenderer = BE_BAD;
-	backEndRendererHasVertexPrograms = false;
-	backEndRendererMaxLight = 1.0f;
+	backEndRendererMaxLight = 999;
 	ambientLightVector.Zero();
 	sortOffset = 0;
 	worlds.Clear();
@@ -2127,10 +2051,6 @@ void idRenderSystemLocal::Init( void ) {
 	identitySpace.modelMatrix[0*4+0] = 1.0f;
 	identitySpace.modelMatrix[1*4+1] = 1.0f;
 	identitySpace.modelMatrix[2*4+2] = 1.0f;
-
-	// determine which back end we will use
-	// ??? this is invalid here as there is not enough information to set it up correctly
-	SetBackEndRenderer();
 
 	common->Printf( "renderSystem initialized.\n" );
 	common->Printf( "--------------------------------------\n" );
@@ -2274,15 +2194,5 @@ idRenderSystemLocal::GetScreenHeight
 */
 int idRenderSystemLocal::GetScreenHeight( void ) const {
 	return glConfig.vidHeight;
-}
-
-/*
-========================
-idRenderSystemLocal::GetCardCaps
-========================
-*/
-void idRenderSystemLocal::GetCardCaps( bool &oldCard, bool &nv10or20 ) {
-	nv10or20 = false;
-	oldCard = ( tr.backEndRenderer == BE_ARB );
 }
 

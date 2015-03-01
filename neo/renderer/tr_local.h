@@ -596,9 +596,6 @@ typedef enum {
     UT_VIEW_AXIS,
     UT_ENTITY_ORIGIN,
     UT_ENTITY_AXIS,
-    UT_SUN_ORIGIN,
-    UT_SUN_DIRECTION,
-    UT_SUN_COLOR,
     UT_SCREEN_MATRIX,
     UT_COORD_SCALE_AND_BIAS,
     UT_COLOR_SCALE_AND_BIAS,
@@ -788,13 +785,6 @@ typedef struct {
 const int MAX_GUI_SURFACES	= 1024;		// default size of the drawSurfs list for guis, will
 										// be automatically expanded as needed
 
-typedef enum {
-	BE_ARB,
-	BE_ARB2,
-	BE_GLSL,
-	BE_BAD
-} backEndName_t;
-
 typedef struct {
 	int		x, y, width, height;	// these are in physical, OpenGL Y-at-bottom pixels
 } renderCrop_t;
@@ -846,7 +836,6 @@ public:
 	virtual void			CaptureRenderToImage( const char *imageName );
 	virtual void			CaptureRenderToFile( const char *fileName, bool fixAlpha );
 	virtual void			UnCrop();
-	virtual void			GetCardCaps( bool &oldCard, bool &nv10or20 );
 	virtual bool			UploadImage( const char *imageName, const byte *data, int width, int height );
 
 public:
@@ -875,9 +864,6 @@ public:
 	int						viewportOffset[2];	// for doing larger-than-window tiled renderings
 	int						tiledViewport[2];
 
-	// determines which back end to use, and if vertex programs are in use
-	backEndName_t			backEndRenderer;
-	bool					backEndRendererHasVertexPrograms;
 	float					backEndRendererMaxLight;	// 1.0 for standard, unlimited for floats
 														// determines how much overbrighting needs
 														// to be done post-process
@@ -963,12 +949,9 @@ extern idCVar r_flareSize;				// scale the flare deforms from the material def
 extern idCVar r_gamma;					// changes gamma tables
 extern idCVar r_brightness;				// changes gamma tables
 
-extern idCVar r_renderer;				// arb, nv10, nv20, r200, glsl, etc
-
 extern idCVar r_checkBounds;			// compare all surface bounds with precalculated ones
 
 extern idCVar r_useLightPortalFlow;		// 1 = do a more precise area reference determination
-extern idCVar r_useTripleTextureARB;	// 1 = cards with 3+ texture units do a two pass instead of three pass
 extern idCVar r_useShadowSurfaceScissor;// 1 = scissor shadows by the scissor rect of the interaction surfaces
 extern idCVar r_useConstantMaterials;	// 1 = use pre-calculated material registers if possible
 extern idCVar r_useInteractionTable;	// create a full entityDefs * lightDefs table to make finding interactions faster
@@ -988,7 +971,6 @@ extern idCVar r_usePreciseTriangleInteractions;	// 1 = do winding clipping to de
 extern idCVar r_useTurboShadow;			// 1 = use the infinite projection with W technique for dynamic shadows
 extern idCVar r_useExternalShadows;		// 1 = skip drawing caps when outside the light volume
 extern idCVar r_useOptimizedShadows;	// 1 = use the dmap generated static shadow volumes
-extern idCVar r_useShadowVertexProgram;	// 1 = do the shadow projection in the vertex program on capable cards
 extern idCVar r_useShadowProjectedCull;	// 1 = discard triangles outside light volume before shadowing
 extern idCVar r_useDeferredTangents;	// 1 = don't always calc tangents after deform
 extern idCVar r_useCachedDynamicModels;	// 1 = cache snapshots of dynamic models
@@ -1079,8 +1061,6 @@ extern idCVar r_jointNameOffset;		// offset of joint names when r_showskel is se
 extern idCVar r_testGamma;				// draw a grid pattern to test gamma levels
 extern idCVar r_testStepGamma;			// draw a grid pattern to test gamma levels
 extern idCVar r_testGammaBias;			// draw a grid pattern to test gamma levels
-
-extern idCVar r_testARBProgram;			// experiment with vertex/fragment programs
 
 extern idCVar r_singleLight;			// suppress all but one light
 extern idCVar r_singleEntity;			// suppress all but one entity
@@ -1309,7 +1289,7 @@ void R_LinkLightSurf( const drawSurf_t **link, const srfTriangles_t *tri, const 
 				   const idRenderLightLocal *light, const idMaterial *shader, const idScreenRect &scissor, bool viewInsideShadow );
 
 bool R_CreateAmbientCache( srfTriangles_t *tri, bool needsLighting );
-bool R_CreateLightingCache( const idRenderEntityLocal *ent, const idRenderLightLocal *light, srfTriangles_t *tri );
+
 void R_CreatePrivateShadowCache( srfTriangles_t *tri );
 void R_CreateVertexProgramShadowCache( srfTriangles_t *tri );
 
@@ -1419,15 +1399,15 @@ DRAW_*
 ============================================================
 */
 
-void	RB_ARB_DrawInteractions( void );
+void	RB_GLSL_DrawForwardInteractions( void );
 
-void	R_ARB2_Init( void );
-void	RB_ARB2_DrawInteractions( void );
-void	R_ReloadARBPrograms_f( const idCmdArgs &args );
-int		R_FindARBProgram( GLenum target, const char *program );
-
-void	R_GLSL_Init( void );
-void	RB_GLSL_DrawInteractions( void );
+/*
+============================================================
+ 
+GLSL SHADER AND PROGRAM MANAGMENT
+ 
+============================================================
+*/
 
 void	R_ReloadGLSLPrograms_f( const idCmdArgs &args );
 
@@ -1466,29 +1446,6 @@ void	R_UniformMatrix3Array (uniform_t *uniform, int count, const idMat3 *m);
 void	R_UniformMatrix4 (uniform_t *uniform, const idMat4 &m);
 void	R_UniformMatrix4Array (uniform_t *uniform, int count, const idMat4 *m);
 
-typedef enum {
-	PROG_INVALID,
-	VPROG_INTERACTION,
-	VPROG_ENVIRONMENT,
-	VPROG_BUMPY_ENVIRONMENT,
-	VPROG_R200_INTERACTION,
-	VPROG_STENCIL_SHADOW,
-	VPROG_NV20_BUMP_AND_LIGHT,
-	VPROG_NV20_DIFFUSE_COLOR,
-	VPROG_NV20_SPECULAR_COLOR,
-	VPROG_NV20_DIFFUSE_AND_SPECULAR_COLOR,
-	VPROG_TEST,
-	FPROG_INTERACTION,
-	FPROG_ENVIRONMENT,
-	FPROG_BUMPY_ENVIRONMENT,
-	FPROG_TEST,
-	VPROG_AMBIENT,
-	FPROG_AMBIENT,
-	VPROG_GLASSWARP,
-	FPROG_GLASSWARP,
-	PROG_USER
-} program_t;
-
 /*
 
   All vertex programs use the same constant register layout:
@@ -1518,26 +1475,6 @@ c[20]	light falloff tq constant
 // texture 6 is the specular half angle cube map
 
 */
-
-typedef enum {
-	PP_LIGHT_ORIGIN = 4,
-	PP_VIEW_ORIGIN,
-	PP_LIGHT_PROJECT_S,
-	PP_LIGHT_PROJECT_T,
-	PP_LIGHT_PROJECT_Q,
-	PP_LIGHT_FALLOFF_S,
-	PP_BUMP_MATRIX_S,
-	PP_BUMP_MATRIX_T,
-	PP_DIFFUSE_MATRIX_S,
-	PP_DIFFUSE_MATRIX_T,
-	PP_SPECULAR_MATRIX_S,
-	PP_SPECULAR_MATRIX_T,
-	PP_COLOR_MODULATE,
-	PP_COLOR_ADD,
-
-	PP_LIGHT_FALLOFF_TQ = 20	// only for NV programs
-} programParameter_t;
-
 
 /*
 ============================================================
@@ -1573,10 +1510,6 @@ calling this function may modify "facing" based on culling
 
 ============================================================
 */
-
-srfTriangles_t *R_CreateVertexProgramTurboShadowVolume( const idRenderEntityLocal *ent,
-									 const srfTriangles_t *tri, const idRenderLightLocal *light,
-									 srfCullInfo_t &cullInfo );
 
 srfTriangles_t *R_CreateTurboShadowVolume( const idRenderEntityLocal *ent,
 									 const srfTriangles_t *tri, const idRenderLightLocal *light,

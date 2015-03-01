@@ -103,40 +103,6 @@ extern PFNGLUNMAPBUFFERARBPROC qglUnmapBufferARB;
 extern PFNGLGETBUFFERPARAMETERIVARBPROC qglGetBufferParameterivARB;
 extern PFNGLGETBUFFERPOINTERVARBPROC qglGetBufferPointervARB;
 
-// NV_register_combiners
-extern	void ( APIENTRY *qglCombinerParameterfvNV )( GLenum pname, const GLfloat *params );
-extern	void ( APIENTRY *qglCombinerParameterivNV )( GLenum pname, const GLint *params );
-extern	void ( APIENTRY *qglCombinerParameterfNV )( GLenum pname, const GLfloat param );
-extern	void ( APIENTRY *qglCombinerParameteriNV )( GLenum pname, const GLint param );
-extern	void ( APIENTRY *qglCombinerInputNV )( GLenum stage, GLenum portion, GLenum variable, GLenum input,
-											  GLenum mapping, GLenum componentUsage );
-extern	void ( APIENTRY *qglCombinerOutputNV )( GLenum stage, GLenum portion, GLenum abOutput, GLenum cdOutput, 
-											   GLenum sumOutput, GLenum scale, GLenum bias, GLboolean abDotProduct,
-											   GLboolean cdDotProduct, GLboolean muxSum );
-extern	void ( APIENTRY *qglFinalCombinerInputNV )( GLenum variable, GLenum input, GLenum mapping, GLenum componentUsage );
-
-// 3D textures
-extern void ( APIENTRY *qglTexImage3D)(GLenum, GLint, GLint, GLsizei, GLsizei, GLsizei, GLint, GLenum, GLenum, const GLvoid *);
-
-// shared texture palette
-extern	void ( APIENTRY *qglColorTableEXT)( int, int, int, int, int, const void * );
-
-// ATI_fragment_shader
-extern	PFNGLGENFRAGMENTSHADERSATIPROC	qglGenFragmentShadersATI;
-extern	PFNGLBINDFRAGMENTSHADERATIPROC	qglBindFragmentShaderATI;
-extern	PFNGLDELETEFRAGMENTSHADERATIPROC qglDeleteFragmentShaderATI;
-extern	PFNGLBEGINFRAGMENTSHADERATIPROC qglBeginFragmentShaderATI;
-extern	PFNGLENDFRAGMENTSHADERATIPROC	qglEndFragmentShaderATI;
-extern	PFNGLPASSTEXCOORDATIPROC		qglPassTexCoordATI;
-extern	PFNGLSAMPLEMAPATIPROC			qglSampleMapATI;
-extern	PFNGLCOLORFRAGMENTOP1ATIPROC	qglColorFragmentOp1ATI;
-extern	PFNGLCOLORFRAGMENTOP2ATIPROC	qglColorFragmentOp2ATI;
-extern	PFNGLCOLORFRAGMENTOP3ATIPROC	qglColorFragmentOp3ATI;
-extern	PFNGLALPHAFRAGMENTOP1ATIPROC	qglAlphaFragmentOp1ATI;
-extern	PFNGLALPHAFRAGMENTOP2ATIPROC	qglAlphaFragmentOp2ATI;
-extern	PFNGLALPHAFRAGMENTOP3ATIPROC	qglAlphaFragmentOp3ATI;
-extern	PFNGLSETFRAGMENTSHADERCONSTANTATIPROC	qglSetFragmentShaderConstantATI;
-
 // ARB_separate_stencil
 extern	void ( APIENTRY *qglStencilOpSeparate )( GLenum face, GLenum sfail, GLenum dpfail, GLenum dppass );
 extern	void ( APIENTRY *qglStencilFuncSeparate ) ( GLenum face, GLenum func, GLint ref, GLuint mask );
@@ -145,15 +111,10 @@ extern	void ( APIENTRY *qglStencilFuncSeparate ) ( GLenum face, GLenum func, GLi
 extern	PFNGLCOMPRESSEDTEXIMAGE2DARBPROC	qglCompressedTexImage2DARB;
 extern	PFNGLGETCOMPRESSEDTEXIMAGEARBPROC	qglGetCompressedTexImageARB;
 
-// ARB_vertex_program / ARB_fragment_program
+// ARB_vertex_program
 extern PFNGLVERTEXATTRIBPOINTERARBPROC		qglVertexAttribPointerARB;
 extern PFNGLENABLEVERTEXATTRIBARRAYARBPROC	qglEnableVertexAttribArrayARB;
 extern PFNGLDISABLEVERTEXATTRIBARRAYARBPROC	qglDisableVertexAttribArrayARB;
-extern PFNGLPROGRAMSTRINGARBPROC			qglProgramStringARB;
-extern PFNGLBINDPROGRAMARBPROC				qglBindProgramARB;
-extern PFNGLGENPROGRAMSARBPROC				qglGenProgramsARB;
-extern PFNGLPROGRAMENVPARAMETER4FVARBPROC	qglProgramEnvParameter4fvARB;
-extern PFNGLPROGRAMLOCALPARAMETER4FVARBPROC	qglProgramLocalParameter4fvARB;
 extern GLint (APIENTRY *qglGetAttribLocation)(GLuint programObj, const GLchar *name);
 extern void (APIENTRY *qglBindAttribLocation)(GLuint programObj, GLuint index, const GLchar *name);
 extern void (APIENTRY *qglBindFragDataLocation)(GLuint programObj, GLuint index, const GLchar *name);

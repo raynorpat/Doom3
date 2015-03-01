@@ -151,6 +151,7 @@ void RB_PrepareStageTexturing( const shaderStage_t *pStage,  const drawSurf_t *s
 	}
 
 	if ( pStage->texture.texgen == TG_GLASSWARP ) {
+#if 0
 		if ( tr.backEndRenderer == BE_ARB2 ) {
 			qglBindProgramARB( GL_FRAGMENT_PROGRAM_ARB, FPROG_GLASSWARP );
 			qglEnable( GL_FRAGMENT_PROGRAM_ARB );
@@ -188,9 +189,11 @@ void RB_PrepareStageTexturing( const shaderStage_t *pStage,  const drawSurf_t *s
 
 			GL_SelectTexture( 0 );
 		}
+#endif
 	}
 
 	if ( pStage->texture.texgen == TG_REFLECT_CUBE ) {
+#if 0
 		if ( tr.backEndRenderer == BE_ARB2 ) {
 			// see if there is also a bump map specified
 			const shaderStage_t *bumpStage = surf->material->GetBumpStage();
@@ -207,8 +210,6 @@ void RB_PrepareStageTexturing( const shaderStage_t *pStage,  const drawSurf_t *s
 				qglEnableVertexAttribArrayARB( 9 );
 				qglEnableVertexAttribArrayARB( 10 );
 				qglEnableClientState( GL_NORMAL_ARRAY );
-
-				// Program env 5, 6, 7, 8 have been set in RB_SetProgramEnvironmentSpace
 
 				qglBindProgramARB( GL_FRAGMENT_PROGRAM_ARB, FPROG_BUMPY_ENVIRONMENT );
 				qglEnable( GL_FRAGMENT_PROGRAM_ARB );
@@ -242,6 +243,7 @@ void RB_PrepareStageTexturing( const shaderStage_t *pStage,  const drawSurf_t *s
 			qglLoadMatrixf( mat );
 			qglMatrixMode( GL_MODELVIEW );
 		}
+#endif
 	}
 }
 
@@ -272,6 +274,7 @@ void RB_FinishStageTexturing( const shaderStage_t *pStage, const drawSurf_t *sur
 	}
 
 	if ( pStage->texture.texgen == TG_GLASSWARP ) {
+#if 0
 		if ( tr.backEndRenderer == BE_ARB2 ) {
 			GL_SelectTexture( 2 );
 			globalImages->BindNull();
@@ -287,9 +290,11 @@ void RB_FinishStageTexturing( const shaderStage_t *pStage, const drawSurf_t *sur
 			globalImages->BindNull();
 			GL_SelectTexture( 0 );
 		}
+#endif
 	}
 
 	if ( pStage->texture.texgen == TG_REFLECT_CUBE ) {
+#if 0
 		if ( tr.backEndRenderer == BE_ARB2 ) {
 			// see if there is also a bump map specified
 			const shaderStage_t *bumpStage = surf->material->GetBumpStage();
@@ -323,6 +328,7 @@ void RB_FinishStageTexturing( const shaderStage_t *pStage, const drawSurf_t *sur
 			qglLoadIdentity();
 			qglMatrixMode( GL_MODELVIEW );
 		}
+#endif
 	}
 
 	if ( pStage->texture.hasMatrix ) {
@@ -566,118 +572,6 @@ SHADER PASSES
 =============================================================================================
 */
 
-/*
-==================
-RB_SetProgramEnvironment
-
-Sets variables that can be used by all vertex programs
-==================
-*/
-void RB_SetProgramEnvironment( void ) {
-	float	parm[4];
-	int		pot;
-
-	if ( !glConfig.ARBVertexProgramAvailable ) {
-		return;
-	}
-
-#if 0
-	// screen power of two correction factor, one pixel in so we don't get a bilerp
-	// of an uncopied pixel
-	int	 w = backEnd.viewDef->viewport.x2 - backEnd.viewDef->viewport.x1 + 1;
-	pot = globalImages->currentRenderImage->uploadWidth;
-	if ( w == pot ) {
-		parm[0] = 1.0;
-	} else {
-		parm[0] = (float)(w-1) / pot;
-	}
-
-	int	 h = backEnd.viewDef->viewport.y2 - backEnd.viewDef->viewport.y1 + 1;
-	pot = globalImages->currentRenderImage->uploadHeight;
-	if ( h == pot ) {
-		parm[1] = 1.0;
-	} else {
-		parm[1] = (float)(h-1) / pot;
-	}
-
-	parm[2] = 0;
-	parm[3] = 1;
-	qglProgramEnvParameter4fvARB( GL_VERTEX_PROGRAM_ARB, 0, parm );
-#else
-	// screen power of two correction factor, assuming the copy to _currentRender
-	// also copied an extra row and column for the bilerp
-	int	 w = backEnd.viewDef->viewport.x2 - backEnd.viewDef->viewport.x1 + 1;
-	pot = globalImages->currentRenderImage->uploadWidth;
-	parm[0] = (float)w / pot;
-
-	int	 h = backEnd.viewDef->viewport.y2 - backEnd.viewDef->viewport.y1 + 1;
-	pot = globalImages->currentRenderImage->uploadHeight;
-	parm[1] = (float)h / pot;
-
-	parm[2] = 0;
-	parm[3] = 1;
-	qglProgramEnvParameter4fvARB( GL_VERTEX_PROGRAM_ARB, 0, parm );
-#endif
-
-	qglProgramEnvParameter4fvARB( GL_FRAGMENT_PROGRAM_ARB, 0, parm );
-
-	// window coord to 0.0 to 1.0 conversion
-	parm[0] = 1.0 / w;
-	parm[1] = 1.0 / h;
-	parm[2] = 0;
-	parm[3] = 1;
-	qglProgramEnvParameter4fvARB( GL_FRAGMENT_PROGRAM_ARB, 1, parm );
-
-	//
-	// set eye position in global space
-	//
-	parm[0] = backEnd.viewDef->renderView.vieworg[0];
-	parm[1] = backEnd.viewDef->renderView.vieworg[1];
-	parm[2] = backEnd.viewDef->renderView.vieworg[2];
-	parm[3] = 1.0;
-	qglProgramEnvParameter4fvARB( GL_VERTEX_PROGRAM_ARB, 1, parm );
-
-
-}
-
-/*
-==================
-RB_SetProgramEnvironmentSpace
-
-Sets variables related to the current space that can be used by all vertex programs
-==================
-*/
-void RB_SetProgramEnvironmentSpace( void ) {
-	if ( !glConfig.ARBVertexProgramAvailable ) {
-		return;
-	}
-
-	const struct viewEntity_s *space = backEnd.currentSpace;
-	float	parm[4];
-
-	// set eye position in local space
-	R_GlobalPointToLocal( space->modelMatrix, backEnd.viewDef->renderView.vieworg, *(idVec3 *)parm );
-	parm[3] = 1.0;
-	qglProgramEnvParameter4fvARB( GL_VERTEX_PROGRAM_ARB, 5, parm );
-
-	// we need the model matrix without it being combined with the view matrix
-	// so we can transform local vectors to global coordinates
-	parm[0] = space->modelMatrix[0];
-	parm[1] = space->modelMatrix[4];
-	parm[2] = space->modelMatrix[8];
-	parm[3] = space->modelMatrix[12];
-	qglProgramEnvParameter4fvARB( GL_VERTEX_PROGRAM_ARB, 6, parm );
-	parm[0] = space->modelMatrix[1];
-	parm[1] = space->modelMatrix[5];
-	parm[2] = space->modelMatrix[9];
-	parm[3] = space->modelMatrix[13];
-	qglProgramEnvParameter4fvARB( GL_VERTEX_PROGRAM_ARB, 7, parm );
-	parm[0] = space->modelMatrix[2];
-	parm[1] = space->modelMatrix[6];
-	parm[2] = space->modelMatrix[10];
-	parm[3] = space->modelMatrix[14];
-	qglProgramEnvParameter4fvARB( GL_VERTEX_PROGRAM_ARB, 8, parm );
-}
 
 /*
 ==================
@@ -709,7 +603,6 @@ void RB_STD_T_RenderShaderPasses( const drawSurf_t *surf ) {
 	if ( surf->space != backEnd.currentSpace ) {
 		qglLoadMatrixf( surf->space->modelViewMatrix );
 		backEnd.currentSpace = surf->space;
-		RB_SetProgramEnvironmentSpace();
 	}
 
 	// change the scissor if needed
@@ -781,11 +674,6 @@ void RB_STD_T_RenderShaderPasses( const drawSurf_t *surf ) {
 			// new style stages
 			//
 			//--------------------------
-
-			// completely skip the stage if we don't have the capability
-			if ( tr.backEndRenderer != BE_GLSL ) {
-				continue;
-			}
 			if ( r_skipNewShaderStage.GetBool() ) {
 				continue;
 			}
@@ -829,18 +717,6 @@ void RB_STD_T_RenderShaderPasses( const drawSurf_t *surf ) {
                         break;
                     case UT_ENTITY_AXIS:
                         R_UniformMatrix3(uniform, backEnd.entity->e.axis);
-                        break;
-                    case UT_SUN_ORIGIN:
-                        // TODO: just random values for testing (actually get from def)
-                        R_UniformFloat3(uniform, 99614720.0f, -225443840.0f, 188743680.0f);
-                        break;
-                    case UT_SUN_DIRECTION:
-                        // TODO: just random values for testing (actually get from def)
-                        R_UniformFloat3(uniform, 0.3208836f, 0.7262104f, -0.6079901f);
-                        break;
-                    case UT_SUN_COLOR:
-                        // TODO: just random values for testing (actually get from def)
-                        R_UniformFloat3(uniform, 0.988f * r_lightScale->floatValue, 0.839f * r_lightScale->floatValue, 0.580f * r_lightScale->floatValue);
                         break;
                     case UT_SCREEN_MATRIX:
                         R_UniformMatrix4(uniform, backEnd.viewParms.projectionMatrix * backEnd.localParms.viewMatrix);
@@ -1048,7 +924,7 @@ int RB_STD_DrawShaderPasses( drawSurf_t **drawSurfs, int numDrawSurfs ) {
 		}
 
 		// only dump if in a 3d view
-		if ( backEnd.viewDef->viewEntitys && tr.backEndRenderer == BE_ARB2 ) {
+		if ( backEnd.viewDef->viewEntitys ) {
 			globalImages->currentRenderImage->CopyFramebuffer( backEnd.viewDef->viewport.x1,
 				backEnd.viewDef->viewport.y1,  backEnd.viewDef->viewport.x2 -  backEnd.viewDef->viewport.x1 + 1,
 				backEnd.viewDef->viewport.y2 -  backEnd.viewDef->viewport.y1 + 1, true );
@@ -1061,8 +937,6 @@ int RB_STD_DrawShaderPasses( drawSurf_t **drawSurfs, int numDrawSurfs ) {
 
 	GL_SelectTexture( 0 );
 	qglEnableClientState( GL_TEXTURE_COORD_ARRAY );
-
-	RB_SetProgramEnvironment();
 
 	// we don't use RB_RenderDrawSurfListWithFunction()
 	// because we want to defer the matrix load because many
@@ -1114,8 +988,8 @@ the shadow volumes face INSIDE
 static void RB_T_Shadow( const drawSurf_t *surf ) {
 	const srfTriangles_t	*tri;
 
-	// set the light position if we are using a vertex program to project the rear surfaces
-	if ( tr.backEndRendererHasVertexPrograms && r_useShadowVertexProgram.GetBool() && surf->space != backEnd.currentSpace ) {
+	// set the light position in the vertex shader to project the rear surfaces
+	if ( surf->space != backEnd.currentSpace ) {
 		idVec4 localLight;
         stencilShadowParms_t *parms;
         parms = &backEnd.stencilShadowParms;
@@ -1123,11 +997,7 @@ static void RB_T_Shadow( const drawSurf_t *surf ) {
 		R_GlobalPointToLocal( surf->space->modelMatrix, backEnd.vLight->globalLightOrigin, localLight.ToVec3() );
 		localLight.w = 0.0f;
 
-		if ( tr.backEndRenderer == BE_ARB2 ) {
-            qglProgramEnvParameter4fvARB( GL_VERTEX_PROGRAM_ARB, PP_LIGHT_ORIGIN, localLight.ToFloatPtr() );
-		} else if ( tr.backEndRenderer == BE_GLSL ) {
-            R_UniformVector4( parms->localLightOrigin, localLight );
-		}
+        R_UniformVector4( parms->localLightOrigin, localLight );
 	}
 
 	tri = surf->geo;
@@ -1267,9 +1137,7 @@ void RB_StencilShadowPass( const drawSurf_t *drawSurfs ) {
 
 	RB_LogComment( "---------- RB_StencilShadowPass ----------\n" );
     
-    if ( tr.backEndRenderer == BE_GLSL && r_useShadowVertexProgram.GetBool() ) {
-        qglUseProgram( tr.stencilShadowProgram->program );
-    }
+    GL_BindProgram( tr.stencilShadowProgram );
 
 	globalImages->BindNull();
 	qglDisableClientState( GL_TEXTURE_COORD_ARRAY );
@@ -1316,9 +1184,7 @@ void RB_StencilShadowPass( const drawSurf_t *drawSurfs ) {
 	qglStencilFunc( GL_GEQUAL, 128, 255 );
 	qglStencilOp( GL_KEEP, GL_KEEP, GL_KEEP );
     
-    if ( tr.backEndRenderer == BE_GLSL && r_useShadowVertexProgram.GetBool() ) {
-        qglUseProgram( NULL );
-    }
+    GL_BindProgram( 0 );
 }
 
 
@@ -1478,7 +1344,7 @@ static void RB_T_BasicFog( const drawSurf_t *surf ) {
 
 //		R_GlobalPlaneToLocal( surf->space->modelMatrix, fogPlanes[1], local );
 //		local[3] += 0.5;
-local[0] = local[1] = local[2] = 0; local[3] = 0.5;
+        local[0] = local[1] = local[2] = 0; local[3] = 0.5;
 		qglTexGenfv( GL_T, GL_OBJECT_PLANE, local.ToFloatPtr() );
 
 		GL_SelectTexture( 1 );
@@ -1776,17 +1642,7 @@ void	RB_STD_DrawView( void ) {
 	RB_STD_FillDepthBuffer( drawSurfs, numDrawSurfs );
 
 	// main light renderer
-	switch( tr.backEndRenderer ) {
-	case BE_ARB:
-		RB_ARB_DrawInteractions();
-		break;
-	case BE_ARB2:
-		RB_ARB2_DrawInteractions();
-		break;
-	case BE_GLSL:
-		RB_GLSL_DrawInteractions();
-		break;
-	}
+	RB_GLSL_DrawForwardInteractions();
 
 	// disable stencil shadow test
 	qglStencilFunc( GL_ALWAYS, 128, 255 );

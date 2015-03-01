@@ -245,9 +245,6 @@ static uniformTable_t	r_uniformTable[] = {
     {"u_ViewAxis",			UT_VIEW_AXIS,				1,	GL_FLOAT_MAT3},
     {"u_EntityOrigin",		UT_ENTITY_ORIGIN,			1,	GL_FLOAT_VEC3},
     {"u_EntityAxis",		UT_ENTITY_AXIS,				1,	GL_FLOAT_MAT3},
-    {"u_SunOrigin",			UT_SUN_ORIGIN,				1,	GL_FLOAT_VEC3},
-    {"u_SunDirection",		UT_SUN_DIRECTION,			1,	GL_FLOAT_VEC3},
-    {"u_SunColor",			UT_SUN_COLOR,				1,	GL_FLOAT_VEC3},
     {"u_ScreenMatrix",		UT_SCREEN_MATRIX,			1,	GL_FLOAT_MAT4},
     {"u_CoordScaleAndBias",	UT_COORD_SCALE_AND_BIAS,	1,	GL_FLOAT_VEC4},
     {"u_ColorScaleAndBias",	UT_COLOR_SCALE_AND_BIAS,	1,	GL_FLOAT_VEC2},
@@ -815,4 +812,75 @@ void R_UniformMatrix4 (uniform_t *uniform, const idMat4 &m){
 void R_UniformMatrix4Array (uniform_t *uniform, int count, const idMat4 *m){
     
     qglUniformMatrix4fv(uniform->location, count, GL_TRUE, m->ToFloatPtr());
+}
+
+//===========================================================================
+
+/*
+ ==================
+ RB_GLSL_InitInternalShaders
+ ==================
+ */
+void RB_GLSL_InitInternalShaders( void ) {
+    shader_t *vertexShader, *fragmentShader;
+    
+    // load interation shader program
+    vertexShader = R_FindShader( "interaction", GL_VERTEX_SHADER );
+    fragmentShader = R_FindShader( "interaction", GL_FRAGMENT_SHADER );
+    
+    tr.interactionProgram = R_FindProgram( "interaction", vertexShader, fragmentShader );
+    if (!tr.interactionProgram)
+        common->Error( "RB_GLSL_InitInternalShaders: invalid program '%s'", "interaction" );
+    
+    backEnd.interactionParms.localLightOrigin = R_GetProgramUniformExplicit( tr.interactionProgram, "u_lightOrigin", 1, GL_FLOAT_VEC4 );
+    backEnd.interactionParms.localViewOrigin = R_GetProgramUniformExplicit( tr.interactionProgram, "u_viewOrigin", 1, GL_FLOAT_VEC4 );
+    backEnd.interactionParms.lightProjectionS = R_GetProgramUniformExplicit( tr.interactionProgram, "u_lightProjectionS", 1, GL_FLOAT_VEC4 );
+    backEnd.interactionParms.lightProjectionT = R_GetProgramUniformExplicit( tr.interactionProgram, "u_lightProjectionT", 1, GL_FLOAT_VEC4 );
+    backEnd.interactionParms.lightProjectionQ = R_GetProgramUniformExplicit( tr.interactionProgram, "u_lightProjectionQ", 1, GL_FLOAT_VEC4 );
+    backEnd.interactionParms.lightFalloff = R_GetProgramUniformExplicit( tr.interactionProgram, "u_lightFalloff", 1, GL_FLOAT_VEC4 );
+    backEnd.interactionParms.bumpMatrixS = R_GetProgramUniformExplicit( tr.interactionProgram,"u_bumpMatrixS", 1, GL_FLOAT_VEC4 );
+    backEnd.interactionParms.bumpMatrixT = R_GetProgramUniformExplicit( tr.interactionProgram, "u_bumpMatrixT", 1, GL_FLOAT_VEC4 );
+    backEnd.interactionParms.diffuseMatrixS = R_GetProgramUniformExplicit( tr.interactionProgram, "u_diffuseMatrixS", 1, GL_FLOAT_VEC4 );
+    backEnd.interactionParms.diffuseMatrixT = R_GetProgramUniformExplicit( tr.interactionProgram, "u_diffuseMatrixT", 1, GL_FLOAT_VEC4 );
+    backEnd.interactionParms.specularMatrixS = R_GetProgramUniformExplicit( tr.interactionProgram, "u_specularMatrixS", 1, GL_FLOAT_VEC4 );
+    backEnd.interactionParms.specularMatrixT = R_GetProgramUniformExplicit( tr.interactionProgram, "u_specularMatrixT", 1, GL_FLOAT_VEC4 );
+    backEnd.interactionParms.colorModulate = R_GetProgramUniformExplicit( tr.interactionProgram, "u_colorModulate", 1, GL_FLOAT_VEC4 );
+    backEnd.interactionParms.colorAdd = R_GetProgramUniformExplicit( tr.interactionProgram, "u_colorAdd", 1, GL_FLOAT_VEC4 );
+    backEnd.interactionParms.diffuseColor = R_GetProgramUniformExplicit( tr.interactionProgram, "u_diffuseColor", 1, GL_FLOAT_VEC4 );
+    backEnd.interactionParms.specularColor = R_GetProgramUniformExplicit( tr.interactionProgram, "u_specularColor", 1, GL_FLOAT_VEC4 );
+    
+    R_SetProgramSamplerExplicit( tr.interactionProgram, "u_normalTexture", 1, GL_SAMPLER_2D, 0 );
+    R_SetProgramSamplerExplicit( tr.interactionProgram, "u_lightFalloffTexture", 1, GL_SAMPLER_2D, 1 );
+    R_SetProgramSamplerExplicit( tr.interactionProgram, "u_lightProjectionTexture", 1, GL_SAMPLER_2D, 2 );
+    R_SetProgramSamplerExplicit( tr.interactionProgram, "u_diffuseTexture", 1, GL_SAMPLER_2D, 3 );
+    R_SetProgramSamplerExplicit( tr.interactionProgram, "u_specularTexture", 1, GL_SAMPLER_2D, 4 );
+    
+    // load stencil shadow extrusion shader program
+    vertexShader = R_FindShader( "stencilshadow", GL_VERTEX_SHADER );
+    fragmentShader = R_FindShader( "stencilshadow", GL_FRAGMENT_SHADER );
+    
+    tr.stencilShadowProgram = R_FindProgram( "stencilshadow", vertexShader, fragmentShader );
+    if (!tr.stencilShadowProgram)
+        common->Error( "RB_GLSL_InitInternalShaders: invalid program '%s'", "stencilshadow" );
+    
+    backEnd.stencilShadowParms.localLightOrigin = R_GetProgramUniformExplicit( tr.stencilShadowProgram, "u_lightOrigin", 1, GL_FLOAT_VEC4 );
+}
+
+
+/*
+ ==================
+ R_ReloadGLSLPrograms_f
+ ==================
+ */
+void R_ReloadGLSLPrograms_f( const idCmdArgs &args ) {
+    common->Printf( "----- R_ReloadGLSLPrograms -----\n" );
+    
+    R_ShutdownPrograms();
+    R_ShutdownShaders();
+    R_InitShaders();
+    R_InitPrograms();
+    
+    RB_GLSL_InitInternalShaders();
+    
+    common->Printf( "-------------------------------\n" );
 }

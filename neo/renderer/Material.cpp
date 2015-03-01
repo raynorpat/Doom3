@@ -601,9 +601,6 @@ int idMaterial::ParseTerm( idLexer &src ) {
 		pd->registersAreConstant = false;
 		return EXP_REG_GLOBAL7;
 	}
-	if ( !token.Icmp( "fragmentPrograms" ) ) {
-		return GetExpressionConstant( (float) glConfig.ARBFragmentProgramAvailable );
-	}
 
 	if ( !token.Icmp( "sound" ) ) {
 		pd->registersAreConstant = false;

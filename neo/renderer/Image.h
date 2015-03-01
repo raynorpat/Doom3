@@ -130,9 +130,7 @@ typedef enum {
 typedef enum {
 	TT_DISABLED,
 	TT_2D,
-	TT_3D,
-	TT_CUBIC,
-	TT_RECT
+	TT_CUBIC
 } textureType_t;
 
 typedef enum {
@@ -166,9 +164,6 @@ public:
 	void		GenerateImage( const byte *pic, int width, int height, 
 					   textureFilter_t filter, bool allowDownSize, 
 					   textureRepeat_t repeat, textureDepth_t depth );
-	void		Generate3DImage( const byte *pic, int width, int height, int depth,
-						textureFilter_t filter, bool allowDownSize, 
-						textureRepeat_t repeat, textureDepth_t minDepth );
 	void		GenerateCubeImage( const byte *pic[6], int size, 
 						textureFilter_t filter, bool allowDownSize, 
 						textureDepth_t depth );
@@ -408,7 +403,6 @@ public:
 	idImage *			currentRenderImage;			// for SS_POST_PROCESS shaders
 	idImage *			scratchCubeMapImage;
 	idImage *			specularTableImage;			// 1D intensity texture with our specular function
-	idImage *			specular2DTableImage;		// 2D intensity texture with our specular function with variable specularity
 	idImage *			borderClampImage;			// white inside, black outside
 
 	//--------------------------------------------------------

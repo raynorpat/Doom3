@@ -235,7 +235,7 @@ void idMegaTexture::BindForViewOrigin( const idVec3 viewOrigin ) {
 			globalImages->whiteImage->Bind();
 
 			static float	parms[4] = { -2, -2, 0, 1 };	// no contribution
-			qglProgramLocalParameter4fvARB( GL_VERTEX_PROGRAM_ARB, i, parms );
+//			qglProgramLocalParameter4fvARB( GL_VERTEX_PROGRAM_ARB, i, parms );
 		} else {
 			idTextureLevel	*level = &levels[ numLevels-1-i ];
 			
@@ -248,7 +248,7 @@ void idMegaTexture::BindForViewOrigin( const idVec3 viewOrigin ) {
 			} else {
 				level->image->Bind();
 			}
-			qglProgramLocalParameter4fvARB( GL_VERTEX_PROGRAM_ARB, i, level->parms );
+//			qglProgramLocalParameter4fvARB( GL_VERTEX_PROGRAM_ARB, i, level->parms );
 		}
 	}
 
@@ -257,13 +257,13 @@ void idMegaTexture::BindForViewOrigin( const idVec3 viewOrigin ) {
 	parms[1] = 0;
 	parms[2] = 0;
 	parms[3] = 1;
-	qglProgramLocalParameter4fvARB( GL_VERTEX_PROGRAM_ARB, 7, parms );
+//	qglProgramLocalParameter4fvARB( GL_VERTEX_PROGRAM_ARB, 7, parms );
 
 	parms[0] = 1;
 	parms[1] = 1;
 	parms[2] = r_terrainScale.GetFloat();
 	parms[3] = 1;
-	qglProgramLocalParameter4fvARB( GL_VERTEX_PROGRAM_ARB, 8, parms );
+//	qglProgramLocalParameter4fvARB( GL_VERTEX_PROGRAM_ARB, 8, parms );
 }
 
 /*
@@ -381,7 +381,6 @@ void idTextureLevel::UpdateTile( int localX, int localY, int globalX, int global
 			break;
 		}
 
-		int	byteSize = size * 4;
 		// mip-map in place
 		for ( int y = 0 ; y < size ; y++ ) {
 			byte	*in, *in2, *out;
