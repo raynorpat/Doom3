@@ -245,9 +245,7 @@ static uniformTable_t	r_uniformTable[] = {
     {"u_ViewAxis",			UT_VIEW_AXIS,				1,	GL_FLOAT_MAT3},
     {"u_EntityOrigin",		UT_ENTITY_ORIGIN,			1,	GL_FLOAT_VEC3},
     {"u_EntityAxis",		UT_ENTITY_AXIS,				1,	GL_FLOAT_MAT3},
-    {"u_ScreenMatrix",		UT_SCREEN_MATRIX,			1,	GL_FLOAT_MAT4},
-    {"u_CoordScaleAndBias",	UT_COORD_SCALE_AND_BIAS,	1,	GL_FLOAT_VEC4},
-    {"u_ColorScaleAndBias",	UT_COLOR_SCALE_AND_BIAS,	1,	GL_FLOAT_VEC2},
+    {"u_ModelMatrix",		UT_MODEL_MATRIX,			1,	GL_FLOAT_MAT3},
     {NULL,					UT_CUSTOM,					0,	0}
 };
 

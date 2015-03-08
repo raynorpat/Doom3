@@ -596,9 +596,7 @@ typedef enum {
     UT_VIEW_AXIS,
     UT_ENTITY_ORIGIN,
     UT_ENTITY_AXIS,
-    UT_SCREEN_MATRIX,
-    UT_COORD_SCALE_AND_BIAS,
-    UT_COLOR_SCALE_AND_BIAS,
+    UT_MODEL_MATRIX,
     UT_CUSTOM
 } uniformType_t;
 

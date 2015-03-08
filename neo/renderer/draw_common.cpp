@@ -93,7 +93,8 @@ void RB_PrepareStageTexturing( const shaderStage_t *pStage,  const drawSurf_t *s
 	if ( pStage->texture.texgen == TG_SKYBOX_CUBE || pStage->texture.texgen == TG_WOBBLESKY_CUBE ) {
 		qglTexCoordPointer( 3, GL_FLOAT, 0, vertexCache.Position( surf->dynamicTexCoords ) );
 	}
-	if ( pStage->texture.texgen == TG_SCREEN ) {
+    
+	if ( pStage->texture.texgen == TG_SCREEN || pStage->texture.texgen == TG_SCREEN2 ) {
 		qglEnable( GL_TEXTURE_GEN_S );
 		qglEnable( GL_TEXTURE_GEN_T );
 		qglEnable( GL_TEXTURE_GEN_Q );
@@ -119,40 +120,6 @@ void RB_PrepareStageTexturing( const shaderStage_t *pStage,  const drawSurf_t *s
 		plane[3] = mat[15];
 		qglTexGenfv( GL_Q, GL_OBJECT_PLANE, plane );
 	}
-
-	if ( pStage->texture.texgen == TG_SCREEN2 ) {
-		qglEnable( GL_TEXTURE_GEN_S );
-		qglEnable( GL_TEXTURE_GEN_T );
-		qglEnable( GL_TEXTURE_GEN_Q );
-
-		float	mat[16], plane[4];
-		myGlMultMatrix( surf->space->modelViewMatrix, backEnd.viewDef->projectionMatrix, mat );
-
-		plane[0] = mat[0];
-		plane[1] = mat[4];
-		plane[2] = mat[8];
-		plane[3] = mat[12];
-		qglTexGenfv( GL_S, GL_OBJECT_PLANE, plane );
-
-		plane[0] = mat[1];
-		plane[1] = mat[5];
-		plane[2] = mat[9];
-		plane[3] = mat[13];
-		qglTexGenfv( GL_T, GL_OBJECT_PLANE, plane );
-
-		plane[0] = mat[3];
-		plane[1] = mat[7];
-		plane[2] = mat[11];
-		plane[3] = mat[15];
-		qglTexGenfv( GL_Q, GL_OBJECT_PLANE, plane );
-	}
-
-	if ( pStage->texture.texgen == TG_GLASSWARP ) {
-        idLib::Warning( "Using unsupported GlassWarp TexGen!!" );
-	}
-    if ( pStage->texture.texgen == TG_DIFFUSE_CUBE ) {
-        idLib::Warning( "Using unsupported DiffuseCube TexGen!!" );
-    }
 
 	if ( pStage->texture.texgen == TG_REFLECT_CUBE ) {
         cubeParms_t *parms;
@@ -200,6 +167,13 @@ void RB_PrepareStageTexturing( const shaderStage_t *pStage,  const drawSurf_t *s
             R_UniformVector3( parms->localViewOrigin, localViewOrigin );
 		}
 	}
+    
+    if ( pStage->texture.texgen == TG_GLASSWARP ) {
+        idLib::Warning( "Using unsupported GlassWarp TexGen!!" );
+    }
+    if ( pStage->texture.texgen == TG_DIFFUSE_CUBE ) {
+        idLib::Warning( "Using unsupported DiffuseCube TexGen!!" );
+    }
 }
 
 /*
@@ -217,12 +191,7 @@ void RB_FinishStageTexturing( const shaderStage_t *pStage, const drawSurf_t *sur
 		qglTexCoordPointer( 2, GL_FLOAT, sizeof( idDrawVert ), (void *)&ac->st );
 	}
 
-	if ( pStage->texture.texgen == TG_SCREEN ) {
-		qglDisable( GL_TEXTURE_GEN_S );
-		qglDisable( GL_TEXTURE_GEN_T );
-		qglDisable( GL_TEXTURE_GEN_Q );
-	}
-	if ( pStage->texture.texgen == TG_SCREEN2 ) {
+	if ( pStage->texture.texgen == TG_SCREEN || pStage->texture.texgen == TG_SCREEN2 ) {
 		qglDisable( GL_TEXTURE_GEN_S );
 		qglDisable( GL_TEXTURE_GEN_T );
 		qglDisable( GL_TEXTURE_GEN_Q );
@@ -599,53 +568,51 @@ void RB_STD_T_RenderShaderPasses( const drawSurf_t *surf ) {
             shaderParm_t	*shaderParm;
             
 			qglColorPointer( 4, GL_UNSIGNED_BYTE, sizeof( idDrawVert ), (void *)&ac->color );
+            qglVertexAttribPointerARB( 8, 2, GL_FLOAT, false, sizeof( idDrawVert ), ac->st.ToFloatPtr() );
 			qglVertexAttribPointerARB( 9, 3, GL_FLOAT, false, sizeof( idDrawVert ), ac->tangents[0].ToFloatPtr() );
 			qglVertexAttribPointerARB( 10, 3, GL_FLOAT, false, sizeof( idDrawVert ), ac->tangents[1].ToFloatPtr() );
-			qglNormalPointer( GL_FLOAT, sizeof( idDrawVert ), ac->normal.ToFloatPtr() );
+            qglVertexAttribPointerARB( 11, 3, GL_FLOAT, false, sizeof( idDrawVert ), ac->normal.ToFloatPtr() );
 
 			qglEnableClientState( GL_COLOR_ARRAY );
+            qglEnableVertexAttribArrayARB( 8 );
 			qglEnableVertexAttribArrayARB( 9 );
 			qglEnableVertexAttribArrayARB( 10 );
-			qglEnableClientState( GL_NORMAL_ARRAY );
+            qglEnableVertexAttribArrayARB( 11 );
 
 			GL_State( pStage->drawStateBits );
 			
             GL_BindProgram( newStage->program );
 
-            // Set up the predefined uniforms
+            // set up the predefined uniforms
             for (int i = 0; i < newStage->program->numUniforms; i++, uniform++) {
                 uniform = newStage->program->uniforms;
                 
                 if (uniform->type == UT_CUSTOM)
                     continue;
-                /*
+
                 switch (uniform->type) {
                     case UT_CLIP_PLANE:
-                        R_UniformVector4(uniform, backEnd.localParms.clipPlane);
+                        R_UniformVector4(uniform, backEnd.viewDef->clipPlanes[0].ToVec4());
                         break;
-                    case UT_VIEW_ORIGIN:
-                        R_UniformVector3(uniform, backEnd.localParms.viewOrigin);
+                    case UT_VIEW_ORIGIN: {
+                        idVec3 localViewOrigin;
+                        R_GlobalPointToLocal( surf->space->modelMatrix, backEnd.viewDef->renderView.vieworg, localViewOrigin );
+                        R_UniformVector3(uniform, localViewOrigin);
                         break;
+                    }
                     case UT_VIEW_AXIS:
-                        R_UniformMatrix3(uniform, backEnd.localParms.viewAxis);
+                        R_UniformMatrix3(uniform, backEnd.viewDef->renderView.viewaxis);
                         break;
                     case UT_ENTITY_ORIGIN:
-                        R_UniformVector3(uniform, backEnd.entity->e.origin);
+                        R_UniformVector3(uniform, backEnd.currentSpace->entityDef->parms.origin);
                         break;
                     case UT_ENTITY_AXIS:
-                        R_UniformMatrix3(uniform, backEnd.entity->e.axis);
+                        R_UniformMatrix3(uniform, backEnd.currentSpace->entityDef->parms.axis);
                         break;
-                    case UT_SCREEN_MATRIX:
-                        R_UniformMatrix4(uniform, backEnd.viewParms.projectionMatrix * backEnd.localParms.viewMatrix);
-                        break;
-                    case UT_COORD_SCALE_AND_BIAS:
-                        R_UniformFloat4(uniform, backEnd.coordScale[0], backEnd.coordScale[1], backEnd.coordBias[0], backEnd.coordBias[1]);
-                        break;
-                    case UT_COLOR_SCALE_AND_BIAS:
-                        R_UniformVector2(uniform, shaderStage->colorScaleAndBias);
+                    case UT_MODEL_MATRIX:
+                        qglUniformMatrix4fv(uniform->location, 1, GL_TRUE, surf->space->modelMatrix);
                         break;
                 }
-                 */
             }
             
 #if 0
@@ -708,9 +675,10 @@ void RB_STD_T_RenderShaderPasses( const drawSurf_t *surf ) {
             GL_BindProgram( 0 );
 
 			qglDisableClientState( GL_COLOR_ARRAY );
+            qglDisableVertexAttribArrayARB( 8 );
 			qglDisableVertexAttribArrayARB( 9 );
 			qglDisableVertexAttribArrayARB( 10 );
-			qglDisableClientState( GL_NORMAL_ARRAY );
+			qglDisableVertexAttribArrayARB( 11 );
 			continue;
 		}
 
