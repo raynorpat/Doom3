@@ -878,16 +878,6 @@ void RB_GLSL_InitInteractionShaders( void ) {
     R_SetProgramSamplerExplicit( tr.interactionAmbientProgram, "u_lightFalloffTexture", 1, GL_SAMPLER_2D, 1 );
     R_SetProgramSamplerExplicit( tr.interactionAmbientProgram, "u_lightProjectionTexture", 1, GL_SAMPLER_2D, 2 );
     R_SetProgramSamplerExplicit( tr.interactionAmbientProgram, "u_diffuseTexture", 1, GL_SAMPLER_2D, 3 );
-    
-    // load stencil shadow extrusion shader program
-    vertexShader = R_FindShader( "stencilshadow", GL_VERTEX_SHADER );
-    fragmentShader = R_FindShader( "stencilshadow", GL_FRAGMENT_SHADER );
-    
-    tr.stencilShadowProgram = R_FindProgram( "stencilshadow", vertexShader, fragmentShader );
-    if (!tr.stencilShadowProgram)
-        common->Error( "RB_GLSL_InitInternalShaders: invalid program '%s'", "stencilshadow" );
-    
-    backEnd.stencilShadowParms.localLightOrigin = R_GetProgramUniformExplicit( tr.stencilShadowProgram, "u_lightOrigin", 1, GL_FLOAT_VEC4 );
 }
 
 
@@ -923,6 +913,41 @@ void RB_GLSL_InitCommonShaders( void ) {
     backEnd.cubeReflectParms.localViewOrigin = R_GetProgramUniformExplicit( tr.cubeReflectProgram, "u_ViewOrigin", 1, GL_FLOAT_VEC3 );
 
     R_SetProgramSamplerExplicit( tr.cubeReflectProgram, "u_envMap", 1, GL_SAMPLER_CUBE, 0 );
+    
+    // load depth fill program
+    vertexShader = R_FindShader( "common/depth", GL_VERTEX_SHADER );
+    fragmentShader = R_FindShader( "common/depth", GL_FRAGMENT_SHADER );
+    
+    tr.depthProgram = R_FindProgram( "common/depth", vertexShader, fragmentShader );
+    if (!tr.depthProgram)
+        common->Error( "RB_GLSL_InitCommonShaders: invalid program '%s'", "common/depth" );
+    
+    //backEnd.depthParms.clipPlane = R_GetProgramUniformExplicit( tr.depthProgram, "u_ClipPlane", 1, GL_FLOAT_VEC4 );
+    backEnd.depthParms.color = R_GetProgramUniformExplicit( tr.depthProgram, "u_Color", 1, GL_FLOAT_VEC4 );
+    
+    // load depth fill with alpha mask program
+    vertexShader = R_FindShader( "common/depthWithMask", GL_VERTEX_SHADER );
+    fragmentShader = R_FindShader( "common/depthWithMask", GL_FRAGMENT_SHADER );
+    
+    tr.depthWithMaskProgram = R_FindProgram( "common/depthWithMask", vertexShader, fragmentShader );
+    if (!tr.depthWithMaskProgram)
+        common->Error( "RB_GLSL_InitCommonShaders: invalid program '%s'", "common/depthWithMask" );
+    
+    //backEnd.depthWithMaskParms.clipPlane = R_GetProgramUniformExplicit( tr.depthWithMaskProgram, "u_ClipPlane", 1, GL_FLOAT_VEC4 );
+    backEnd.depthWithMaskParms.color = R_GetProgramUniformExplicit( tr.depthWithMaskProgram, "u_Color", 1, GL_FLOAT_VEC4 );
+    backEnd.depthWithMaskParms.alphaReference = R_GetProgramUniformExplicit( tr.depthWithMaskProgram, "u_AlphaReference", 1, GL_FLOAT );
+    
+    R_SetProgramSamplerExplicit( tr.depthWithMaskProgram, "u_AlphaMap", 1, GL_SAMPLER_2D, 0 );
+    
+    // load stencil shadow extrusion shader program
+    vertexShader = R_FindShader( "common/stencil", GL_VERTEX_SHADER );
+    fragmentShader = R_FindShader( "common/stencil", GL_FRAGMENT_SHADER );
+    
+    tr.stencilShadowProgram = R_FindProgram( "common/stencil", vertexShader, fragmentShader );
+    if (!tr.stencilShadowProgram)
+        common->Error( "RB_GLSL_InitInternalShaders: invalid program '%s'", "common/stencil" );
+    
+    backEnd.stencilShadowParms.localLightOrigin = R_GetProgramUniformExplicit( tr.stencilShadowProgram, "u_lightOrigin", 1, GL_FLOAT_VEC4 );
 }
 
 

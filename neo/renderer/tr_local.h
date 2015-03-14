@@ -656,6 +656,12 @@ typedef struct {
     uniform_t *				localViewOrigin;
 } cubeParms_t;
 
+typedef struct {
+    uniform_t *				clipPlane;
+    uniform_t *				color;
+    uniform_t *				alphaReference;
+} depthParms_t;
+
 //====================================================
 
 /*
@@ -763,6 +769,8 @@ typedef struct {
     interactionParms_t interactionAmbientParms;
     cubeParms_t cubeNormalReflectParms;
     cubeParms_t cubeReflectParms;
+    depthParms_t depthParms;
+    depthParms_t depthWithMaskParms;
 
 	int					c_copyFrameBuffer;
 } backEndState_t;
@@ -890,6 +898,9 @@ public:
     shaderProgram_t *		interactionAmbientProgram;
     shaderProgram_t *		cubeNormalReflectProgram;
     shaderProgram_t *		cubeReflectProgram;
+    shaderProgram_t *       depthProgram;
+    shaderProgram_t *       depthWithMaskProgram;
+    
 
 	// GUI drawing variables for surface creation
 	int						guiRecursionLevel;		// to prevent infinite overruns
@@ -1380,12 +1391,13 @@ void RB_BakeTextureMatrixIntoTexgen( idPlane lightProject[3], const float textur
 /*
 ============================================================
 
-DRAW_*
+DRAW_GLSL
 
 ============================================================
 */
 
 void	RB_GLSL_DrawForwardInteractions( void );
+void    RB_GLSL_FillDepthBuffer( drawSurf_t **drawSurfs, int numDrawSurfs );
 
 /*
 ============================================================

@@ -31,6 +31,9 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "tr_local.h"
 
+void RB_PrepareStageTexturing( const shaderStage_t *pStage,  const drawSurf_t *surf, idDrawVert *ac );
+void RB_FinishStageTexturing( const shaderStage_t *pStage, const drawSurf_t *surf, idDrawVert *ac );
+
 /*
  ====================
  GL_SelectTextureNoClient
@@ -40,6 +43,215 @@ static void GL_SelectTextureNoClient( int unit ) {
     backEnd.glState.currenttmu = unit;
     qglActiveTextureARB( GL_TEXTURE0_ARB + unit );
     RB_LogComment( "glActiveTextureARB( %i )\n", unit );
+}
+
+/*
+ =============================================================================================
+ 
+ FILL DEPTH BUFFER
+ 
+ =============================================================================================
+ */
+
+
+/*
+ ==================
+ RB_T_FillDepthBuffer
+ ==================
+ */
+static void RB_T_FillDepthBuffer( const drawSurf_t *surf ) {
+    int			stage;
+    const idMaterial	*shader;
+    const shaderStage_t *pStage;
+    const float	*regs;
+    float		color[4];
+    const srfTriangles_t	*tri;
+    depthParms_t *parms;
+    
+    tri = surf->geo;
+    shader = surf->material;
+
+    if ( !shader->IsDrawn() ) {
+        return;
+    }
+    
+    // some deforms may disable themselves by setting numIndexes = 0
+    if ( !tri->numIndexes ) {
+        return;
+    }
+    
+    // translucent surfaces don't put anything in the depth buffer and don't
+    // test against it, which makes them fail the mirror clip plane operation
+    if ( shader->Coverage() == MC_TRANSLUCENT ) {
+        return;
+    }
+    
+    if ( !tri->ambientCache ) {
+        common->Printf( "RB_T_FillDepthBuffer: !tri->ambientCache\n" );
+        return;
+    }
+    
+    // get the expressions for conditionals / color / texcoords
+    regs = surf->shaderRegisters;
+    
+    // if all stages of a material have been conditioned off, don't do anything
+    for ( stage = 0; stage < shader->GetNumStages() ; stage++ ) {
+        pStage = shader->GetStage(stage);
+        // check the stage enable condition
+        if ( regs[ pStage->conditionRegister ] != 0 ) {
+            break;
+        }
+    }
+    if ( stage == shader->GetNumStages() ) {
+        return;
+    }
+    
+    // set polygon offset if necessary
+    if ( shader->TestMaterialFlag(MF_POLYGONOFFSET) ) {
+        qglEnable( GL_POLYGON_OFFSET_FILL );
+        qglPolygonOffset( r_offsetFactor.GetFloat(), r_offsetUnits.GetFloat() * shader->GetPolygonOffset() );
+    }
+    
+    // subviews will just down-modulate the color buffer by overbright
+    if (shader->GetSort() == SS_SUBVIEW) {
+        GL_State(GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ZERO | GLS_DEPTHFUNC_LESS);
+        color[0] =
+        color[1] =
+        color[2] = (1.0 / backEnd.overBright);
+        color[3] = 1;
+    } else {
+        // others just draw black
+        color[0] = 0;
+        color[1] = 0;
+        color[2] = 0;
+        color[3] = 1;
+    }
+    
+    idDrawVert *ac = (idDrawVert *)vertexCache.Position( tri->ambientCache );
+    qglVertexPointer( 3, GL_FLOAT, sizeof( idDrawVert ), ac->xyz.ToFloatPtr() );
+    qglTexCoordPointer( 2, GL_FLOAT, sizeof( idDrawVert ), reinterpret_cast<void *>(&ac->st) );
+    
+    bool drawSolid = false;
+    
+    if ( shader->Coverage() == MC_OPAQUE ) {
+        drawSolid = true;
+    }
+    
+    // we may have multiple alpha tested stages
+    if ( shader->Coverage() == MC_PERFORATED ) {
+        // if the only alpha tested stages are condition register omitted,
+        // draw a normal opaque surface
+        bool	didDraw = false;
+        
+        // perforated surfaces may have multiple alpha tested stages
+        for ( stage = 0; stage < shader->GetNumStages() ; stage++ ) {
+            pStage = shader->GetStage(stage);
+            
+            if ( !pStage->hasAlphaTest ) {
+                continue;
+            }
+            
+            // check the stage enable condition
+            if ( regs[ pStage->conditionRegister ] == 0 ) {
+                continue;
+            }
+            
+            // if we at least tried to draw an alpha tested stage,
+            // we won't draw the opaque surface
+            didDraw = true;
+            
+            // set the alpha modulate
+            color[3] = regs[ pStage->color.registers[3] ];
+            
+            // skip the entire stage if alpha would be black
+            if ( color[3] <= 0 ) {
+                continue;
+            }
+            
+            // set texture matrix and texGens
+            RB_PrepareStageTexturing( pStage, surf, ac );
+            
+            // bind the program
+            GL_BindProgram(tr.depthWithMaskProgram);
+            
+            // set up the program uniforms
+            parms = &backEnd.depthWithMaskParms;
+            
+            //R_UniformVector4( parms->clipPlane, backEnd.viewDef->clipPlanes[0].ToVec4() );
+            R_UniformFloat4( parms->color, color[0], color[1], color[2], color[3] );
+            R_UniformFloat( parms->alphaReference, regs[ pStage->alphaTestRegister ] );
+            
+            // bind the texture
+            pStage->texture.image->Bind();
+            
+            // draw it
+            RB_DrawElementsWithCounters( tri );
+            
+            RB_FinishStageTexturing( pStage, surf, ac );
+        }
+        
+        if ( !didDraw ) {
+            drawSolid = true;
+        }
+    }
+    
+    // draw the entire surface solid
+    if ( drawSolid ) {
+        // bind the program
+        GL_BindProgram(tr.depthProgram);
+        
+        // set up the program uniforms
+        parms = &backEnd.depthParms;
+        
+        //R_UniformVector4(parms->clipPlane, backEnd.viewDef->clipPlanes[0].ToVec4());
+        R_UniformFloat4( parms->color, color[0], color[1], color[2], color[3] );
+        
+        // draw it
+        RB_DrawElementsWithCounters( tri );
+    }
+    
+    // reset polygon offset
+    if ( shader->TestMaterialFlag(MF_POLYGONOFFSET) ) {
+        qglDisable( GL_POLYGON_OFFSET_FILL );
+    }
+    
+    // reset blending
+    if (shader->GetSort() == SS_SUBVIEW) {
+        GL_State(GLS_DEPTHFUNC_LESS);
+    }
+    
+    GL_BindProgram( NULL );
+}
+
+/*
+ =====================
+ RB_GLSL_FillDepthBuffer
+ =====================
+ */
+void RB_GLSL_FillDepthBuffer( drawSurf_t **drawSurfs, int numDrawSurfs ) {
+    // if we are just doing 2D rendering, no need to fill the depth buffer
+    if ( !backEnd.viewDef->viewEntitys ) {
+        return;
+    }
+    
+    RB_LogComment( "---------- RB_GLSL_FillDepthBuffer ----------\n" );
+    
+    // the first texture will be used for alpha tested surfaces
+    GL_SelectTexture( 0 );
+    qglEnableClientState( GL_TEXTURE_COORD_ARRAY );
+    
+    // decal surfaces may enable polygon offset
+    qglPolygonOffset( r_offsetFactor.GetFloat(), r_offsetUnits.GetFloat() );
+    
+    GL_State( GLS_DEPTHFUNC_LESS );
+    
+    // Enable stencil test if we are going to be using it for shadows.
+    // If we didn't do this, it would be legal behavior to get z fighting
+    // from the ambient pass and the light passes.
+    qglEnable( GL_STENCIL_TEST );
+    qglStencilFunc( GL_ALWAYS, 1, 255 );
+    
+    RB_RenderDrawSurfListWithFunction( drawSurfs, numDrawSurfs, RB_T_FillDepthBuffer );
 }
 
 /*
