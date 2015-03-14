@@ -1482,7 +1482,35 @@ void idMaterial::ParseStage( idLexer &src, const textureRepeat_t trpDefault ) {
 			ss->conditionRegister = ParseExpression( src );
 			continue;
 		}
+        
+        // raynorpat: old style vertex/fragment program
+        if ( !token.Icmp( "program" ) ) {
+            common->Warning( "deprecated token '%s' in material '%s'", token.c_str(), GetName() );
+            SetMaterialFlag( MF_DEFAULTED );
+            return;
+        }
+        if ( !token.Icmp( "vertexProgram" ) ) {
+            common->Warning( "deprecated token '%s' in material '%s'", token.c_str(), GetName() );
+            SetMaterialFlag( MF_DEFAULTED );
+            return;
+        }
+        if ( !token.Icmp( "fragmentProgram" ) ) {
+            common->Warning( "deprecated token '%s' in material '%s'", token.c_str(), GetName() );
+            SetMaterialFlag( MF_DEFAULTED );
+            return;
+        }
+        if ( !token.Icmp( "fragmentMap" ) ) {
+            common->Warning( "deprecated token '%s' in material '%s'", token.c_str(), GetName() );
+            SetMaterialFlag( MF_DEFAULTED );
+            return;
+        }
+        if ( !token.Icmp( "vertexParm" ) ) {
+            common->Warning( "deprecated token '%s' in material '%s'", token.c_str(), GetName() );
+            SetMaterialFlag( MF_DEFAULTED );
+            return;
+        }
 
+        // raynorpat: new style vertex/fragment shader support
         if ( !token.Icmp( "shader" ) ) {
             if ( src.ReadTokenOnLine( &token ) ) {
                 newStage.vertexShader = R_FindShader( token.c_str(), GL_VERTEX_SHADER );
@@ -1547,7 +1575,6 @@ void idMaterial::ParseStage( idLexer &src, const textureRepeat_t trpDefault ) {
 		SetMaterialFlag( MF_DEFAULTED );
 		return;
 	}
-
 
 	// if we are using newStage, allocate a copy of it
 	if ( newStage.program ) {
