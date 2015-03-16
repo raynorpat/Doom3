@@ -33,7 +33,6 @@ If you have questions concerning this license or the applicable additional terms
 
 /*
 
-
 All that is done in these functions is the creation of viewLights
 and viewEntitys for the lightDefs and entityDefs that are visible
 in the portal areas that can be seen from the current viewpoint.
