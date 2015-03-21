@@ -51,12 +51,16 @@ static void RB_T_Shadow( const drawSurf_t *surf ) {
     // set the light position in the vertex shader to project the rear surfaces
     if ( surf->space != backEnd.currentSpace ) {
         idVec4 localLight;
+        
+        // setup stencil shader parms
         stencilShadowParms_t *parms;
         parms = &backEnd.stencilShadowParms;
         
+        // grab light origin
         R_GlobalPointToLocal( surf->space->modelMatrix, backEnd.vLight->globalLightOrigin, localLight.ToVec3() );
         localLight.w = 0.0f;
         
+        // pass in light origin to vertex shader
         R_UniformVector4( parms->localLightOrigin, localLight );
     }
     
