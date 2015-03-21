@@ -66,6 +66,7 @@ static void RB_T_FillDepthBuffer( const drawSurf_t *surf ) {
     const float	*regs;
     float		color[4];
     const srfTriangles_t	*tri;
+    bool        alphaTested = false;
     depthParms_t *parms;
     
     tri = surf->geo;
@@ -114,7 +115,7 @@ static void RB_T_FillDepthBuffer( const drawSurf_t *surf ) {
     
     // subviews will just down-modulate the color buffer by overbright
     if (shader->GetSort() == SS_SUBVIEW) {
-        GL_State(GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ZERO | GLS_DEPTHFUNC_LESS);
+        GL_State( GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ZERO | GLS_DEPTHFUNC_LESS );
         color[0] =
         color[1] =
         color[2] = (1.0 / backEnd.overBright);
@@ -129,24 +130,14 @@ static void RB_T_FillDepthBuffer( const drawSurf_t *surf ) {
     
     idDrawVert *ac = (idDrawVert *)vertexCache.Position( tri->ambientCache );
     qglVertexPointer( 3, GL_FLOAT, sizeof( idDrawVert ), ac->xyz.ToFloatPtr() );
-    qglTexCoordPointer( 2, GL_FLOAT, sizeof( idDrawVert ), reinterpret_cast<void *>(&ac->st) );
-    
-    bool drawSolid = false;
-    
-    if ( shader->Coverage() == MC_OPAQUE ) {
-        drawSolid = true;
-    }
-    
+
     // we may have multiple alpha tested stages
     if ( shader->Coverage() == MC_PERFORATED ) {
-        // if the only alpha tested stages are condition register omitted,
-        // draw a normal opaque surface
-        bool	didDraw = false;
-        
         // perforated surfaces may have multiple alpha tested stages
         for ( stage = 0; stage < shader->GetNumStages() ; stage++ ) {
             pStage = shader->GetStage(stage);
             
+            // skip if not an alpha tested stage
             if ( !pStage->hasAlphaTest ) {
                 continue;
             }
@@ -156,9 +147,14 @@ static void RB_T_FillDepthBuffer( const drawSurf_t *surf ) {
                 continue;
             }
             
-            // if we at least tried to draw an alpha tested stage,
-            // we won't draw the opaque surface
-            didDraw = true;
+            // if this is the first alpha tested stage
+            if ( !alphaTested ) {
+                alphaTested = true;
+
+                // enable and set the arrays
+                qglEnableVertexAttribArrayARB( 8 );
+                qglVertexAttribPointerARB( 8, 2, GL_FLOAT, false, sizeof( idDrawVert ), ac->st.ToFloatPtr() );
+            }
             
             // set the alpha modulate
             color[3] = regs[ pStage->color.registers[3] ];
@@ -188,27 +184,31 @@ static void RB_T_FillDepthBuffer( const drawSurf_t *surf ) {
             RB_DrawElementsWithCounters( tri );
             
             RB_FinishStageTexturing( pStage, surf, ac );
+            
+            // reset program state
+            GL_BindProgram( NULL );
         }
         
-        if ( !didDraw ) {
-            drawSolid = true;
+        // If we drew an alpha tested stage, no need to draw a solid surface
+        if ( alphaTested ) {
+            // disable the arrays
+            qglDisableVertexAttribArrayARB( 8 );
+            
+            return;
         }
     }
     
-    // draw the entire surface solid
-    if ( drawSolid ) {
-        // bind the program
-        GL_BindProgram(tr.depthProgram);
+    // bind the program
+    GL_BindProgram(tr.depthProgram);
         
-        // set up the program uniforms
-        parms = &backEnd.depthParms;
+    // set up the program uniforms
+    parms = &backEnd.depthParms;
         
-        //R_UniformVector4(parms->clipPlane, backEnd.viewDef->clipPlanes[0].ToVec4());
-        R_UniformFloat4( parms->color, color[0], color[1], color[2], color[3] );
+    //R_UniformVector4(parms->clipPlane, backEnd.viewDef->clipPlanes[0].ToVec4());
+    R_UniformFloat4( parms->color, color[0], color[1], color[2], color[3] );
         
-        // draw it
-        RB_DrawElementsWithCounters( tri );
-    }
+    // draw it
+    RB_DrawElementsWithCounters( tri );
     
     // reset polygon offset
     if ( shader->TestMaterialFlag(MF_POLYGONOFFSET) ) {
@@ -216,10 +216,11 @@ static void RB_T_FillDepthBuffer( const drawSurf_t *surf ) {
     }
     
     // reset blending
-    if (shader->GetSort() == SS_SUBVIEW) {
-        GL_State(GLS_DEPTHFUNC_LESS);
+    if ( shader->GetSort() == SS_SUBVIEW ) {
+        GL_State( GLS_DEPTHFUNC_LESS );
     }
     
+    // reset program state
     GL_BindProgram( NULL );
 }
 
@@ -238,7 +239,6 @@ void RB_GLSL_FillDepthBuffer( drawSurf_t **drawSurfs, int numDrawSurfs ) {
     
     // the first texture will be used for alpha tested surfaces
     GL_SelectTexture( 0 );
-    qglEnableClientState( GL_TEXTURE_COORD_ARRAY );
     
     // decal surfaces may enable polygon offset
     qglPolygonOffset( r_offsetFactor.GetFloat(), r_offsetUnits.GetFloat() );
