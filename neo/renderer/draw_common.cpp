@@ -1174,76 +1174,6 @@ void RB_STD_FogAllLights( void ) {
 //=========================================================================================
 
 /*
-==================
-RB_STD_LightScale
-
-Perform extra blending passes to multiply the entire buffer by
-a floating point value
-==================
-*/
-void RB_STD_LightScale( void ) {
-	float	v, f;
-
-	if ( backEnd.overBright == 1.0f ) {
-		return;
-	}
-
-	if ( r_skipLightScale.GetBool() ) {
-		return;
-	}
-
-	RB_LogComment( "---------- RB_STD_LightScale ----------\n" );
-
-	// the scissor may be smaller than the viewport for subviews
-	if ( r_useScissor.GetBool() ) {
-		qglScissor( backEnd.viewDef->viewport.x1 + backEnd.viewDef->scissor.x1, 
-			backEnd.viewDef->viewport.y1 + backEnd.viewDef->scissor.y1, 
-			backEnd.viewDef->scissor.x2 - backEnd.viewDef->scissor.x1 + 1,
-			backEnd.viewDef->scissor.y2 - backEnd.viewDef->scissor.y1 + 1 );
-		backEnd.currentScissor = backEnd.viewDef->scissor;
-	}
-
-	// full screen blends
-	qglLoadIdentity();
-	qglMatrixMode( GL_PROJECTION );
-	qglPushMatrix();
-	qglLoadIdentity(); 
-    qglOrtho( 0, 1, 0, 1, -1, 1 );
-
-	GL_State( GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_SRC_COLOR );
-	GL_Cull( CT_TWO_SIDED );	// so mirror views also get it
-	globalImages->BindNull();
-	qglDisable( GL_DEPTH_TEST );
-	qglDisable( GL_STENCIL_TEST );
-
-	v = 1;
-	while ( idMath::Fabs( v - backEnd.overBright ) > 0.01 ) {	// a little extra slop
-		f = backEnd.overBright / v;
-		f /= 2;
-		if ( f > 1 ) {
-			f = 1;
-		}
-		qglColor3f( f, f, f );
-		v = v * f * 2;
-
-		qglBegin( GL_QUADS );
-		qglVertex2f( 0,0 );	
-		qglVertex2f( 0,1 );
-		qglVertex2f( 1,1 );	
-		qglVertex2f( 1,0 );	
-		qglEnd();
-	}
-
-
-	qglPopMatrix();
-	qglEnable( GL_DEPTH_TEST );
-	qglMatrixMode( GL_MODELVIEW );
-	GL_Cull( CT_FRONT_SIDED );
-}
-
-//=========================================================================================
-
-/*
 =============
 RB_STD_DrawView
 =============
@@ -1273,9 +1203,6 @@ void	RB_STD_DrawView( void ) {
 
 	// disable stencil shadow test
 	qglStencilFunc( GL_ALWAYS, 128, 255 );
-
-	// uplight the entire screen to crutch up not having better blending range
-	RB_STD_LightScale();
 
 	// now draw any non-light dependent shading passes
 	int	processed = RB_STD_DrawShaderPasses( drawSurfs, numDrawSurfs );
