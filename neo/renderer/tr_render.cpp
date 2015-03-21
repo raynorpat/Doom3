@@ -460,71 +460,7 @@ void RB_FinishStageTexture( const textureStage_t *texture, const drawSurf_t *sur
 }
 
 
-
 //=============================================================================================
-
-
-/*
-=================
-RB_DetermineLightScale
-
-Sets:
-backEnd.lightScale
-backEnd.overBright
-
-Find out how much we are going to need to overscale the lighting, so we
-can down modulate the pre-lighting passes.
-
-We only look at light calculations, but an argument could be made that
-we should also look at surface evaluations, which would let surfaces
-overbright past 1.0
-=================
-*/
-void RB_DetermineLightScale( void ) {
-	viewLight_t			*vLight;
-	const idMaterial	*shader;
-	float				max;
-	int					i, j, numStages;
-	const shaderStage_t	*stage;
-
-	// the light scale will be based on the largest color component of any surface
-	// that will be drawn.
-	// should we consider separating rgb scales?
-
-	// if there are no lights, this will remain at 1.0, so GUI-only
-	// rendering will not lose any bits of precision
-	max = 1.0;
-
-	for ( vLight = backEnd.viewDef->viewLights ; vLight ; vLight = vLight->next ) {
-		// lights with no surfaces or shaderparms may still be present
-		// for debug display
-		if ( !vLight->localInteractions && !vLight->globalInteractions
-			&& !vLight->translucentInteractions ) {
-			continue;
-		}
-
-		shader = vLight->lightShader;
-		numStages = shader->GetNumStages();
-		for ( i = 0 ; i < numStages ; i++ ) {
-			stage = shader->GetStage( i );
-			for ( j = 0 ; j < 3 ; j++ ) {
-				float	v = r_lightScale.GetFloat() * vLight->shaderRegisters[ stage->color.registers[j] ];
-				if ( v > max ) {
-					max = v;
-				}
-			}
-		}
-	}
-
-	backEnd.pc.maxLightValue = max;
-	if ( max <= tr.backEndRendererMaxLight ) {
-		backEnd.lightScale = r_lightScale.GetFloat();
-		backEnd.overBright = 1.0;
-	} else {
-		backEnd.lightScale = r_lightScale.GetFloat() * tr.backEndRendererMaxLight / max;
-		backEnd.overBright = max / tr.backEndRendererMaxLight;
-	}
-}
 
 
 /*
@@ -535,7 +471,7 @@ Any mirrored or portaled views have already been drawn, so prepare
 to actually render the visible surfaces for this view
 =================
 */
-void RB_BeginDrawingView (void) {
+void RB_BeginDrawingView ( void ) {
 	// set the modelview matrix for the viewer
 	qglMatrixMode(GL_PROJECTION);
 	qglLoadMatrixf( backEnd.viewDef->projectionMatrix );
@@ -748,12 +684,9 @@ void RB_CreateSingleDrawInteractions( const drawSurf_t *surf, void (*DrawInterac
 		inter.specularColor[0] = inter.specularColor[1] = inter.specularColor[2] = inter.specularColor[3] = 0;
 
 		float lightColor[4];
-
-		// backEnd.lightScale is calculated so that lightColor[] will never exceed
-		// tr.backEndRendererMaxLight
-		lightColor[0] = backEnd.lightScale * lightRegs[ lightStage->color.registers[0] ];
-		lightColor[1] = backEnd.lightScale * lightRegs[ lightStage->color.registers[1] ];
-		lightColor[2] = backEnd.lightScale * lightRegs[ lightStage->color.registers[2] ];
+		lightColor[0] = r_lightScale.GetFloat() * lightRegs[ lightStage->color.registers[0] ];
+		lightColor[1] = r_lightScale.GetFloat() * lightRegs[ lightStage->color.registers[1] ];
+		lightColor[2] = r_lightScale.GetFloat() * lightRegs[ lightStage->color.registers[2] ];
 		lightColor[3] = lightRegs[ lightStage->color.registers[3] ];
 
 		// go through the individual stages

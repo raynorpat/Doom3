@@ -113,12 +113,12 @@ static void RB_T_FillDepthBuffer( const drawSurf_t *surf ) {
         qglPolygonOffset( r_offsetFactor.GetFloat(), r_offsetUnits.GetFloat() * shader->GetPolygonOffset() );
     }
     
-    // subviews will just down-modulate the color buffer by overbright
+    // subviews will just down-modulate the color buffer
     if (shader->GetSort() == SS_SUBVIEW) {
         GL_State( GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ZERO | GLS_DEPTHFUNC_LESS );
         color[0] =
         color[1] =
-        color[2] = (1.0 / backEnd.overBright);
+        color[2] =
         color[3] = 1;
     } else {
         // others just draw black

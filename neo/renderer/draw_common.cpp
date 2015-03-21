@@ -705,26 +705,26 @@ static void RB_T_Shadow( const drawSurf_t *surf ) {
 	if ( r_showShadows.GetInteger() ) {
 		if ( r_showShadows.GetInteger() == 3 ) {
 			if ( external ) {
-				qglColor3f( 0.1/backEnd.overBright, 1/backEnd.overBright, 0.1/backEnd.overBright );
+				qglColor3f( 0.1, 1, 0.1 );
 			} else {
 				// these are the surfaces that require the reverse
-				qglColor3f( 1/backEnd.overBright, 0.1/backEnd.overBright, 0.1/backEnd.overBright );
+				qglColor3f( 1, 0.1, 0.1 );
 			}
 		} else {
 			// draw different color for turboshadows
 			if ( surf->geo->shadowCapPlaneBits & SHADOW_CAP_INFINITE ) {
 				if ( numIndexes == tri->numIndexes ) {
-					qglColor3f( 1/backEnd.overBright, 0.1/backEnd.overBright, 0.1/backEnd.overBright );
+					qglColor3f( 1, 0.1, 0.1 );
 				} else {
-					qglColor3f( 1/backEnd.overBright, 0.4/backEnd.overBright, 0.1/backEnd.overBright );
+					qglColor3f( 1, 0.4, 0.1 );
 				}
 			} else {
 				if ( numIndexes == tri->numIndexes ) {
-					qglColor3f( 0.1/backEnd.overBright, 1/backEnd.overBright, 0.1/backEnd.overBright );
+					qglColor3f( 0.1, 1, 0.1 );
 				} else if ( numIndexes == tri->numShadowIndexesNoFrontCaps ) {
-					qglColor3f( 0.1/backEnd.overBright, 1/backEnd.overBright, 0.6/backEnd.overBright );
+					qglColor3f( 0.1, 1, 0.6 );
 				} else {
-					qglColor3f( 0.6/backEnd.overBright, 1/backEnd.overBright, 0.1/backEnd.overBright );
+					qglColor3f( 0.6, 1, 0.1 );
 				}
 			}
 		}
@@ -1191,9 +1191,6 @@ void	RB_STD_DrawView( void ) {
 
 	// clear the z buffer, set the projection matrix, etc
 	RB_BeginDrawingView();
-
-	// decide how much overbrighting we are going to do
-	RB_DetermineLightScale();
 
 	// fill the depth buffer and clear color buffer to black except on subviews
     RB_GLSL_FillDepthBuffer( drawSurfs, numDrawSurfs );
