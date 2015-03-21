@@ -254,6 +254,7 @@ void RB_GLSL_FillDepthBuffer( drawSurf_t **drawSurfs, int numDrawSurfs ) {
     RB_RenderDrawSurfListWithFunction( drawSurfs, numDrawSurfs, RB_T_FillDepthBuffer );
 }
 
+
 /*
 =========================================================================================
 
