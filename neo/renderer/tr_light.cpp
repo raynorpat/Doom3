@@ -789,12 +789,6 @@ void R_AddLightSurfaces( void ) {
 					lightRegs[ registers[2] ] = 0.0f;
 				}
 
-				// FIXME:	when using the following values the light shows up bright red when using nvidia drivers/hardware
-				//			this seems to have been fixed ?
-				//lightRegs[ registers[0] ] = 1.5143074e-005f;
-				//lightRegs[ registers[1] ] = 1.5483369e-005f;
-				//lightRegs[ registers[2] ] = 1.7014690e-005f;
-
 				if ( lightRegs[ registers[0] ] > 0.0f ||
 						lightRegs[ registers[1] ] > 0.0f ||
 							lightRegs[ registers[2] ] > 0.0f ) {
