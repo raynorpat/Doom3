@@ -448,7 +448,7 @@ void RB_GLSL_DrawForwardInteractions( void ) {
 			continue;
 		}
 
-		// if there are no interactions, get out!
+		// if there are no interactions at all, get out!
 		if ( !vLight->localInteractions && !vLight->globalInteractions && 
 			!vLight->translucentInteractions ) {
 			continue;

@@ -948,6 +948,27 @@ void RB_GLSL_InitCommonShaders( void ) {
         common->Error( "RB_GLSL_InitInternalShaders: invalid program '%s'", "common/stencil" );
     
     backEnd.stencilShadowParms.localLightOrigin = R_GetProgramUniformExplicit( tr.stencilShadowProgram, "u_lightOrigin", 1, GL_FLOAT_VEC4 );
+    
+    // load texture shader program
+    vertexShader = R_FindShader( "common/texture", GL_VERTEX_SHADER );
+    fragmentShader = R_FindShader( "common/texture", GL_FRAGMENT_SHADER );
+    
+    tr.textureProgram = R_FindProgram( "common/texture", vertexShader, fragmentShader );
+    if (!tr.textureProgram)
+        common->Error( "RB_GLSL_InitInternalShaders: invalid program '%s'", "common/texture" );
+    
+    backEnd.textureParms.color = R_GetProgramUniformExplicit( tr.textureProgram, "u_ColorModulate", 1, GL_FLOAT_VEC4 );
+    
+    // load projected texture shader program
+    vertexShader = R_FindShader( "common/textureProjected", GL_VERTEX_SHADER );
+    fragmentShader = R_FindShader( "common/textureProjected", GL_FRAGMENT_SHADER );
+    
+    tr.textureProjectedProgram = R_FindProgram( "common/textureProjected", vertexShader, fragmentShader );
+    if (!tr.textureProjectedProgram)
+        common->Error( "RB_GLSL_InitInternalShaders: invalid program '%s'", "common/textureProjected" );
+    
+    backEnd.textureProjectedParms.color = R_GetProgramUniformExplicit( tr.textureProjectedProgram, "u_ColorModulate", 1, GL_FLOAT_VEC4 );
+    backEnd.textureProjectedParms.color = R_GetProgramUniformExplicit( tr.textureProjectedProgram, "u_TexturePlanes", 1, GL_FLOAT_MAT4 );
 }
 
 

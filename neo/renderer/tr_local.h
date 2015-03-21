@@ -662,6 +662,12 @@ typedef struct {
     uniform_t *				alphaReference;
 } depthParms_t;
 
+typedef struct {
+    uniform_t *				clipPlane;
+    uniform_t *				color;
+    uniform_t *				texturePlane;
+} textureParms_t;
+
 //====================================================
 
 /*
@@ -763,6 +769,8 @@ typedef struct {
     cubeParms_t cubeReflectParms;
     depthParms_t depthParms;
     depthParms_t depthWithMaskParms;
+    textureParms_t textureParms;
+    textureParms_t textureProjectedParms;
 
 	int					c_copyFrameBuffer;
 } backEndState_t;
@@ -892,6 +900,8 @@ public:
     shaderProgram_t *		cubeReflectProgram;
     shaderProgram_t *       depthProgram;
     shaderProgram_t *       depthWithMaskProgram;
+    shaderProgram_t *       textureProgram;
+    shaderProgram_t *       textureProjectedProgram;
     
 
 	// GUI drawing variables for surface creation
@@ -1367,14 +1377,16 @@ DRAW_STANDARD
 
 void RB_DrawElementsWithCounters( const srfTriangles_t *tri );
 void RB_DrawShadowElementsWithCounters( const srfTriangles_t *tri, int numIndexes );
-void RB_STD_FillDepthBuffer( drawSurf_t **drawSurfs, int numDrawSurfs );
+
 void RB_BindVariableStageImage( const textureStage_t *texture, const float *shaderRegisters );
 void RB_BindStageTexture( const float *shaderRegisters, const textureStage_t *texture, const drawSurf_t *surf );
+
 void RB_FinishStageTexture( const textureStage_t *texture, const drawSurf_t *surf );
+
 void RB_StencilShadowPass( const drawSurf_t *drawSurfs );
+
 void RB_STD_DrawView( void );
 void RB_STD_FogAllLights( void );
-void RB_BakeTextureMatrixIntoTexgen( idPlane lightProject[3], const float textureMatrix[16] );
 
 /*
 ============================================================

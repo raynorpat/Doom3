@@ -31,48 +31,6 @@ If you have questions concerning this license or the applicable additional terms
 #include "tr_local.h"
 
 /*
-=====================
-RB_BakeTextureMatrixIntoTexgen
-=====================
-*/
-void RB_BakeTextureMatrixIntoTexgen( idPlane lightProject[3], const float *textureMatrix ) {
-	float	genMatrix[16];
-	float	final[16];
-
-	genMatrix[0] = lightProject[0][0];
-	genMatrix[4] = lightProject[0][1];
-	genMatrix[8] = lightProject[0][2];
-	genMatrix[12] = lightProject[0][3];
-
-	genMatrix[1] = lightProject[1][0];
-	genMatrix[5] = lightProject[1][1];
-	genMatrix[9] = lightProject[1][2];
-	genMatrix[13] = lightProject[1][3];
-
-	genMatrix[2] = 0;
-	genMatrix[6] = 0;
-	genMatrix[10] = 0;
-	genMatrix[14] = 0;
-
-	genMatrix[3] = lightProject[2][0];
-	genMatrix[7] = lightProject[2][1];
-	genMatrix[11] = lightProject[2][2];
-	genMatrix[15] = lightProject[2][3];
-
-	myGlMultMatrix( genMatrix, backEnd.lightTextureMatrix, final );
-
-	lightProject[0][0] = final[0];
-	lightProject[0][1] = final[4];
-	lightProject[0][2] = final[8];
-	lightProject[0][3] = final[12];
-
-	lightProject[1][0] = final[1];
-	lightProject[1][1] = final[5];
-	lightProject[1][2] = final[9];
-	lightProject[1][3] = final[13];
-}
-
-/*
 ================
 RB_PrepareStageTexturing
 ================
@@ -95,30 +53,26 @@ void RB_PrepareStageTexturing( const shaderStage_t *pStage,  const drawSurf_t *s
 	}
     
 	if ( pStage->texture.texgen == TG_SCREEN || pStage->texture.texgen == TG_SCREEN2 ) {
-		qglEnable( GL_TEXTURE_GEN_S );
-		qglEnable( GL_TEXTURE_GEN_T );
-		qglEnable( GL_TEXTURE_GEN_Q );
-
-		float	mat[16], plane[4];
+        textureParms_t *parms;
+        idVec4 color;
+        
+        // bind the program
+        GL_BindProgram( tr.textureProjectedProgram );
+        
+        // set up the program uniforms
+        parms = &backEnd.textureProjectedParms;
+        
+        // set up the color
+        color[0] = pStage->color.registers[0];
+        color[1] = pStage->color.registers[1];
+        color[2] = pStage->color.registers[2];
+        color[3] = pStage->color.registers[3];
+        R_UniformVector4( parms->color, color );
+        
+        // set up the texture plane
+		float mat[16];
 		myGlMultMatrix( surf->space->modelViewMatrix, backEnd.viewDef->projectionMatrix, mat );
-
-		plane[0] = mat[0];
-		plane[1] = mat[4];
-		plane[2] = mat[8];
-		plane[3] = mat[12];
-		qglTexGenfv( GL_S, GL_OBJECT_PLANE, plane );
-
-		plane[0] = mat[1];
-		plane[1] = mat[5];
-		plane[2] = mat[9];
-		plane[3] = mat[13];
-		qglTexGenfv( GL_T, GL_OBJECT_PLANE, plane );
-
-		plane[0] = mat[3];
-		plane[1] = mat[7];
-		plane[2] = mat[11];
-		plane[3] = mat[15];
-		qglTexGenfv( GL_Q, GL_OBJECT_PLANE, plane );
+        qglUniformMatrix4fv( parms->texturePlane->location, 1, GL_TRUE, mat );
 	}
 
 	if ( pStage->texture.texgen == TG_REFLECT_CUBE ) {
@@ -192,9 +146,7 @@ void RB_FinishStageTexturing( const shaderStage_t *pStage, const drawSurf_t *sur
 	}
 
 	if ( pStage->texture.texgen == TG_SCREEN || pStage->texture.texgen == TG_SCREEN2 ) {
-		qglDisable( GL_TEXTURE_GEN_S );
-		qglDisable( GL_TEXTURE_GEN_T );
-		qglDisable( GL_TEXTURE_GEN_Q );
+		GL_BindProgram( 0 );
 	}
 
 	if ( pStage->texture.texgen == TG_REFLECT_CUBE ) {
@@ -990,5 +942,6 @@ void	RB_STD_DrawView( void ) {
 		RB_STD_DrawShaderPasses( drawSurfs+processed, numDrawSurfs-processed );
 	}
 
+    // draw debug utilities
 	RB_RenderDebugTools( drawSurfs, numDrawSurfs );
 }
