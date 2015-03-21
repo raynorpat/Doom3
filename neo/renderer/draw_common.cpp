@@ -335,7 +335,7 @@ void RB_STD_T_RenderShaderPasses( const drawSurf_t *surf ) {
 			// new style stages
 			//
 			//--------------------------
-			if ( r_skipNewShaderStage.GetBool() ) {
+			if ( r_skipNewAmbient.GetBool() ) {
 				continue;
 			}
             
