@@ -43,7 +43,6 @@ If you have questions concerning this license or the applicable additional terms
 #define CM_FILEID			"CM"
 #define CM_FILEVERSION		"1.00"
 
-
 /*
 ===============================================================================
 
