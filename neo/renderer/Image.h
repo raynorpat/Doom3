@@ -201,8 +201,7 @@ public:
 	void		StartBackgroundImageLoad();
 	int			BitsForInternalFormat( int internalFormat ) const;
 	void		UploadCompressedNormalMap( int width, int height, const byte *rgba, int mipLevel );
-	GLenum		SelectInternalFormat( const byte **dataPtrs, int numDataPtrs, int width, int height,
-									 textureDepth_t minimumDepth, bool *monochromeResult ) const;
+	GLenum		SelectInternalFormat( const byte **dataPtrs, int numDataPtrs, int width, int height, textureDepth_t minimumDepth ) const;
 	void		ImageProgramStringToCompressedFileName( const char *imageProg, char *fileName ) const;
 	int			NumLevelsForImageSize( int width, int height ) const;
 
@@ -233,8 +232,8 @@ public:
 	bool				levelLoadReferenced;	// for determining if it needs to be purged
 	bool				precompressedFile;		// true when it was loaded from a .d3t file
 	bool				defaulted;				// true if the default image was generated because a file couldn't be loaded
-	bool				isMonochrome;			// so the NV20 path can use a reduced pass count
-	ID_TIME_T				timestamp;				// the most recent of all images used in creation, for reloadImages command
+    
+	ID_TIME_T			timestamp;				// the most recent of all images used in creation, for reloadImages command
 
 	int					imageHash;				// for identical-image checking
 
@@ -279,7 +278,6 @@ ID_INLINE idImage::idImage() {
 	internalFormat = 0;
 	cacheUsagePrev = cacheUsageNext = NULL;
 	hashNext = NULL;
-	isMonochrome = false;
 	refCount = 0;
 }
 
@@ -450,13 +448,11 @@ byte *R_Dropsample( const byte *in, int inwidth, int inheight,
 							int outwidth, int outheight );
 byte *R_ResampleTexture( const byte *in, int inwidth, int inheight,  
 							int outwidth, int outheight );
-byte *R_MipMapWithAlphaSpecularity( const byte *in, int width, int height );
+
 byte *R_MipMap( const byte *in, int width, int height, bool preserveBorder );
-byte *R_MipMap3D( const byte *in, int width, int height, int depth, bool preserveBorder );
 
 // these operate in-place on the provided pixels
 void R_SetBorderTexels( byte *inBase, int width, int height, const byte border[4] );
-void R_SetBorderTexels3D( byte *inBase, int width, int height, int depth, const byte border[4] );
 void R_BlendOverTexture( byte *data, int pixelCount, const byte blend[4] );
 void R_HorizontalFlip( byte *data, int width, int height );
 void R_VerticalFlip( byte *data, int width, int height );
