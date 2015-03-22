@@ -1445,36 +1445,6 @@ void	R_UniformMatrix4 (uniform_t *uniform, const idMat4 &m);
 void	R_UniformMatrix4Array (uniform_t *uniform, int count, const idMat4 *m);
 
 /*
-
-  All vertex programs use the same constant register layout:
-
-c[4]	localLightOrigin
-c[5]	localViewOrigin
-c[6]	lightProjection S
-c[7]	lightProjection T
-c[8]	lightProjection Q
-c[9]	lightFalloff	S
-c[10]	bumpMatrix S
-c[11]	bumpMatrix T
-c[12]	diffuseMatrix S
-c[13]	diffuseMatrix T
-c[14]	specularMatrix S
-c[15]	specularMatrix T
-
-
-c[20]	light falloff tq constant
-
-// texture 0 was cube map
-// texture 1 will be the per-surface bump map
-// texture 2 will be the light falloff texture
-// texture 3 will be the light projection texture
-// texture 4 is the per-surface diffuse map
-// texture 5 is the per-surface specular map
-// texture 6 is the specular half angle cube map
-
-*/
-
-/*
 ============================================================
 
 TR_STENCILSHADOWS
@@ -1496,22 +1466,6 @@ srfTriangles_t *R_CreateShadowVolume( const idRenderEntityLocal *ent,
 									 const srfTriangles_t *tri, const idRenderLightLocal *light,
 									 shadowGen_t optimize, srfCullInfo_t &cullInfo );
 
-/*
-============================================================
-
-TR_TURBOSHADOW
-
-Fast, non-clipped overshoot shadow volumes
-
-"facing" should have one more element than tri->numIndexes / 3, which should be set to 1
-calling this function may modify "facing" based on culling
-
-============================================================
-*/
-
-srfTriangles_t *R_CreateTurboShadowVolume( const idRenderEntityLocal *ent,
-									 const srfTriangles_t *tri, const idRenderLightLocal *light,
-									 srfCullInfo_t &cullInfo );
 
 /*
 ============================================================

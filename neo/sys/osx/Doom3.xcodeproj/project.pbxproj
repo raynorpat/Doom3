@@ -160,7 +160,6 @@
 		812258D00912BC79005D34B9 /* tr_subview.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 812257910912BC79005D34B9 /* tr_subview.cpp */; };
 		812258D10912BC79005D34B9 /* tr_trace.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 812257920912BC79005D34B9 /* tr_trace.cpp */; };
 		812258D20912BC79005D34B9 /* tr_trisurf.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 812257930912BC79005D34B9 /* tr_trisurf.cpp */; };
-		812258D30912BC79005D34B9 /* tr_turboshadow.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 812257940912BC79005D34B9 /* tr_turboshadow.cpp */; };
 		812258D40912BC79005D34B9 /* VertexCache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 812257950912BC79005D34B9 /* VertexCache.cpp */; };
 		812258D50912BC79005D34B9 /* AsyncClient.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8122579A0912BC79005D34B9 /* AsyncClient.cpp */; };
 		812258D60912BC79005D34B9 /* AsyncNetwork.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8122579C0912BC79005D34B9 /* AsyncNetwork.cpp */; };
@@ -504,7 +503,6 @@
 		812257910912BC79005D34B9 /* tr_subview.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = tr_subview.cpp; sourceTree = "<group>"; };
 		812257920912BC79005D34B9 /* tr_trace.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = tr_trace.cpp; sourceTree = "<group>"; };
 		812257930912BC79005D34B9 /* tr_trisurf.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = tr_trisurf.cpp; sourceTree = "<group>"; };
-		812257940912BC79005D34B9 /* tr_turboshadow.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = tr_turboshadow.cpp; sourceTree = "<group>"; };
 		812257950912BC79005D34B9 /* VertexCache.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = VertexCache.cpp; sourceTree = "<group>"; };
 		812257960912BC79005D34B9 /* VertexCache.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = VertexCache.h; sourceTree = "<group>"; };
 		812257970912BC79005D34B9 /* wglext.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = wglext.h; sourceTree = "<group>"; };
@@ -998,7 +996,6 @@
 				812257910912BC79005D34B9 /* tr_subview.cpp */,
 				812257920912BC79005D34B9 /* tr_trace.cpp */,
 				812257930912BC79005D34B9 /* tr_trisurf.cpp */,
-				812257940912BC79005D34B9 /* tr_turboshadow.cpp */,
 				812257950912BC79005D34B9 /* VertexCache.cpp */,
 				812257960912BC79005D34B9 /* VertexCache.h */,
 				812257970912BC79005D34B9 /* wglext.h */,
@@ -1518,7 +1515,6 @@
 				812258D00912BC79005D34B9 /* tr_subview.cpp in Sources */,
 				812258D10912BC79005D34B9 /* tr_trace.cpp in Sources */,
 				812258D20912BC79005D34B9 /* tr_trisurf.cpp in Sources */,
-				812258D30912BC79005D34B9 /* tr_turboshadow.cpp in Sources */,
 				812258D40912BC79005D34B9 /* VertexCache.cpp in Sources */,
 				812258D50912BC79005D34B9 /* AsyncClient.cpp in Sources */,
 				812258D60912BC79005D34B9 /* AsyncNetwork.cpp in Sources */,
