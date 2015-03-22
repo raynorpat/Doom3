@@ -923,8 +923,6 @@
 		812257060912BC79005D34B9 /* renderer */ = {
 			isa = PBXGroup;
 			children = (
-				812257070912BC79005D34B9 /* Model_ma.cpp */,
-				812257080912BC79005D34B9 /* Model_sprite.cpp */,
 				8122570B0912BC79005D34B9 /* Cinematic.cpp */,
 				8122570C0912BC79005D34B9 /* Cinematic.h */,
 				8122570F0912BC79005D34B9 /* draw_common.cpp */,
@@ -956,9 +954,11 @@
 				812257690912BC79005D34B9 /* Model_local.h */,
 				8122576A0912BC79005D34B9 /* Model_lwo.cpp */,
 				8122576B0912BC79005D34B9 /* Model_lwo.h */,
+				812257070912BC79005D34B9 /* Model_ma.cpp */,
 				8122576C0912BC79005D34B9 /* Model_md3.cpp */,
 				8122576D0912BC79005D34B9 /* Model_md3.h */,
 				8122576E0912BC79005D34B9 /* Model_md5.cpp */,
+				812257080912BC79005D34B9 /* Model_sprite.cpp */,
 				8122576F0912BC79005D34B9 /* Model_prt.cpp */,
 				812257700912BC79005D34B9 /* ModelDecal.cpp */,
 				812257710912BC79005D34B9 /* ModelDecal.h */,
