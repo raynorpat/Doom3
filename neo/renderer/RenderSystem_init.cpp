@@ -219,6 +219,10 @@ void ( APIENTRY *qglStencilFuncSeparate ) ( GLenum face, GLenum func, GLint ref,
 PFNGLCOMPRESSEDTEXIMAGE2DARBPROC		qglCompressedTexImage2DARB;
 PFNGLGETCOMPRESSEDTEXIMAGEARBPROC		qglGetCompressedTexImageARB;
 
+// ARB_MapBufferRange
+PFNGLMAPBUFFERRANGEPROC                 qglMapBufferRange;
+PFNGLFLUSHMAPPEDBUFFERRANGEPROC         qglFlushMappedBufferRange;
+
 // ARB_vertex_buffer_object
 PFNGLBINDBUFFERARBPROC					qglBindBufferARB;
 PFNGLDELETEBUFFERSARBPROC				qglDeleteBuffersARB;
@@ -384,6 +388,13 @@ static void R_CheckPortableExtensions( void ) {
         common->Printf( "X..%s not found\n", "GL_2.0_separate_stencil" );
 		glConfig.twoSidedStencilAvailable = false;
 	}
+    
+    // ARB_MapBufferRange
+    glConfig.ARBMapBufferRangeAvailable = R_CheckExtension( "GL_ARB_map_buffer_range" );
+    if ( glConfig.ARBMapBufferRangeAvailable ) {
+        qglMapBufferRange = (PFNGLMAPBUFFERRANGEPROC)GLimp_ExtensionPointer( "glMapBufferRange" );
+        qglFlushMappedBufferRange = (PFNGLFLUSHMAPPEDBUFFERRANGEPROC)GLimp_ExtensionPointer( "glFlushMappedBufferRange" );
+    }
 
 	// ARB_vertex_buffer_object
 	glConfig.ARBVertexBufferObjectAvailable = R_CheckExtension( "GL_ARB_vertex_buffer_object" );

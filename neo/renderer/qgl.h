@@ -90,6 +90,10 @@ extern	void ( APIENTRY * qglMultiTexCoord2fvARB )( GLenum texture, GLfloat *st )
 extern	void ( APIENTRY * qglActiveTextureARB )( GLenum texture );
 extern	void ( APIENTRY * qglClientActiveTextureARB )( GLenum texture );
 
+// ARB_MapBufferRange
+extern PFNGLMAPBUFFERRANGEPROC qglMapBufferRange;
+extern PFNGLFLUSHMAPPEDBUFFERRANGEPROC qglFlushMappedBufferRange;
+
 // ARB_vertex_buffer_object
 extern PFNGLBINDBUFFERARBPROC qglBindBufferARB;
 extern PFNGLDELETEBUFFERSARBPROC qglDeleteBuffersARB;

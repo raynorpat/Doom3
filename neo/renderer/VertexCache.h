@@ -39,6 +39,8 @@ typedef enum {
 
 typedef struct vertCache_s {
 	GLuint			vbo;
+    GLenum          target;
+    GLenum          usage;
 	void			*virtMem;			// only one of vbo / virtMem will be set
 	bool			indexBuffer;		// holds indexes instead of vertexes
 
@@ -108,7 +110,8 @@ private:
 	void			ActuallyFree( vertCache_t *block );
 
 	static idCVar	r_showVertexCache;
-	static idCVar	r_vertexBufferMegs;
+	static idCVar   r_useArbBufferRange;
+    static idCVar   r_reuseVertexCacheSooner;
 
 	int				staticCountTotal;
 	int				staticAllocTotal;		// for end of frame purging

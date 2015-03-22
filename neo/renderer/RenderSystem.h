@@ -64,6 +64,7 @@ typedef struct glconfig_s {
 	bool				anisotropicAvailable;
 	bool				textureLODBiasAvailable;
 	bool				cubeMapAvailable;
+    bool                ARBMapBufferRangeAvailable;
 	bool				ARBVertexBufferObjectAvailable;
 	bool				ARBVertexProgramAvailable;
 	bool				twoSidedStencilAvailable;
