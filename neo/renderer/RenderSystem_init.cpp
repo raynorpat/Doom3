@@ -60,7 +60,6 @@ idCVar r_useShadowProjectedCull( "r_useShadowProjectedCull", "1", CVAR_RENDERER 
 idCVar r_useShadowSurfaceScissor( "r_useShadowSurfaceScissor", "1", CVAR_RENDERER | CVAR_BOOL, "scissor shadows by the scissor rect of the interaction surfaces" );
 idCVar r_useInteractionTable( "r_useInteractionTable", "1", CVAR_RENDERER | CVAR_BOOL, "create a full entityDefs * lightDefs table to make finding interactions faster" );
 idCVar r_useTurboShadow( "r_useTurboShadow", "1", CVAR_RENDERER | CVAR_BOOL, "use the infinite projection with W technique for dynamic shadows" );
-idCVar r_useTwoSidedStencil( "r_useTwoSidedStencil", "1", CVAR_RENDERER | CVAR_BOOL, "do stencil shadows in one pass with different ops on each side" );
 idCVar r_useDeferredTangents( "r_useDeferredTangents", "1", CVAR_RENDERER | CVAR_BOOL, "defer tangents calculations after deform" );
 idCVar r_useCachedDynamicModels( "r_useCachedDynamicModels", "1", CVAR_RENDERER | CVAR_BOOL, "cache snapshots of dynamic models" );
 
@@ -319,7 +318,8 @@ static void R_CheckPortableExtensions( void ) {
 		qglMultiTexCoord2fvARB = (void(APIENTRY *)(GLenum, GLfloat *))GLimp_ExtensionPointer( "glMultiTexCoord2fvARB" );
 		qglActiveTextureARB = (void(APIENTRY *)(GLenum))GLimp_ExtensionPointer( "glActiveTextureARB" );
 		qglClientActiveTextureARB = (void(APIENTRY *)(GLenum))GLimp_ExtensionPointer( "glClientActiveTextureARB" );
-		qglGetIntegerv( GL_MAX_TEXTURE_UNITS_ARB, (GLint *)&glConfig.maxTextureUnits );
+		
+        qglGetIntegerv( GL_MAX_TEXTURE_UNITS_ARB, (GLint *)&glConfig.maxTextureUnits );
 		if ( glConfig.maxTextureUnits > MAX_MULTITEXTURE_UNITS ) {
 			glConfig.maxTextureUnits = MAX_MULTITEXTURE_UNITS;
 		}
@@ -1751,12 +1751,10 @@ extern	PFNWGLSWAPINTERVALEXTPROC wglSwapIntervalEXT;
 	}
 #endif
 	
-	if ( !r_useTwoSidedStencil.GetBool() && glConfig.twoSidedStencilAvailable ) {
-		common->Printf( "Two sided stencil available but disabled\n" );
-	} else if ( !glConfig.twoSidedStencilAvailable ) {
+	if ( glConfig.twoSidedStencilAvailable ) {
+		common->Printf( "Two sided stencil available\n" );
+	} else {
 		common->Printf( "Two sided stencil not available\n" );
-	} else if ( glConfig.twoSidedStencilAvailable ) {
-		common->Printf( "Using two sided stencil\n" );
 	}
 
 	if ( vertexCache.IsFast() ) {

@@ -147,7 +147,7 @@ static void RB_T_Shadow( const drawSurf_t *surf ) {
     // patent-free work around
     if ( !external ) {
         // depth-fail stencil shadows
-        if( r_useTwoSidedStencil.GetBool() && glConfig.twoSidedStencilAvailable ) {
+        if( glConfig.twoSidedStencilAvailable ) {
             qglStencilOpSeparate( backEnd.viewDef->isMirror ? GL_FRONT : GL_BACK, GL_KEEP, tr.stencilDecr, GL_KEEP );
             qglStencilOpSeparate( backEnd.viewDef->isMirror ? GL_BACK : GL_FRONT, GL_KEEP, tr.stencilIncr, GL_KEEP );
             GL_Cull( CT_TWO_SIDED );
@@ -165,7 +165,7 @@ static void RB_T_Shadow( const drawSurf_t *surf ) {
         }
     } else {
         // traditional depth-pass stencil shadows
-        if( r_useTwoSidedStencil.GetBool() && glConfig.twoSidedStencilAvailable ) {
+        if( glConfig.twoSidedStencilAvailable ) {
             qglStencilOpSeparate( backEnd.viewDef->isMirror ? GL_FRONT : GL_BACK, GL_KEEP, GL_KEEP, tr.stencilIncr );
             qglStencilOpSeparate( backEnd.viewDef->isMirror ? GL_BACK : GL_FRONT, GL_KEEP, GL_KEEP, tr.stencilDecr );
             GL_Cull( CT_TWO_SIDED );

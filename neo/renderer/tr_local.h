@@ -973,7 +973,6 @@ extern idCVar r_useOptimizedShadows;	// 1 = use the dmap generated static shadow
 extern idCVar r_useShadowProjectedCull;	// 1 = discard triangles outside light volume before shadowing
 extern idCVar r_useDeferredTangents;	// 1 = don't always calc tangents after deform
 extern idCVar r_useCachedDynamicModels;	// 1 = cache snapshots of dynamic models
-extern idCVar r_useTwoSidedStencil;		// 1 = do stencil shadows in one pass with different ops on each side
 extern idCVar r_useScissor;				// 1 = scissor clip as portals and lights are processed
 extern idCVar r_usePortals;				// 1 = use portals to perform area culling, otherwise draw everything
 extern idCVar r_useStateCaching;		// avoid redundant state changes in GL_*() calls

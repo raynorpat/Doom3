@@ -566,8 +566,7 @@ int RB_STD_DrawShaderPasses( drawSurf_t **drawSurfs, int numDrawSurfs ) {
 		}
 
 		// we need to draw the post process shaders after we have drawn the fog lights
-		if ( drawSurfs[i]->material->GetSort() >= SS_POST_PROCESS
-			&& !backEnd.currentRenderCopied ) {
+		if ( drawSurfs[i]->material->GetSort() >= SS_POST_PROCESS && !backEnd.currentRenderCopied ) {
 			break;
 		}
 
