@@ -232,6 +232,7 @@
 		D7D7BBEF18953305000A495C /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D7D7BBEE18953305000A495C /* OpenGL.framework */; };
 		D7D7BBF118953310000A495C /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D7D7BBF018953310000A495C /* CoreAudio.framework */; };
 		D7D7BBF31895331A000A495C /* OpenAL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D7D7BBF21895331A000A495C /* OpenAL.framework */; };
+		E50CC7231C29B1F50050B5B1 /* RenderLog.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E50CC7211C29B1F50050B5B1 /* RenderLog.cpp */; };
 		E51F8DEE1A9A2EEC000D5575 /* draw_glsl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E51F8DED1A9A2EEC000D5575 /* draw_glsl.cpp */; };
 		E51F8DF01A9ACB9B000D5575 /* tr_glsl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E51F8DEF1A9ACB9B000D5575 /* tr_glsl.cpp */; };
 		E55471111ABE1FCC003E4B8C /* draw_stencilshadow.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E554710F1ABE1FCC003E4B8C /* draw_stencilshadow.cpp */; };
@@ -639,6 +640,8 @@
 		D7D7BBEE18953305000A495C /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
 		D7D7BBF018953310000A495C /* CoreAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudio.framework; path = System/Library/Frameworks/CoreAudio.framework; sourceTree = SDKROOT; };
 		D7D7BBF21895331A000A495C /* OpenAL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenAL.framework; path = System/Library/Frameworks/OpenAL.framework; sourceTree = SDKROOT; };
+		E50CC7211C29B1F50050B5B1 /* RenderLog.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RenderLog.cpp; sourceTree = "<group>"; };
+		E50CC7221C29B1F50050B5B1 /* RenderLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RenderLog.h; sourceTree = "<group>"; };
 		E51F8DED1A9A2EEC000D5575 /* draw_glsl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = draw_glsl.cpp; path = ../../../Doom3/neo/renderer/draw_glsl.cpp; sourceTree = "<group>"; };
 		E51F8DEF1A9ACB9B000D5575 /* tr_glsl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = tr_glsl.cpp; path = ../../../Doom3/neo/renderer/tr_glsl.cpp; sourceTree = "<group>"; };
 		E554710F1ABE1FCC003E4B8C /* draw_stencilshadow.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = draw_stencilshadow.cpp; sourceTree = "<group>"; };
@@ -923,6 +926,8 @@
 		812257060912BC79005D34B9 /* renderer */ = {
 			isa = PBXGroup;
 			children = (
+				E50CC7211C29B1F50050B5B1 /* RenderLog.cpp */,
+				E50CC7221C29B1F50050B5B1 /* RenderLog.h */,
 				8122570B0912BC79005D34B9 /* Cinematic.cpp */,
 				8122570C0912BC79005D34B9 /* Cinematic.h */,
 				8122570F0912BC79005D34B9 /* draw_common.cpp */,
@@ -1414,6 +1419,7 @@
 				812258430912BC79005D34B9 /* posix_signal.cpp in Sources */,
 				812258440912BC79005D34B9 /* sys_local.cpp in Sources */,
 				812258620912BC79005D34B9 /* snd_cache.cpp in Sources */,
+				E50CC7231C29B1F50050B5B1 /* RenderLog.cpp in Sources */,
 				812258630912BC79005D34B9 /* snd_decoder.cpp in Sources */,
 				812258640912BC79005D34B9 /* snd_emitter.cpp in Sources */,
 				812258650912BC79005D34B9 /* snd_shader.cpp in Sources */,

@@ -1722,5 +1722,6 @@ idScreenRect R_CalcIntersectionScissor( const idRenderLightLocal * lightDef,
 #include "RenderWorld_local.h"
 #include "GuiModel.h"
 #include "VertexCache.h"
+#include "RenderLog.h"
 
 #endif /* !__TR_LOCAL_H__ */
