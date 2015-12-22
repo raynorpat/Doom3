@@ -178,6 +178,8 @@ public:
 	int				SkipRestOfLine( void );
 					// skip the braced section
 	int				SkipBracedSection( bool parseFirstBrace = true );
+                    // skips spaces, tabs, C-like comments etc. Returns false if there is no token left to read.
+    bool			SkipWhiteSpace( bool currentLine );
 					// unread the given token
 	void			UnreadToken( const idToken *token );
 					// read a token only if on the same line

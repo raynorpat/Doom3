@@ -219,7 +219,8 @@ public:
 	idStr				Left( int len ) const;							// return the leftmost 'len' characters
 	idStr				Right( int len ) const;							// return the rightmost 'len' characters
 	idStr				Mid( int start, int len ) const;				// return 'len' characters starting at 'start'
-	void				StripLeading( const char c );					// strip char from front as many times as the char occurs
+	void				Format( const char *fmt, ... );					// perform a threadsafe sprintf to the string
+    void				StripLeading( const char c );					// strip char from front as many times as the char occurs
 	void				StripLeading( const char *string );				// strip string from front as many times as the string occurs
 	bool				StripLeadingOnce( const char *string );			// strip string from front just once if it occurs
 	void				StripTrailing( const char c );					// strip char from end as many times as the char occurs

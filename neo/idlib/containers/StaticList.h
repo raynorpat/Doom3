@@ -50,7 +50,10 @@ public:
 	int					Num( void ) const;									// returns number of elements in list
 	int					Max( void ) const;									// returns the maximum number of elements in the list
 	void				SetNum( int newnum );								// set number of elements in list
-
+    
+    // sets the number of elements in list and initializes any newly allocated elements to the given value
+    void				SetNum( int newNum, const type & initValue );
+    
 	size_t				Allocated( void ) const;							// returns total size of allocated memory
 	size_t				Size( void ) const;									// returns total size of allocated memory including size of list type
 	size_t				MemoryUsed( void ) const;							// returns size of the used elements in the list
@@ -214,6 +217,22 @@ ID_INLINE void idStaticList<type,size>::SetNum( int newnum ) {
 	assert( newnum >= 0 );
 	assert( newnum <= size );
 	num = newnum;
+}
+
+/*
+========================
+idStaticList<type,size>::SetNum
+========================
+*/
+template< class type,int size >
+ID_INLINE void idStaticList<type,size>::SetNum( int newNum, const type &initValue ) {
+    assert( newNum >= 0 );
+    newNum = Min( newNum, size );
+    assert( newNum <= size );
+    for ( int i = num; i < newNum; i++ ) {
+        list[i] = initValue;
+    }
+    num = newNum;
 }
 
 /*

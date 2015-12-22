@@ -350,6 +350,91 @@ int idLexer::ReadWhiteSpace( void ) {
 }
 
 /*
+========================
+idLexer::SkipWhiteSpace
+ 
+Reads spaces, tabs, C-like comments etc. When a newline character is found, the scripts line
+counter is increased. Returns false if there is no token left to be read.
+========================
+*/
+bool idLexer::SkipWhiteSpace( bool currentLine ) {
+    while( 1 ) {
+        assert( script_p <= end_p );
+        if ( script_p == end_p ) {
+            return false;
+        }
+        // skip white space
+        while( *script_p <= ' ' ) {
+            if ( script_p == end_p ) {
+                return false;
+            }
+            if ( !*script_p ) {
+                return false;
+            }
+            if ( *script_p == '\n' ) {
+                line++;
+                if ( currentLine ) {
+                    script_p++;
+                    return true;
+                }
+            }
+            script_p++;
+        }
+        // skip comments
+        if ( *script_p == '/' ) {
+            // comments //
+            if ( *(script_p+1) == '/' ) {
+                script_p++;
+                do {
+                    script_p++;
+                    if ( !*script_p ) {
+                        return false;
+                    }
+                }
+                while( *script_p != '\n' );
+                line++;
+                script_p++;
+                if ( currentLine ) {
+                    return true;
+                }
+                if ( !*script_p ) {
+                    return false;
+                }
+                continue;
+            }
+            // comments /* */
+            else if ( *(script_p+1) == '*' ) {
+                script_p++;
+                while( 1 ) {
+                    script_p++;
+                    if ( !*script_p ) {
+                        return false;
+                    }
+                    if ( *script_p == '\n' ) {
+                        line++;
+                    }
+                    else if ( *script_p == '/' ) {
+                        if ( *(script_p-1) == '*' ) {
+                            break;
+                        }
+                        if ( *(script_p+1) == '*' ) {
+                            Warning( "nested comment" );
+                        }
+                    }
+                }
+                script_p++;
+                if ( !*script_p ) {
+                    return false;
+                }
+                continue;
+            }
+        }
+        break;
+    }
+    return true;
+}
+
+/*
 ================
 idLexer::ReadEscapeCharacter
 ================

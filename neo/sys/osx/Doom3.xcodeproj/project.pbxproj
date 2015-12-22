@@ -233,6 +233,8 @@
 		D7D7BBF118953310000A495C /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D7D7BBF018953310000A495C /* CoreAudio.framework */; };
 		D7D7BBF31895331A000A495C /* OpenAL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D7D7BBF21895331A000A495C /* OpenAL.framework */; };
 		E50CC7231C29B1F50050B5B1 /* RenderLog.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E50CC7211C29B1F50050B5B1 /* RenderLog.cpp */; };
+		E50CC7281C29B5920050B5B1 /* RenderProgs_GLSL.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E50CC7251C29B5920050B5B1 /* RenderProgs_GLSL.cpp */; };
+		E50CC7291C29B5920050B5B1 /* RenderProgs.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E50CC7261C29B5920050B5B1 /* RenderProgs.cpp */; };
 		E51F8DEE1A9A2EEC000D5575 /* draw_glsl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E51F8DED1A9A2EEC000D5575 /* draw_glsl.cpp */; };
 		E51F8DF01A9ACB9B000D5575 /* tr_glsl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E51F8DEF1A9ACB9B000D5575 /* tr_glsl.cpp */; };
 		E55471111ABE1FCC003E4B8C /* draw_stencilshadow.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E554710F1ABE1FCC003E4B8C /* draw_stencilshadow.cpp */; };
@@ -642,6 +644,9 @@
 		D7D7BBF21895331A000A495C /* OpenAL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenAL.framework; path = System/Library/Frameworks/OpenAL.framework; sourceTree = SDKROOT; };
 		E50CC7211C29B1F50050B5B1 /* RenderLog.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RenderLog.cpp; sourceTree = "<group>"; };
 		E50CC7221C29B1F50050B5B1 /* RenderLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RenderLog.h; sourceTree = "<group>"; };
+		E50CC7251C29B5920050B5B1 /* RenderProgs_GLSL.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RenderProgs_GLSL.cpp; sourceTree = "<group>"; };
+		E50CC7261C29B5920050B5B1 /* RenderProgs.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RenderProgs.cpp; sourceTree = "<group>"; };
+		E50CC7271C29B5920050B5B1 /* RenderProgs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RenderProgs.h; sourceTree = "<group>"; };
 		E51F8DED1A9A2EEC000D5575 /* draw_glsl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = draw_glsl.cpp; path = ../../../Doom3/neo/renderer/draw_glsl.cpp; sourceTree = "<group>"; };
 		E51F8DEF1A9ACB9B000D5575 /* tr_glsl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = tr_glsl.cpp; path = ../../../Doom3/neo/renderer/tr_glsl.cpp; sourceTree = "<group>"; };
 		E554710F1ABE1FCC003E4B8C /* draw_stencilshadow.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = draw_stencilshadow.cpp; sourceTree = "<group>"; };
@@ -926,6 +931,9 @@
 		812257060912BC79005D34B9 /* renderer */ = {
 			isa = PBXGroup;
 			children = (
+				E50CC7251C29B5920050B5B1 /* RenderProgs_GLSL.cpp */,
+				E50CC7261C29B5920050B5B1 /* RenderProgs.cpp */,
+				E50CC7271C29B5920050B5B1 /* RenderProgs.h */,
 				E50CC7211C29B1F50050B5B1 /* RenderLog.cpp */,
 				E50CC7221C29B1F50050B5B1 /* RenderLog.h */,
 				8122570B0912BC79005D34B9 /* Cinematic.cpp */,
@@ -1442,6 +1450,7 @@
 				8122587D0912BC79005D34B9 /* jcapistd.c in Sources */,
 				8122587E0912BC79005D34B9 /* jccoefct.c in Sources */,
 				8122587F0912BC79005D34B9 /* jccolor.c in Sources */,
+				E50CC7291C29B5920050B5B1 /* RenderProgs.cpp in Sources */,
 				812258800912BC79005D34B9 /* jcdctmgr.c in Sources */,
 				812258810912BC79005D34B9 /* jchuff.c in Sources */,
 				812258820912BC79005D34B9 /* jcinit.c in Sources */,
@@ -1565,6 +1574,7 @@
 				812258FD0912BC79005D34B9 /* MarkerWindow.cpp in Sources */,
 				812258FE0912BC79005D34B9 /* RegExp.cpp in Sources */,
 				812258FF0912BC79005D34B9 /* RenderWindow.cpp in Sources */,
+				E50CC7281C29B5920050B5B1 /* RenderProgs_GLSL.cpp in Sources */,
 				812259000912BC79005D34B9 /* SimpleWindow.cpp in Sources */,
 				812259010912BC79005D34B9 /* SliderWindow.cpp in Sources */,
 				812259020912BC79005D34B9 /* UserInterface.cpp in Sources */,

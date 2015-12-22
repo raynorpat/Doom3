@@ -462,6 +462,28 @@ int idStr::Last( const char c ) const {
 }
 
 /*
+========================
+idStr::Format
+
+perform a threadsafe sprintf to the string
+========================
+*/
+void idStr::Format( const char *fmt, ... ) {
+    va_list argptr;
+    char text[16384];
+    
+    va_start( argptr, fmt );
+    int len = idStr::vsnPrintf( text, sizeof( text ) - 1, fmt, argptr );
+    va_end( argptr );
+    text[ sizeof( text ) - 1 ] = '\0';
+    
+    if ( (size_t)len >= sizeof( text ) - 1 ) {
+        idLib::common->FatalError( "Tried to set a large buffer using %s", fmt );
+    }
+    *this = text;
+}
+
+/*
 ============
 idStr::StripLeading
 ============

@@ -114,6 +114,8 @@ public:
 	int				SkipRestOfLine( void );
 					// skip the braced section
 	int				SkipBracedSection( bool parseFirstBrace = true );
+                    // parse a braced section into a string
+    const char*		ParseBracedSectionExt( idStr& out, int tabs, bool parseFirstBrace, char intro, char outro );
 					// parse a braced section into a string
 	const char *	ParseBracedSection( idStr &out, int tabs = -1 );
 					// parse a braced section into a string, maintaining indents and newlines
@@ -168,7 +170,8 @@ public:
 	void			Error( const char *str, ... ) const id_attribute((format(printf,2,3)));
 					// print a warning message
 	void			Warning( const char *str, ... ) const id_attribute((format(printf,2,3)));
-
+                    // returns true if at the end of the file
+    bool            EndOfFile();
 					// add a global define that will be added to all opened sources
 	static int		AddGlobalDefine( const char *string );
 					// remove the given global define
