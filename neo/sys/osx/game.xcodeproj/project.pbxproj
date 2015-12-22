@@ -784,7 +784,7 @@
 					"-fpermissive",
 				);
 				PRODUCT_NAME = game;
-				SDKROOT = macosx10.9;
+				SDKROOT = macosx;
 				ZERO_LINK = YES;
 			};
 			name = Debug;
@@ -819,7 +819,7 @@
 					"-fpermissive",
 				);
 				PRODUCT_NAME = game;
-				SDKROOT = macosx10.9;
+				SDKROOT = macosx;
 				SYMROOT = build;
 				ZERO_LINK = NO;
 			};
@@ -839,7 +839,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				ONLY_ACTIVE_ARCH = YES;
-				SDKROOT = macosx10.9;
+				SDKROOT = macosx;
 				VALID_ARCHS = i386;
 			};
 			name = Debug;
@@ -866,7 +866,7 @@
 					"-fomit-frame-pointer",
 					"-fno-common",
 				);
-				SDKROOT = macosx10.9;
+				SDKROOT = macosx;
 				VALID_ARCHS = i386;
 			};
 			name = Release;

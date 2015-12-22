@@ -930,6 +930,7 @@
 				LIBRARY_STYLE = STATIC;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = idlib_pic;
+				SDKROOT = macosx;
 				ZERO_LINK = YES;
 			};
 			name = Debug;
@@ -957,6 +958,7 @@
 					"-fpermissive",
 				);
 				PRODUCT_NAME = idlib_pic;
+				SDKROOT = macosx;
 				SYMROOT = build;
 				ZERO_LINK = NO;
 			};
@@ -982,7 +984,7 @@
 					"$(OTHER_CFLAGS)",
 					"-fpermissive",
 				);
-				SDKROOT = macosx10.9;
+				SDKROOT = macosx;
 				USE_SEPARATE_HEADERMAPS = YES;
 				VALID_ARCHS = i386;
 				WARNING_CFLAGS = "";
@@ -1008,7 +1010,7 @@
 					"$(OTHER_CFLAGS)",
 					"-fpermissive",
 				);
-				SDKROOT = macosx10.9;
+				SDKROOT = macosx;
 				USE_SEPARATE_HEADERMAPS = YES;
 				VALID_ARCHS = i386;
 				WARNING_CFLAGS = "";

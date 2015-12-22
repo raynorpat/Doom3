@@ -63,7 +63,7 @@ static bool isHidden = false;
 @implementation NSOpenGLContext (CGLContextAccess)
 - (CGLContextObj) cglContext;
 {
-	return _contextAuxiliary;
+	return [self CGLContextObj];
 }
 @end
 
