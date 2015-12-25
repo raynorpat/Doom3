@@ -113,8 +113,6 @@ void idRenderProgManager::Init()
         { BUILTIN_STEREO_DEGHOST, "stereoDeGhost.vfp" },
         { BUILTIN_STEREO_WARP, "stereoWarp.vfp" },
         { BUILTIN_ZCULL_RECONSTRUCT, "zcullReconstruct.vfp" },
-        { BUILTIN_BINK, "bink.vfp" },
-        { BUILTIN_BINK_GUI, "bink_gui.vfp" },
         { BUILTIN_STEREO_INTERLACE, "stereoInterlace.vfp" },
         { BUILTIN_MOTION_BLUR, "motionBlur.vfp" },
     };

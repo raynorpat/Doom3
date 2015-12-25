@@ -275,14 +275,6 @@ public:
     {
         BindShader_Builtin( BUILTIN_ZCULL_RECONSTRUCT );
     }
-    void	BindShader_Bink()
-    {
-        BindShader_Builtin( BUILTIN_BINK );
-    }
-    void	BindShader_BinkGUI()
-    {
-        BindShader_Builtin( BUILTIN_BINK_GUI );
-    }
     void	BindShader_MotionBlur()
     {
         BindShader_Builtin( BUILTIN_MOTION_BLUR );
@@ -355,8 +347,6 @@ protected:
         BUILTIN_STEREO_DEGHOST,
         BUILTIN_STEREO_WARP,
         BUILTIN_ZCULL_RECONSTRUCT,
-        BUILTIN_BINK,
-        BUILTIN_BINK_GUI,
         BUILTIN_STEREO_INTERLACE,
         BUILTIN_MOTION_BLUR,
         
