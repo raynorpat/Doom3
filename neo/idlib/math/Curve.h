@@ -333,7 +333,7 @@ idCurve::SetConstantSpeed
 */
 template< class type >
 ID_INLINE void idCurve<type>::SetConstantSpeed( const float totalTime ) {
-	int i, j;
+	int i;
 	float *length, totalLength, scale, t;
 
 	length = (float *) _alloca16( values.Num() * sizeof( float ) );
