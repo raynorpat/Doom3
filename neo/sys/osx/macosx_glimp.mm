@@ -228,10 +228,9 @@ static NSOpenGLPixelFormatAttribute *GetPixelAttributes( unsigned int multisampl
 }
 
 void Sys_UpdateWindowMouseInputRect(void) {		
-	NSRect           windowRect, screenRect;
-	NSScreen        *screen;
-
 	/*
+    NSRect           windowRect, screenRect;
+	NSScreen        *screen;
 
 	// TTimo - I guess glw_state.window is bogus .. getting crappy data out of this
 
@@ -269,8 +268,6 @@ static bool CreateGameWindow(  glimpParms_t parms ) {
 	NSOpenGLPixelFormat				*pixelFormat;
 	CGDisplayErr					err;
 	unsigned int					multisamples;
-	const long 						swap_limit = false;
-	int 							nsOpenGLCPSwapLimit = 203;
             
 	glw_state.display = Sys_DisplayToUse();
 	glw_state.desktopMode = (NSDictionary *)CGDisplayCurrentMode( glw_state.display );
@@ -487,7 +484,6 @@ bool GLimp_Init( glimpParms_t parms ) {
 	glConfig.vendor_string = (const char *)qglGetString( GL_VENDOR );
 	glConfig.renderer_string = (const char *)qglGetString( GL_RENDERER );
 	glConfig.version_string = (const char *)qglGetString( GL_VERSION );
-	glConfig.extensions_string = (const char *)qglGetString( GL_EXTENSIONS );
 
 	//
 	// chipset specific configuration
@@ -1010,7 +1006,7 @@ NSDictionary *Sys_GetMatchingDisplayMode( glimpParms_t parms ) {
 		
 		bestModeIndex = modeIndex;
 		if (verbose)
-			common->Printf( " -- OK\n", bestModeIndex);
+			common->Printf( " -- OK\n");
 	}
 
 	if (verbose)
@@ -1116,7 +1112,6 @@ void Sys_SetScreenFade(glwgamma_t *table, float fraction) {
 #define FADE_DURATION 0.5
 void Sys_FadeScreens() {
 	CGDisplayCount displayIndex;
-	int stepIndex;
 	glwgamma_t *table;
 	NSTimeInterval start, current;
 	float time;
@@ -1144,7 +1139,6 @@ void Sys_FadeScreens() {
 void Sys_FadeScreen(CGDirectDisplayID display) {
 	CGDisplayCount displayIndex;
 	glwgamma_t *table;
-	int stepIndex;
 
 	common->Printf( "FIXME: Sys_FadeScreen\n" );
     
@@ -1181,7 +1175,6 @@ void Sys_FadeScreen(CGDirectDisplayID display) {
 
 void Sys_UnfadeScreens() {
 	CGDisplayCount displayIndex;
-	int stepIndex;
 	glwgamma_t *table;
 	NSTimeInterval start, current;
 	float time;
@@ -1212,7 +1205,6 @@ void Sys_UnfadeScreens() {
 
 void Sys_UnfadeScreen(CGDirectDisplayID display, glwgamma_t *table) {
 	CGDisplayCount displayIndex;
-	int stepIndex;
 	
 	common->Printf( "FIXME: Sys_UnfadeScreen\n" );
 

@@ -165,10 +165,6 @@ public:
     {
         BindShader_Builtin( BUILTIN_TEXTURE_VERTEXCOLOR );
     };
-    void	BindShader_TextureVertexColorSkinned()
-    {
-        BindShader_Builtin( BUILTIN_TEXTURE_VERTEXCOLOR_SKINNED );
-    };
     void	BindShader_TextureTexGenVertexColor()
     {
         BindShader_Builtin( BUILTIN_TEXTURE_TEXGEN_VERTEXCOLOR );
@@ -177,17 +173,9 @@ public:
     {
         BindShader_Builtin( BUILTIN_INTERACTION );
     }
-    void	BindShader_InteractionSkinned()
-    {
-        BindShader_Builtin( BUILTIN_INTERACTION_SKINNED );
-    }
     void	BindShader_InteractionAmbient()
     {
         BindShader_Builtin( BUILTIN_INTERACTION_AMBIENT );
-    }
-    void	BindShader_InteractionAmbientSkinned()
-    {
-        BindShader_Builtin( BUILTIN_INTERACTION_AMBIENT_SKINNED );
     }
     void	BindShader_SimpleShade()
     {
@@ -197,42 +185,22 @@ public:
     {
         BindShader_Builtin( BUILTIN_ENVIRONMENT );
     }
-    void	BindShader_EnvironmentSkinned()
-    {
-        BindShader_Builtin( BUILTIN_ENVIRONMENT_SKINNED );
-    }
     void	BindShader_BumpyEnvironment()
     {
         BindShader_Builtin( BUILTIN_BUMPY_ENVIRONMENT );
-    }
-    void	BindShader_BumpyEnvironmentSkinned()
-    {
-        BindShader_Builtin( BUILTIN_BUMPY_ENVIRONMENT_SKINNED );
     }
     
     void	BindShader_Depth()
     {
         BindShader_Builtin( BUILTIN_DEPTH );
     }
-    void	BindShader_DepthSkinned()
-    {
-        BindShader_Builtin( BUILTIN_DEPTH_SKINNED );
-    }
     void	BindShader_Shadow()
     {
         BindShader( builtinShaders[BUILTIN_SHADOW], -1 );
     }
-    void	BindShader_ShadowSkinned()
-    {
-        BindShader( builtinShaders[BUILTIN_SHADOW_SKINNED], -1 );
-    }
     void	BindShader_ShadowDebug()
     {
         BindShader_Builtin( BUILTIN_SHADOW_DEBUG );
-    }
-    void	BindShader_ShadowDebugSkinned()
-    {
-        BindShader_Builtin( BUILTIN_SHADOW_DEBUG_SKINNED );
     }
     
     void	BindShader_BlendLight()
@@ -242,10 +210,6 @@ public:
     void	BindShader_Fog()
     {
         BindShader_Builtin( BUILTIN_FOG );
-    }
-    void	BindShader_FogSkinned()
-    {
-        BindShader_Builtin( BUILTIN_FOG_SKINNED );
     }
     void	BindShader_SkyBox()
     {
@@ -280,17 +244,6 @@ public:
         BindShader_Builtin( BUILTIN_MOTION_BLUR );
     }
     
-    // the joints buffer should only be bound for vertex programs that use joints
-    bool	ShaderUsesJoints() const
-    {
-        return vertexShaders[currentVertexShader].usesJoints;
-    }
-    // the rpEnableSkinning render parm should only be set for vertex programs that use it
-    bool	ShaderHasOptionalSkinning() const
-    {
-        return vertexShaders[currentVertexShader].optionalSkinning;
-    }
-    
     // unbind the currently bound render program
     void	Unbind();
     
@@ -320,27 +273,18 @@ protected:
         BUILTIN_SIMPLESHADE,
         BUILTIN_TEXTURED,
         BUILTIN_TEXTURE_VERTEXCOLOR,
-        BUILTIN_TEXTURE_VERTEXCOLOR_SKINNED,
         BUILTIN_TEXTURE_TEXGEN_VERTEXCOLOR,
         BUILTIN_INTERACTION,
-        BUILTIN_INTERACTION_SKINNED,
         BUILTIN_INTERACTION_AMBIENT,
-        BUILTIN_INTERACTION_AMBIENT_SKINNED,
         BUILTIN_ENVIRONMENT,
-        BUILTIN_ENVIRONMENT_SKINNED,
         BUILTIN_BUMPY_ENVIRONMENT,
-        BUILTIN_BUMPY_ENVIRONMENT_SKINNED,
         
         BUILTIN_DEPTH,
-        BUILTIN_DEPTH_SKINNED,
         BUILTIN_SHADOW,
-        BUILTIN_SHADOW_SKINNED,
         BUILTIN_SHADOW_DEBUG,
-        BUILTIN_SHADOW_DEBUG_SKINNED,
         
         BUILTIN_BLENDLIGHT,
         BUILTIN_FOG,
-        BUILTIN_FOG_SKINNED,
         BUILTIN_SKYBOX,
         BUILTIN_WOBBLESKY,
         BUILTIN_POSTPROCESS,
@@ -366,11 +310,9 @@ protected:
     
     struct vertexShader_t
     {
-        vertexShader_t() : progId( INVALID_PROGID ), usesJoints( false ), optionalSkinning( false ) {}
+        vertexShader_t() : progId( INVALID_PROGID ) {}
         idStr		name;
         GLuint		progId;
-        bool		usesJoints;
-        bool		optionalSkinning;
         idList<int>	uniforms;
     };
     struct fragmentShader_t
