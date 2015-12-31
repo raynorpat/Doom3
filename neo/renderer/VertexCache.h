@@ -59,9 +59,6 @@ public:
 	void			Init();
 	void			Shutdown();
 
-	// just for gfxinfo printing
-	bool			IsFast();
-
 	// called when vertex programs are enabled or disabled, because
 	// the cached data is no longer valid
 	void			PurgeAll();
@@ -77,8 +74,8 @@ public:
 	// but it will be an int offset cast to a pointer of ARB_vertex_buffer_object
 	void *			Position( vertCache_t *buffer );
 
-	// if r_useIndexBuffers is enabled, but you need to draw something without
-	// an indexCache, this must be called to reset GL_ELEMENT_ARRAY_BUFFER_ARB
+	// If you need to draw something without an indexCache, this must
+    // be called to reset GL_ELEMENT_ARRAY_BUFFER_ARB
 	void			UnbindIndex();
 
 	// automatically freed at the end of the next frame
@@ -123,8 +120,6 @@ private:
 
 	int				currentFrame;			// for purgable block tracking
 	int				listNum;				// currentFrame % NUM_VERTEX_FRAMES, determines which tempBuffers to use
-
-	bool			virtualMemory;			// not fast stuff
 
 	bool			allocatingTempBuffer;	// force GL_STREAM_DRAW_ARB
 

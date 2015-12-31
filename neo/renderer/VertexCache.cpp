@@ -32,7 +32,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "tr_local.h"
 
 
-static const int	FRAME_MEMORY_BYTES = 0x200000;
+static const int	FRAME_MEMORY_BYTES = 0x4000000;
 static const int	EXPAND_HEADERS = 32;
 
 idCVar idVertexCache::r_showVertexCache( "r_showVertexCache", "0", CVAR_INTEGER|CVAR_RENDERER, "show vertex cache" );
@@ -54,10 +54,10 @@ static void R_ListVertexCache_f( const idCmdArgs &args ) {
 }
 
 /*
- ==============
- GL_BindBuffer
- ==============
- */
+==============
+GL_BindBuffer
+==============
+*/
 static void GL_BindBuffer( GLenum target, GLuint buffer ) {
     if ( target == GL_ARRAY_BUFFER ) {
         if ( gl_current_array_buffer != buffer ) {
@@ -167,10 +167,10 @@ void *idVertexCache::Position( vertCache_t *buffer ) {
 }
 
 /*
- ==============
- idVertexCache::UnbindIndex
- ==============
- */
+==============
+idVertexCache::UnbindIndex
+==============
+*/
 void idVertexCache::UnbindIndex() {
 	GL_BindBuffer( GL_ELEMENT_ARRAY_BUFFER, 0 );
 }
@@ -185,17 +185,6 @@ idVertexCache::Init
 */
 void idVertexCache::Init() {
 	cmdSystem->AddCommand( "listVertexCache", R_ListVertexCache_f, CMD_FL_RENDERER, "lists vertex cache" );
-
-	virtualMemory = false;
-
-	// use ARB_vertex_buffer_object unless explicitly disabled
-	if( r_useVertexBuffers.GetInteger() && glConfig.ARBVertexBufferObjectAvailable ) {
-		common->Printf( "using ARB_vertex_buffer_object memory\n" );
-	} else {
-		virtualMemory = true;
-		r_useIndexBuffers.SetBool( false );
-		common->Printf( "WARNING: vertex array range in virtual memory (SLOW)\n" );
-	}
 
 	// initialize the cache memory blocks
 	this->freeStaticHeaders.next = this->freeStaticHeaders.prev = &this->freeStaticHeaders;
@@ -267,10 +256,8 @@ void idVertexCache::Alloc( void *data, int size, vertCache_t **buffer, bool inde
 		for ( int i = 0; i < EXPAND_HEADERS; i++ ) {
 			block = headerAllocator.Alloc ();
 
-			if( !virtualMemory ) {
-				qglGenBuffersARB( 1, &block->vbo );
-                block->size = 0;
-			}
+			qglGenBuffersARB( 1, &block->vbo );
+            block->size = 0;
             block->next = this->freeStaticHeaders.next;
             block->prev = &this->freeStaticHeaders;
             block->next->prev = block;
@@ -518,13 +505,6 @@ void idVertexCache::EndFrame() {
 			this->staticCountTotal, staticAllocTotal/1024 );
 	}
 
-	if( !virtualMemory ) {
-		// unbind vertex buffers so normal virtual memory will be used in case
-		// r_useVertexBuffers / r_useIndexBuffers
-		qglBindBufferARB( GL_ARRAY_BUFFER_ARB, 0 );
-		qglBindBufferARB( GL_ELEMENT_ARRAY_BUFFER_ARB, 0 );
-	}
-
 	currentFrame = tr.frameCount;
 	listNum = currentFrame % NUM_VERTEX_FRAMES;
 	this->staticAllocThisFrame = 0;
@@ -584,30 +564,4 @@ void idVertexCache::List( void ) {
 	common->Printf( "%5i active static headers\n", numActive );
 	common->Printf( "%5i free static headers\n", numFreeStaticHeaders );
 	common->Printf( "%5i free dynamic headers\n", numFreeDynamicHeaders );
-
-	if ( !virtualMemory  ) {
-		common->Printf( "Vertex cache is in ARB_vertex_buffer_object memory (FAST).\n");
-	} else {
-		common->Printf( "Vertex cache is in virtual memory (SLOW)\n" );
-	}
-
-	if ( r_useIndexBuffers.GetBool() ) {
-		common->Printf( "Index buffers are accelerated.\n" );
-	} else {
-		common->Printf( "Index buffers are not used.\n" );
-	}
-}
-
-/*
-=============
-idVertexCache::IsFast
-
-just for gfxinfo printing
-=============
-*/
-bool idVertexCache::IsFast() {
-	if ( virtualMemory ) {
-		return false;
-	}
-	return true;
 }
