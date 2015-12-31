@@ -457,8 +457,9 @@ idInteraction::AllocAndLink
 ===============
 */
 idInteraction *idInteraction::AllocAndLink( idRenderEntityLocal *edef, idRenderLightLocal *ldef ) {
-	if ( !edef || !ldef ) {
+	if ( edef == NULL || ldef == NULL ) {
 		common->Error( "idInteraction::AllocAndLink: NULL parm" );
+        return NULL;
 	}
 
 	idRenderWorldLocal *renderWorld = edef->world;
@@ -498,7 +499,7 @@ idInteraction *idInteraction::AllocAndLink( idRenderEntityLocal *edef, idRenderL
 	}
 
 	// update the interaction table
-	if ( renderWorld->interactionTable ) {
+	if ( renderWorld->interactionTable != NULL ) {
 		int index = ldef->index * renderWorld->interactionTableWidth + edef->index;
 		if ( renderWorld->interactionTable[index] != NULL ) {
 			common->Error( "idInteraction::AllocAndLink: non NULL table entry" );
@@ -1250,7 +1251,7 @@ void R_ShowInteractionMemory_f( const idCmdArgs &args ) {
 
 	for ( int i = 0; i < tr.primaryWorld->entityDefs.Num(); i++ ) {
 		idRenderEntityLocal	*def = tr.primaryWorld->entityDefs[i];
-		if ( !def ) {
+		if ( def == NULL ) {
 			continue;
 		}
 		if ( def->firstInteraction == NULL ) {
