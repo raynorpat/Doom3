@@ -982,84 +982,6 @@ void R_ReportImageDuplication_f( const idCmdArgs &args ) {
 	common->Printf( "%i / %i collisions\n", count, globalImages->images.Num() );
 }
 
-/* 
-============================================================================== 
- 
-						THROUGHPUT BENCHMARKING
- 
-============================================================================== 
-*/ 
-
-/*
-================
-R_RenderingFPS
-================
-*/
-static float R_RenderingFPS( const renderView_t *renderView ) {
-	qglFinish();
-
-	int		start = Sys_Milliseconds();
-	static const int SAMPLE_MSEC = 1000;
-	int		end;
-	int		count = 0;
-
-	while( 1 ) {
-		// render
-		renderSystem->BeginFrame( glConfig.vidWidth, glConfig.vidHeight );
-		tr.primaryWorld->RenderScene( renderView );
-		renderSystem->EndFrame( NULL, NULL );
-		qglFinish();
-		count++;
-		end = Sys_Milliseconds();
-		if ( end - start > SAMPLE_MSEC ) {
-			break;
-		}
-	}
-
-	float fps = count * 1000.0 / ( end - start );
-
-	return fps;
-}
-
-/*
-================
-R_Benchmark_f
-================
-*/
-void R_Benchmark_f( const idCmdArgs &args ) {
-	float	fps, msec;
-	renderView_t	view;
-
-	if ( !tr.primaryView ) {
-		common->Printf( "No primaryView for benchmarking\n" );
-		return;
-	}
-	view = tr.primaryRenderView;
-
-	for ( int size = 100 ; size >= 10 ; size -= 10 ) {
-		r_screenFraction.SetInteger( size );
-		fps = R_RenderingFPS( &view );
-		int	kpix = glConfig.vidWidth * glConfig.vidHeight * ( size * 0.01 ) * ( size * 0.01 ) * 0.001;
-		msec = 1000.0 / fps;
-		common->Printf( "kpix: %4i  msec:%5.1f fps:%5.1f\n", kpix, msec, fps );
-	}
-
-	// enable r_singleTriangle 1 while r_screenFraction is still at 10
-	r_singleTriangle.SetBool( 1 );
-	fps = R_RenderingFPS( &view );
-	msec = 1000.0 / fps;
-	common->Printf( "single tri  msec:%5.1f fps:%5.1f\n", msec, fps );
-	r_singleTriangle.SetBool( 0 );
-	r_screenFraction.SetInteger( 100 );
-
-	// enable r_skipRenderContext 1
-	r_skipRenderContext.SetBool( true );
-	fps = R_RenderingFPS( &view );
-	msec = 1000.0 / fps;
-	common->Printf( "no context  msec:%5.1f fps:%5.1f\n", msec, fps );
-	r_skipRenderContext.SetBool( false );
-}
-
 
 /* 
 ============================================================================== 
@@ -1943,7 +1865,6 @@ void R_InitCommands( void ) {
 	cmdSystem->AddCommand( "screenshot", R_ScreenShot_f, CMD_FL_RENDERER, "takes a screenshot" );
 	cmdSystem->AddCommand( "envshot", R_EnvShot_f, CMD_FL_RENDERER, "takes an environment shot" );
 	cmdSystem->AddCommand( "makeAmbientMap", R_MakeAmbientMap_f, CMD_FL_RENDERER|CMD_FL_CHEAT, "makes an ambient map" );
-	cmdSystem->AddCommand( "benchmark", R_Benchmark_f, CMD_FL_RENDERER, "benchmark" );
 	cmdSystem->AddCommand( "gfxInfo", GfxInfo_f, CMD_FL_RENDERER, "show graphics info" );
 	cmdSystem->AddCommand( "modulateLights", R_ModulateLights_f, CMD_FL_RENDERER | CMD_FL_CHEAT, "modifies shader parms on all lights" );
 	cmdSystem->AddCommand( "testImage", R_TestImage_f, CMD_FL_RENDERER | CMD_FL_CHEAT, "displays the given image centered on screen", idCmdSystem::ArgCompletion_ImageName );
