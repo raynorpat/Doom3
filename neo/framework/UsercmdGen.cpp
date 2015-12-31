@@ -304,8 +304,6 @@ void buttonState_t::SetKeyState( int keystate, bool toggle ) {
 
 const int NUM_USER_COMMANDS = sizeof(userCmdStrings) / sizeof(userCmdString_t);
 
-const int MAX_CHAT_BUFFER = 127;
-
 class idUsercmdGenLocal : public idUsercmdGen {
 public:
 					idUsercmdGenLocal( void );

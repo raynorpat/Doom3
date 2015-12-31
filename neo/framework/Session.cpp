@@ -47,12 +47,6 @@ idCVar	idSessionLocal::com_guid( "com_guid", "", CVAR_SYSTEM | CVAR_ARCHIVE | CV
 idSessionLocal		sessLocal;
 idSession			*session = &sessLocal;
 
-// these must be kept up to date with window Levelshot in guis/mainmenu.gui
-const int PREVIEW_X = 211;
-const int PREVIEW_Y = 31;
-const int PREVIEW_WIDTH = 398;
-const int PREVIEW_HEIGHT = 298;
-
 void RandomizeStack( void ) {
 	// attempt to force uninitialized stack memory bugs
 	int		bytes = 4000000;

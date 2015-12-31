@@ -3978,7 +3978,6 @@ idFileSystemLocal::HasD3XP
 ===============
 */
 bool idFileSystemLocal::HasD3XP( void ) {
-	int			i;
 	idStrList	dirs, pk4s;
 	idStr		gamepath;
 
@@ -3992,7 +3991,7 @@ bool idFileSystemLocal::HasD3XP( void ) {
 	// check for a d3xp directory with a pk4 file
 	// copied over from ListMods - only looks in basepath
 	ListOSFiles( fs_basepath.GetString(), "/", dirs );
-	for ( i = 0; i < dirs.Num(); i++ ) {
+	for ( int i = 0; i < dirs.Num(); i++ ) {
 		if ( dirs[i].Icmp( "d3xp" ) == 0 ) {
 			gamepath = BuildOSPath( fs_basepath.GetString(), dirs[ i ], "" );
 			ListOSFiles( gamepath, ".pk4", pk4s );
@@ -4012,7 +4011,7 @@ bool idFileSystemLocal::HasD3XP( void ) {
 	search[1] = fs_devpath.GetString();
 	search[2] = fs_basepath.GetString();
 	search[3] = fs_cdpath.GetString();
-	for ( i = 0; i < 4; i++ ) {
+	for ( int i = 0; i < 4; i++ ) {
 		pakfile = OpenExplicitFileRead( BuildOSPath( search[ i ], "d3xp", "pak000.pk4" ) );
 		if ( pakfile ) {
 			CloseFile( pakfile );

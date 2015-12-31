@@ -234,7 +234,7 @@ void idMegaTexture::BindForViewOrigin( const idVec3 viewOrigin ) {
 		if ( i >= numLevels ) {
 			globalImages->whiteImage->Bind();
 
-			static float	parms[4] = { -2, -2, 0, 1 };	// no contribution
+//			static float	parms[4] = { -2, -2, 0, 1 };	// no contribution
 //			qglProgramLocalParameter4fvARB( GL_VERTEX_PROGRAM_ARB, i, parms );
 		} else {
 			idTextureLevel	*level = &levels[ numLevels-1-i ];
