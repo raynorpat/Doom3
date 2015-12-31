@@ -1190,17 +1190,17 @@ void R_MakeShadowFrustums( idRenderLightLocal *light ) {
 
 
 /*
- =====================
- R_CreateTurboShadowVolume
+=====================
+R_CreateTurboShadowVolume
  
- Fast, non-clipped overshoot shadow volumes
+Fast, non-clipped overshoot shadow volumes
  
- "facing" should have one more element than tri->numIndexes / 3, which should be set to 1
- calling this function may modify "facing" based on culling
+"facing" should have one more element than tri->numIndexes / 3, which should be set to 1
+calling this function may modify "facing" based on culling
  
- are dangling edges that are outside the light frustum still making planes?
- =====================
- */
+are dangling edges that are outside the light frustum still making planes?
+=====================
+*/
 static srfTriangles_t *R_CreateTurboShadowVolume( const idRenderEntityLocal *ent,
                                                  const srfTriangles_t *tri, const idRenderLightLocal *light,
                                                  srfCullInfo_t &cullInfo ) {
