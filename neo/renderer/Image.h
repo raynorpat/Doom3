@@ -380,6 +380,7 @@ public:
 	// built-in images
 	idImage *			defaultImage;
 	idImage *			flatNormalMap;				// 128 128 255 in all pixels
+	idImage *			ambientNormalMap;			// tr.ambientLightVector encoded in all pixels
 	idImage *			rampImage;					// 0-255 in RGBA in S
 	idImage *			alphaRampImage;				// 0-255 in alpha, 255 in RGB
 	idImage *			alphaNotchImage;			// 2x1 texture with just 1110 and 1111 with point sampling

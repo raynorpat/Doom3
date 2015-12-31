@@ -54,22 +54,19 @@ void main( PS_IN fragment, out PS_OUT result ) {
 	half4 bumpMap =			tex2D( samp0, fragment.texcoord1.xy );
 	half4 lightFalloff =	idtex2Dproj( samp1, fragment.texcoord2 );
 	half4 lightProj	=		idtex2Dproj( samp2, fragment.texcoord3 );
-	half4 YCoCG =			tex2D( samp3, fragment.texcoord4.xy );
+	half4 diffuseMap =		tex2D( samp3, fragment.texcoord4.xy );
 	half4 specMap =			tex2D( samp4, fragment.texcoord5.xy );
 
 	half3 lightVector = normalize( fragment.texcoord0.xyz );
-	half3 diffuseMap = ConvertYCoCgToRGB( YCoCG );
 
 	half3 localNormal;
-	localNormal.xy = bumpMap.wy - 0.5;
-	localNormal.z = sqrt( abs( dot( localNormal.xy, localNormal.xy ) - 0.25 ) );
-	localNormal = normalize( localNormal );
+	localNormal = normalize( 2.0 * bumpMap.wyz - 1.0 );
 
 	const half specularPower = 10.0f;
 	half hDotN = dot3( normalize( fragment.texcoord6.xyz ), localNormal );
 	half3 specularContribution = _half3( pow( hDotN, specularPower ) );
 
-	half3 diffuseColor = diffuseMap * rpDiffuseModifier.xyz;
+	half3 diffuseColor = diffuseMap.xyz * rpDiffuseModifier.xyz;
 	half3 specularColor = specMap.xyz * specularContribution * rpSpecularModifier.xyz;
 	half3 lightColor = dot3( lightVector, localNormal ) * lightProj.xyz * lightFalloff.xyz;
 

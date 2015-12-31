@@ -83,20 +83,21 @@ void idRenderProgManager::Init()
         const char* name;
     } builtins[] =
     {
-        { BUILTIN_GUI, "gui.vfp" },
+//        { BUILTIN_GUI, "gui.vfp" },
         { BUILTIN_COLOR, "color.vfp" },
-        { BUILTIN_SIMPLESHADE, "simpleshade.vfp" },
+//        { BUILTIN_SIMPLESHADE, "simpleshade.vfp" },
         { BUILTIN_TEXTURED, "texture.vfp" },
         { BUILTIN_TEXTURE_VERTEXCOLOR, "texture_color.vfp" },
         { BUILTIN_TEXTURE_TEXGEN_VERTEXCOLOR, "texture_color_texgen.vfp" },
         { BUILTIN_INTERACTION, "interaction.vfp" },
         { BUILTIN_INTERACTION_AMBIENT, "interactionAmbient.vfp" },
-        { BUILTIN_ENVIRONMENT, "environment.vfp" },
-        { BUILTIN_BUMPY_ENVIRONMENT, "bumpyEnvironment.vfp" },
+//        { BUILTIN_ENVIRONMENT, "environment.vfp" },
+//        { BUILTIN_BUMPY_ENVIRONMENT, "bumpyEnvironment.vfp" },
         
         { BUILTIN_DEPTH, "depth.vfp" },
         { BUILTIN_SHADOW_DEBUG, "shadowDebug.vfp" },
         
+/*
         { BUILTIN_BLENDLIGHT, "blendlight.vfp" },
         { BUILTIN_FOG, "fog.vfp" },
         { BUILTIN_SKYBOX, "skybox.vfp" },
@@ -104,9 +105,9 @@ void idRenderProgManager::Init()
         { BUILTIN_POSTPROCESS, "postprocess.vfp" },
         { BUILTIN_STEREO_DEGHOST, "stereoDeGhost.vfp" },
         { BUILTIN_STEREO_WARP, "stereoWarp.vfp" },
-        { BUILTIN_ZCULL_RECONSTRUCT, "zcullReconstruct.vfp" },
         { BUILTIN_STEREO_INTERLACE, "stereoInterlace.vfp" },
         { BUILTIN_MOTION_BLUR, "motionBlur.vfp" },
+*/
     };
     int numBuiltins = sizeof( builtins ) / sizeof( builtins[0] );
     vertexShaders.SetNum( numBuiltins );

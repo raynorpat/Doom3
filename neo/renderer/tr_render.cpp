@@ -90,6 +90,8 @@ void RB_DrawElementsWithCounters( const srfTriangles_t *tri ) {
 		}
 	}
 
+	renderProgManager.CommitUniforms();
+
 	if ( tri->indexCache ) {
 		qglDrawElements( GL_TRIANGLES, 
 						r_singleTriangle.GetBool() ? 3 : tri->numIndexes,
@@ -172,7 +174,7 @@ void RB_T_RenderTriangleSurface( const drawSurf_t *surf ) {
 RB_EnterWeaponDepthHack
 ===============
 */
-void RB_EnterWeaponDepthHack() {
+void RB_EnterWeaponDepthHack( const drawSurf_t *surf ) {
 	qglDepthRange( 0, 0.5 );
 
 	float	matrix[16];
@@ -184,6 +186,10 @@ void RB_EnterWeaponDepthHack() {
 	qglMatrixMode(GL_PROJECTION);
 	qglLoadMatrixf( matrix );
 	qglMatrixMode(GL_MODELVIEW);
+
+	float  mat[16];
+	myGlMultMatrix(surf->space->modelViewMatrix, matrix, mat);
+	renderProgManager.SetRenderParms( RENDERPARM_MVPMATRIX_X, mat, 4 );
 }
 
 /*
@@ -191,18 +197,22 @@ void RB_EnterWeaponDepthHack() {
 RB_EnterModelDepthHack
 ===============
 */
-void RB_EnterModelDepthHack( float depth ) {
+void RB_EnterModelDepthHack( const drawSurf_t *surf ) {
 	qglDepthRange( 0.0f, 1.0f );
 
 	float	matrix[16];
 
 	memcpy( matrix, backEnd.viewDef->projectionMatrix, sizeof( matrix ) );
 
-	matrix[14] -= depth;
+	matrix[14] -= surf->space->modelDepthHack;
 
 	qglMatrixMode(GL_PROJECTION);
 	qglLoadMatrixf( matrix );
 	qglMatrixMode(GL_MODELVIEW);
+
+	float  mat[16];
+	myGlMultMatrix(surf->space->modelViewMatrix, matrix, mat);
+	renderProgManager.SetRenderParms( RENDERPARM_MVPMATRIX_X, mat, 4 );
 }
 
 /*
@@ -210,12 +220,16 @@ void RB_EnterModelDepthHack( float depth ) {
 RB_LeaveDepthHack
 ===============
 */
-void RB_LeaveDepthHack() {
+void RB_LeaveDepthHack( const drawSurf_t *surf ) {
 	qglDepthRange( 0, 1 );
 
 	qglMatrixMode(GL_PROJECTION);
 	qglLoadMatrixf( backEnd.viewDef->projectionMatrix );
 	qglMatrixMode(GL_MODELVIEW);
+
+	float  mat[16];
+	myGlMultMatrix(surf->space->modelViewMatrix, backEnd.viewDef->projectionMatrix, mat);
+	renderProgManager.SetRenderParms( RENDERPARM_MVPMATRIX_X, mat, 4 );
 }
 
 /*
@@ -241,14 +255,22 @@ void RB_RenderDrawSurfListWithFunction( drawSurf_t **drawSurfs, int numDrawSurfs
 		// change the matrix if needed
 		if ( drawSurf->space != backEnd.currentSpace ) {
 			qglLoadMatrixf( drawSurf->space->modelViewMatrix );
+
+			float  mat[16];
+			myGlMultMatrix(drawSurf->space->modelViewMatrix, backEnd.viewDef->projectionMatrix, mat);
+			renderProgManager.SetRenderParms( RENDERPARM_MVPMATRIX_X, mat, 4 );
+ 
+			// we need the model matrix without it being combined with the view matrix
+			// so we can transform local vectors to global coordinates
+			renderProgManager.SetRenderParms( RENDERPARM_MODELMATRIX_X, drawSurf->space->modelMatrix, 4 );
 		}
 
 		if ( drawSurf->space->weaponDepthHack ) {
-			RB_EnterWeaponDepthHack();
+			RB_EnterWeaponDepthHack( drawSurf );
 		}
 
 		if ( drawSurf->space->modelDepthHack != 0.0f ) {
-			RB_EnterModelDepthHack( drawSurf->space->modelDepthHack );
+			RB_EnterModelDepthHack( drawSurf );
 		}
 
 		// change the scissor if needed
@@ -264,7 +286,7 @@ void RB_RenderDrawSurfListWithFunction( drawSurf_t **drawSurfs, int numDrawSurfs
 		triFunc_( drawSurf );
 
 		if ( drawSurf->space->weaponDepthHack || drawSurf->space->modelDepthHack != 0.0f ) {
-			RB_LeaveDepthHack();
+			RB_LeaveDepthHack( drawSurf );
 		}
 
 		backEnd.currentSpace = drawSurf->space;
@@ -289,11 +311,11 @@ void RB_RenderDrawSurfChainWithFunction( const drawSurf_t *drawSurfs,
 		}
 
 		if ( drawSurf->space->weaponDepthHack ) {
-			RB_EnterWeaponDepthHack();
+			RB_EnterWeaponDepthHack( drawSurf );
 		}
 
 		if ( drawSurf->space->modelDepthHack ) {
-			RB_EnterModelDepthHack( drawSurf->space->modelDepthHack );
+			RB_EnterModelDepthHack( drawSurf );
 		}
 
 		// change the scissor if needed
@@ -309,7 +331,7 @@ void RB_RenderDrawSurfChainWithFunction( const drawSurf_t *drawSurfs,
 		triFunc_( drawSurf );
 
 		if ( drawSurf->space->weaponDepthHack || drawSurf->space->modelDepthHack != 0.0f ) {
-			RB_LeaveDepthHack();
+			RB_LeaveDepthHack( drawSurf );
 		}
 
 		backEnd.currentSpace = drawSurf->space;
@@ -321,78 +343,35 @@ void RB_RenderDrawSurfChainWithFunction( const drawSurf_t *drawSurfs,
 RB_GetShaderTextureMatrix
 ======================
 */
-void RB_GetShaderTextureMatrix( const float *shaderRegisters,
-							   const textureStage_t *texture, float matrix[16] ) {
-	matrix[0] = shaderRegisters[ texture->matrix[0][0] ];
-	matrix[4] = shaderRegisters[ texture->matrix[0][1] ];
-	matrix[8] = 0;
-	matrix[12] = shaderRegisters[ texture->matrix[0][2] ];
+void RB_GetShaderTextureMatrix( const float *shaderRegisters, const textureStage_t *texture, float matrix[16] ) {
+	matrix[0*4+0] = shaderRegisters[ texture->matrix[0][0] ];
+	matrix[1*4+0] = shaderRegisters[ texture->matrix[0][1] ];
+	matrix[2*4+0] = 0.0f;
+	matrix[3*4+0] = shaderRegisters[ texture->matrix[0][2] ];
+
+	matrix[0*4+1] = shaderRegisters[ texture->matrix[1][0] ];
+	matrix[1*4+1] = shaderRegisters[ texture->matrix[1][1] ];
+	matrix[2*4+1] = 0.0f;
+	matrix[3*4+1] = shaderRegisters[ texture->matrix[1][2] ];
 
 	// we attempt to keep scrolls from generating incredibly large texture values, but
 	// center rotations and center scales can still generate offsets that need to be > 1
-	if ( matrix[12] < -40 || matrix[12] > 40 ) {
-		matrix[12] -= (int)matrix[12];
+	if ( matrix[3*4+0] < -40.0f || matrix[12] > 40.0f ) {
+		matrix[3*4+0] -= (int)matrix[3*4+0];
 	}
-
-	matrix[1] = shaderRegisters[ texture->matrix[1][0] ];
-	matrix[5] = shaderRegisters[ texture->matrix[1][1] ];
-	matrix[9] = 0;
-	matrix[13] = shaderRegisters[ texture->matrix[1][2] ];
-	if ( matrix[13] < -40 || matrix[13] > 40 ) {
+	if ( matrix[13] < -40.0f || matrix[13] > 40.0f ) {
 		matrix[13] -= (int)matrix[13];
 	}
 
-	matrix[2] = 0;
-	matrix[6] = 0;
-	matrix[10] = 1;
-	matrix[14] = 0;
+	matrix[0*4+2] = 0.0f;
+	matrix[1*4+2] = 0.0f;
+	matrix[2*4+2] = 1.0f;
+	matrix[3*4+2] = 0.0f;
 
-	matrix[3] = 0;
-	matrix[7] = 0;
-	matrix[11] = 0;
-	matrix[15] = 1;
-}
-
-/*
- =====================
- RB_BakeTextureMatrixIntoTexgen
- =====================
- */
-void RB_BakeTextureMatrixIntoTexgen( idPlane lightProject[3], const float *textureMatrix ) {
-    float	genMatrix[16];
-    float	final[16];
-    
-    genMatrix[0] = lightProject[0][0];
-    genMatrix[4] = lightProject[0][1];
-    genMatrix[8] = lightProject[0][2];
-    genMatrix[12] = lightProject[0][3];
-    
-    genMatrix[1] = lightProject[1][0];
-    genMatrix[5] = lightProject[1][1];
-    genMatrix[9] = lightProject[1][2];
-    genMatrix[13] = lightProject[1][3];
-    
-    genMatrix[2] = 0;
-    genMatrix[6] = 0;
-    genMatrix[10] = 0;
-    genMatrix[14] = 0;
-    
-    genMatrix[3] = lightProject[2][0];
-    genMatrix[7] = lightProject[2][1];
-    genMatrix[11] = lightProject[2][2];
-    genMatrix[15] = lightProject[2][3];
-    
-    myGlMultMatrix( genMatrix, backEnd.lightTextureMatrix, final );
-    
-    lightProject[0][0] = final[0];
-    lightProject[0][1] = final[4];
-    lightProject[0][2] = final[8];
-    lightProject[0][3] = final[12];
-    
-    lightProject[1][0] = final[1];
-    lightProject[1][1] = final[5];
-    lightProject[1][2] = final[9];
-    lightProject[1][3] = final[13];
+	matrix[0*4+3] = 0.0f;
+	matrix[1*4+3] = 0.0f;
+	matrix[2*4+3] = 0.0f;
+	matrix[3*4+3] = 1.0f;
 }
 
 /*
@@ -443,62 +422,6 @@ void RB_BindVariableStageImage( const textureStage_t *texture, const float *shad
 	}
 }
 
-/*
-======================
-RB_BindStageTexture
-======================
-*/
-void RB_BindStageTexture( const float *shaderRegisters, const textureStage_t *texture, const drawSurf_t *surf ) {
-	// image
-	RB_BindVariableStageImage( texture, shaderRegisters );
-
-	// texgens
-	if ( texture->texgen == TG_SKYBOX_CUBE || texture->texgen == TG_WOBBLESKY_CUBE ) {
-		qglTexCoordPointer( 3, GL_FLOAT, 0, vertexCache.Position( surf->dynamicTexCoords ) );
-	}
-	if ( texture->texgen == TG_REFLECT_CUBE ) {
-		qglEnableClientState( GL_NORMAL_ARRAY );
-		qglNormalPointer( GL_FLOAT, sizeof( idDrawVert ), ((idDrawVert *)vertexCache.Position( surf->geo->ambientCache ))->normal.ToFloatPtr() );
-
-		qglMatrixMode( GL_TEXTURE );
-		float	mat[16];
-
-		R_TransposeGLMatrix( backEnd.viewDef->worldSpace.modelViewMatrix, mat );
-
-		qglLoadMatrixf( mat );
-		qglMatrixMode( GL_MODELVIEW );
-	}
-
-	// matrix
-	if ( texture->hasMatrix ) {
-		RB_LoadShaderTextureMatrix( shaderRegisters, texture );
-	}
-}
-
-/*
-======================
-RB_FinishStageTexture
-======================
-*/
-void RB_FinishStageTexture( const textureStage_t *texture, const drawSurf_t *surf ) {
-	if ( texture->texgen == TG_SKYBOX_CUBE || texture->texgen == TG_WOBBLESKY_CUBE ) {
-		qglTexCoordPointer( 2, GL_FLOAT, sizeof( idDrawVert ), (void *)&(((idDrawVert *)vertexCache.Position( surf->geo->ambientCache ))->st) );
-	}
-
-	if ( texture->texgen == TG_REFLECT_CUBE ) {
-		qglDisableClientState( GL_NORMAL_ARRAY );
-
-		qglMatrixMode( GL_TEXTURE );
-		qglLoadIdentity();
-		qglMatrixMode( GL_MODELVIEW );
-	}
-
-	if ( texture->hasMatrix ) {
-		qglMatrixMode( GL_TEXTURE );
-		qglLoadIdentity();
-		qglMatrixMode( GL_MODELVIEW );
-	}
-}
 
 //=============================================================================================
 
@@ -676,11 +599,11 @@ void RB_CreateSingleDrawInteractions( const drawSurf_t *surf, void (*DrawInterac
 
 	// hack depth range if needed
 	if ( surf->space->weaponDepthHack ) {
-		RB_EnterWeaponDepthHack();
+		RB_EnterWeaponDepthHack( surf );
 	}
 
 	if ( surf->space->modelDepthHack ) {
-		RB_EnterModelDepthHack( surf->space->modelDepthHack );
+		RB_EnterModelDepthHack( surf );
 	}
 
 	inter.surf = surf;
@@ -721,11 +644,19 @@ void RB_CreateSingleDrawInteractions( const drawSurf_t *surf, void (*DrawInterac
 		inter.diffuseColor[0] = inter.diffuseColor[1] = inter.diffuseColor[2] = inter.diffuseColor[3] = 0;
 		inter.specularColor[0] = inter.specularColor[1] = inter.specularColor[2] = inter.specularColor[3] = 0;
 
-		float lightColor[4];
-		lightColor[0] = r_lightScale.GetFloat() * lightRegs[ lightStage->color.registers[0] ];
-		lightColor[1] = r_lightScale.GetFloat() * lightRegs[ lightStage->color.registers[1] ];
-		lightColor[2] = r_lightScale.GetFloat() * lightRegs[ lightStage->color.registers[2] ];
-		lightColor[3] = lightRegs[ lightStage->color.registers[3] ];
+		const float lightScale = r_lightScale.GetFloat();
+		const idVec4 lightColor(
+			lightScale * lightRegs[ lightStage->color.registers[0] ],
+			lightScale * lightRegs[ lightStage->color.registers[1] ],
+			lightScale * lightRegs[ lightStage->color.registers[2] ],
+			lightRegs[ lightStage->color.registers[3] ] );
+		// apply the world-global overbright and the 2x factor for specular
+		const idVec4 diffuseColor = lightColor;
+		const idVec4 specularColor = lightColor * 2.0f;
+
+		// set the color modifiers
+		renderProgManager.SetRenderParm( RENDERPARM_DIFFUSEMODIFIER, diffuseColor.ToFloatPtr() );
+		renderProgManager.SetRenderParm( RENDERPARM_SPECULARMODIFIER, specularColor.ToFloatPtr() );
 
 		// go through the individual stages
 		for ( int surfaceStageNum = 0 ; surfaceStageNum < surfaceShader->GetNumStages() ; surfaceStageNum++ ) {
@@ -758,10 +689,6 @@ void RB_CreateSingleDrawInteractions( const drawSurf_t *surf, void (*DrawInterac
 					}
 					R_SetDrawInteraction( surfaceStage, surfaceRegs, &inter.diffuseImage,
 											inter.diffuseMatrix, inter.diffuseColor.ToFloatPtr() );
-					inter.diffuseColor[0] *= lightColor[0];
-					inter.diffuseColor[1] *= lightColor[1];
-					inter.diffuseColor[2] *= lightColor[2];
-					inter.diffuseColor[3] *= lightColor[3];
 					inter.vertexColor = surfaceStage->vertexColor;
 					break;
 				}
@@ -775,10 +702,6 @@ void RB_CreateSingleDrawInteractions( const drawSurf_t *surf, void (*DrawInterac
 					}
 					R_SetDrawInteraction( surfaceStage, surfaceRegs, &inter.specularImage,
 											inter.specularMatrix, inter.specularColor.ToFloatPtr() );
-					inter.specularColor[0] *= lightColor[0];
-					inter.specularColor[1] *= lightColor[1];
-					inter.specularColor[2] *= lightColor[2];
-					inter.specularColor[3] *= lightColor[3];
 					inter.vertexColor = surfaceStage->vertexColor;
 					break;
 				}
@@ -791,7 +714,7 @@ void RB_CreateSingleDrawInteractions( const drawSurf_t *surf, void (*DrawInterac
 
 	// unhack depth range if needed
 	if ( surf->space->weaponDepthHack || surf->space->modelDepthHack != 0.0f ) {
-		RB_LeaveDepthHack();
+		RB_LeaveDepthHack( surf );
 	}
 }
 

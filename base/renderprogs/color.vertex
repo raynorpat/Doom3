@@ -29,11 +29,11 @@ If you have questions concerning this license or the applicable additional terms
 #include "global.inc"
 
 struct VS_IN {
-	float4 position : POSITION;
+	float3 position : POSITION;
 	float2 texcoord : TEXCOORD0;
-	float4 normal : NORMAL;
-	float4 tangent : TANGENT;
-	float4 color : COLOR0;
+	float3 normal 	: NORMAL;
+	float3 tangent 	: TANGENT;
+	float4 color 	: COLOR0;
 };
 
 struct VS_OUT {
@@ -41,8 +41,8 @@ struct VS_OUT {
 };
 
 void main( VS_IN vertex, out VS_OUT result ) {
-	result.position.x = dot4( vertex.position, rpMVPmatrixX );
-	result.position.y = dot4( vertex.position, rpMVPmatrixY );
-	result.position.z = dot4( vertex.position, rpMVPmatrixZ );
-	result.position.w = dot4( vertex.position, rpMVPmatrixW );
+	float4x4 mvpMatrix = float4x4( rpMVPmatrixX, rpMVPmatrixY, rpMVPmatrixZ, rpMVPmatrixW );
+
+	float4 vertexPos = float4( vertex.position, 1.0f );
+	result.position = mvpMatrix * vertexPos;
 }

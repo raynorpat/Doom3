@@ -94,31 +94,15 @@ void RB_SetDefaultGLState( void ) {
 
 		GL_TexEnv( GL_MODULATE );
 		qglDisable( GL_TEXTURE_2D );
-		if ( glConfig.cubeMapAvailable ) {
-			qglDisable( GL_TEXTURE_CUBE_MAP_EXT );
-		}
+		qglDisable( GL_TEXTURE_CUBE_MAP );
 	}
+
+	renderProgManager.Unbind();
+	renderProgManager.ZeroUniforms();
 }
 
 //=============================================================================
 
-/*
-==================
-GL_BindProgram
-==================
-*/
-void GL_BindProgram( shaderProgram_t *program ) {
-    if ( !program ) {
-        backEnd.glState.program = NULL;
-        
-        qglUseProgram( 0 );
-        return;
-    }
-    
-    backEnd.glState.program = program;
-    
-    qglUseProgram( program->program );
-}
 
 /*
 ====================
@@ -363,32 +347,6 @@ void GL_State( int stateBits ) {
 			qglPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
 		} else {
 			qglPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
-		}
-	}
-
-	//
-	// alpha test
-	//
-	if ( diff & GLS_ATEST_BITS ) {
-		switch ( stateBits & GLS_ATEST_BITS ) {
-		case 0:
-			qglDisable( GL_ALPHA_TEST );
-			break;
-		case GLS_ATEST_EQ_255:
-			qglEnable( GL_ALPHA_TEST );
-			qglAlphaFunc( GL_EQUAL, 1 );
-			break;
-		case GLS_ATEST_LT_128:
-			qglEnable( GL_ALPHA_TEST );
-			qglAlphaFunc( GL_LESS, 0.5 );
-			break;
-		case GLS_ATEST_GE_128:
-			qglEnable( GL_ALPHA_TEST );
-			qglAlphaFunc( GL_GEQUAL, 0.5 );
-			break;
-		default:
-			assert( 0 );
-			break;
 		}
 	}
 

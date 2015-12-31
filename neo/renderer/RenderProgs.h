@@ -30,11 +30,11 @@
 
 
 static const int PC_ATTRIB_INDEX_VERTEX		= 0;
-static const int PC_ATTRIB_INDEX_NORMAL		= 2;
 static const int PC_ATTRIB_INDEX_COLOR		= 3;
-static const int PC_ATTRIB_INDEX_COLOR2		= 4;
 static const int PC_ATTRIB_INDEX_ST			= 8;
 static const int PC_ATTRIB_INDEX_TANGENT	= 9;
+static const int PC_ATTRIB_INDEX_BITANGENT	= 10;
+static const int PC_ATTRIB_INDEX_NORMAL		= 11;
 
 // This enum list corresponds to the global constant register indecies as defined in global.inc for all
 // shaders.  We used a shared pool to keeps things simple.  If something changes here then it also
@@ -149,100 +149,30 @@ public:
     
     void	BindShader( int vIndex, int fIndex );
     
-    void	BindShader_GUI( )
-    {
-        BindShader_Builtin( BUILTIN_GUI );
-    }
-    void	BindShader_Color( )
-    {
-        BindShader_Builtin( BUILTIN_COLOR );
-    }
-    void	BindShader_Texture( )
-    {
-        BindShader_Builtin( BUILTIN_TEXTURED );
-    }
-    void	BindShader_TextureVertexColor()
-    {
-        BindShader_Builtin( BUILTIN_TEXTURE_VERTEXCOLOR );
-    };
-    void	BindShader_TextureTexGenVertexColor()
-    {
-        BindShader_Builtin( BUILTIN_TEXTURE_TEXGEN_VERTEXCOLOR );
-    };
-    void	BindShader_Interaction()
-    {
-        BindShader_Builtin( BUILTIN_INTERACTION );
-    }
-    void	BindShader_InteractionAmbient()
-    {
-        BindShader_Builtin( BUILTIN_INTERACTION_AMBIENT );
-    }
-    void	BindShader_SimpleShade()
-    {
-        BindShader_Builtin( BUILTIN_SIMPLESHADE );
-    }
-    void	BindShader_Environment()
-    {
-        BindShader_Builtin( BUILTIN_ENVIRONMENT );
-    }
-    void	BindShader_BumpyEnvironment()
-    {
-        BindShader_Builtin( BUILTIN_BUMPY_ENVIRONMENT );
-    }
-    
-    void	BindShader_Depth()
-    {
-        BindShader_Builtin( BUILTIN_DEPTH );
-    }
-    void	BindShader_Shadow()
-    {
-        BindShader( builtinShaders[BUILTIN_SHADOW], -1 );
-    }
-    void	BindShader_ShadowDebug()
-    {
-        BindShader_Builtin( BUILTIN_SHADOW_DEBUG );
-    }
-    
-    void	BindShader_BlendLight()
-    {
-        BindShader_Builtin( BUILTIN_BLENDLIGHT );
-    }
-    void	BindShader_Fog()
-    {
-        BindShader_Builtin( BUILTIN_FOG );
-    }
-    void	BindShader_SkyBox()
-    {
-        BindShader_Builtin( BUILTIN_SKYBOX );
-    }
-    void	BindShader_WobbleSky()
-    {
-        BindShader_Builtin( BUILTIN_WOBBLESKY );
-    }
-    void	BindShader_StereoDeGhost()
-    {
-        BindShader_Builtin( BUILTIN_STEREO_DEGHOST );
-    }
-    void	BindShader_StereoWarp()
-    {
-        BindShader_Builtin( BUILTIN_STEREO_WARP );
-    }
-    void	BindShader_StereoInterlace()
-    {
-        BindShader_Builtin( BUILTIN_STEREO_INTERLACE );
-    }
-    void	BindShader_PostProcess()
-    {
-        BindShader_Builtin( BUILTIN_POSTPROCESS );
-    }
-    void	BindShader_ZCullReconstruct()
-    {
-        BindShader_Builtin( BUILTIN_ZCULL_RECONSTRUCT );
-    }
-    void	BindShader_MotionBlur()
-    {
-        BindShader_Builtin( BUILTIN_MOTION_BLUR );
-    }
+	void	BindShader_GUI( ) { BindShader_Builtin( BUILTIN_GUI ); }
+	void	BindShader_Color( ) { BindShader_Builtin( BUILTIN_COLOR ); }
+	void	BindShader_Texture( ) { BindShader_Builtin( BUILTIN_TEXTURED ); }
+	void	BindShader_TextureVertexColor() { BindShader_Builtin( BUILTIN_TEXTURE_VERTEXCOLOR ); };
+	void	BindShader_TextureTexGenVertexColor() { BindShader_Builtin( BUILTIN_TEXTURE_TEXGEN_VERTEXCOLOR ); };
+	void	BindShader_Interaction()  { BindShader_Builtin( BUILTIN_INTERACTION ); }
+	void	BindShader_InteractionAmbient()  { BindShader_Builtin( BUILTIN_INTERACTION_AMBIENT ); }
+	void	BindShader_SimpleShade() { BindShader_Builtin( BUILTIN_SIMPLESHADE ); }
+	void	BindShader_Environment() { BindShader_Builtin( BUILTIN_ENVIRONMENT ); }
+	void	BindShader_BumpyEnvironment() { BindShader_Builtin( BUILTIN_BUMPY_ENVIRONMENT ); }
+
+	void	BindShader_Depth() { BindShader_Builtin( BUILTIN_DEPTH ); }
+	void	BindShader_Shadow() { BindShader( builtinShaders[BUILTIN_SHADOW], -1 ); }
+	void	BindShader_ShadowDebug() { BindShader_Builtin( BUILTIN_SHADOW_DEBUG ); }
+
+	void	BindShader_BlendLight() { BindShader_Builtin( BUILTIN_BLENDLIGHT ); }
+	void	BindShader_Fog() { BindShader_Builtin( BUILTIN_FOG ); }
+	void	BindShader_SkyBox() { BindShader_Builtin( BUILTIN_SKYBOX ); }
+	void	BindShader_WobbleSky() { BindShader_Builtin( BUILTIN_WOBBLESKY ); }
+	void	BindShader_StereoDeGhost() { BindShader_Builtin( BUILTIN_STEREO_DEGHOST ); }
+	void	BindShader_StereoWarp() { BindShader_Builtin( BUILTIN_STEREO_WARP ); }
+	void	BindShader_StereoInterlace() { BindShader_Builtin( BUILTIN_STEREO_INTERLACE ); }
+	void	BindShader_PostProcess() { BindShader_Builtin( BUILTIN_POSTPROCESS ); }
+	void	BindShader_MotionBlur() { BindShader_Builtin( BUILTIN_MOTION_BLUR); }
     
     // unbind the currently bound render program
     void	Unbind();
@@ -290,7 +220,6 @@ protected:
         BUILTIN_POSTPROCESS,
         BUILTIN_STEREO_DEGHOST,
         BUILTIN_STEREO_WARP,
-        BUILTIN_ZCULL_RECONSTRUCT,
         BUILTIN_STEREO_INTERLACE,
         BUILTIN_MOTION_BLUR,
         

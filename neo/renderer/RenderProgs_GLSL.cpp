@@ -92,18 +92,18 @@ enum vertexMask_t
     VERTEX_MASK_NORMAL		= BIT( PC_ATTRIB_INDEX_NORMAL ),
     VERTEX_MASK_COLOR		= BIT( PC_ATTRIB_INDEX_COLOR ),
     VERTEX_MASK_TANGENT		= BIT( PC_ATTRIB_INDEX_TANGENT ),
-    VERTEX_MASK_COLOR2		= BIT( PC_ATTRIB_INDEX_COLOR2 ),
+	VERTEX_MASK_BITANGENT	= BIT( PC_ATTRIB_INDEX_BITANGENT ),
 };
 
 attribInfo_t attribsPC[] =
 {
     // vertex attributes
-    { "float4",		"position",		"POSITION",		"in_Position",			PC_ATTRIB_INDEX_VERTEX,			AT_VS_IN,		VERTEX_MASK_XYZ },
+	{ "float3",		"position",		"POSITION",		"in_Position",			PC_ATTRIB_INDEX_VERTEX,			AT_VS_IN,		VERTEX_MASK_XYZ },
     { "float2",		"texcoord",		"TEXCOORD0",	"in_TexCoord",			PC_ATTRIB_INDEX_ST,				AT_VS_IN,		VERTEX_MASK_ST },
-    { "float4",		"normal",		"NORMAL",		"in_Normal",			PC_ATTRIB_INDEX_NORMAL,			AT_VS_IN,		VERTEX_MASK_NORMAL },
-    { "float4",		"tangent",		"TANGENT",		"in_Tangent",			PC_ATTRIB_INDEX_TANGENT,		AT_VS_IN,		VERTEX_MASK_TANGENT },
+	{ "float3",		"normal",		"NORMAL",		"in_Normal",			PC_ATTRIB_INDEX_NORMAL,			AT_VS_IN,		VERTEX_MASK_NORMAL },
+	{ "float3",		"tangent",		"TANGENT",		"in_Tangent",			PC_ATTRIB_INDEX_TANGENT,		AT_VS_IN,		VERTEX_MASK_TANGENT },
+	{ "float3",		"bitangent",	"BITANGENT",	"in_Bitangent",			PC_ATTRIB_INDEX_BITANGENT,		AT_VS_IN,		VERTEX_MASK_BITANGENT },
     { "float4",		"color",		"COLOR0",		"in_Color",				PC_ATTRIB_INDEX_COLOR,			AT_VS_IN,		VERTEX_MASK_COLOR },
-    { "float4",		"color2",		"COLOR1",		"in_Color2",			PC_ATTRIB_INDEX_COLOR2,			AT_VS_IN,		VERTEX_MASK_COLOR2 },
     
     // pre-defined vertex program output
     { "float4",		"position",		"POSITION",		"gl_Position",			0,	AT_VS_OUT,		0 },

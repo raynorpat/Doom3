@@ -354,6 +354,28 @@ static void R_FlatNormalImage( idImage *image ) {
 		TF_DEFAULT, true, TR_REPEAT, TD_HIGH_QUALITY );
 }
 
+static void R_AmbientNormalImage( idImage *image ) {
+	byte	data[DEFAULT_SIZE][DEFAULT_SIZE][4];
+	int		i;
+
+	int red = ( globalImages->image_useNormalCompression.GetInteger() == 1 ) ? 0 : 3;
+	int alpha = ( red == 0 ) ? 3 : 0;
+	// flat normal map for default bunp mapping
+	for ( i = 0 ; i < 4 ; i++ ) {
+		data[0][i][red] = (byte)(255 * tr.ambientLightVector[0]);
+		data[0][i][1] = (byte)(255 * tr.ambientLightVector[1]);
+		data[0][i][2] = (byte)(255 * tr.ambientLightVector[2]);
+		data[0][i][alpha] = 255;
+	}
+	const byte	*pics[6];
+	for ( i = 0 ; i < 6 ; i++ ) {
+		pics[i] = data[0][0];
+	}
+	// this must be a cube map for fragment programs to simply substitute for the normalization cube map
+	image->GenerateCubeImage( pics, 2, TF_DEFAULT, true, TD_HIGH_QUALITY );
+}
+
+
 static void CreateSquareLight( void ) {
 	byte		*buffer;
 	int			x, y;
@@ -1746,6 +1768,7 @@ void idImageManager::Init() {
 	blackImage = ImageFromFunction( "_black", R_BlackImage );
 	borderClampImage = ImageFromFunction( "_borderClamp", R_BorderClampImage );
 	flatNormalMap = ImageFromFunction( "_flat", R_FlatNormalImage );
+	ambientNormalMap = ImageFromFunction( "_ambient", R_AmbientNormalImage );
 	rampImage = ImageFromFunction( "_ramp", R_RampImage );
 	alphaRampImage = ImageFromFunction( "_alphaRamp", R_RampImage );
 	alphaNotchImage = ImageFromFunction( "_alphaNotch", R_AlphaNotchImage );

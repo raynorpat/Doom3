@@ -29,11 +29,12 @@ If you have questions concerning this license or the applicable additional terms
 #include "global.inc"
 
 struct VS_IN {
-	float4 position : POSITION;
-	float2 texcoord : TEXCOORD0;
-	float4 normal : NORMAL;
-	float4 tangent : TANGENT;
-	float4 color : COLOR0;
+	float3 position 	: POSITION;
+	float2 texcoord 	: TEXCOORD0;
+	float3 normal 		: NORMAL;
+	float3 tangent 		: TANGENT;
+	float3 bitangent 	: BITANGENT;
+	float4 color 		: COLOR0;
 };
 
 struct VS_OUT {
@@ -42,26 +43,18 @@ struct VS_OUT {
 	float4 texcoord2	: TEXCOORD2;
 	float4 texcoord3	: TEXCOORD3;
 	float4 texcoord4	: TEXCOORD4;
-	float4 texcoord5	: TEXCOORD5;
-	float4 texcoord6	: TEXCOORD6;
 	float4 color		: COLOR0;
 };
 
 void main( VS_IN vertex, out VS_OUT result ) {
 
-	float4 normal = vertex.normal * 2.0 - 1.0;
-	float4 tangent = vertex.tangent * 2.0 - 1.0;
-	float3 binormal = cross( normal.xyz, tangent.xyz ) * tangent.w;
+	float3x3 tangentToWorld = float3x3( vertex.tangent, vertex.bitangent, vertex.normal );
+	float4x4 mvpMatrix = float4x4( rpMVPmatrixX, rpMVPmatrixY, rpMVPmatrixZ, rpMVPmatrixW );
 
-	result.position.x = dot4( vertex.position, rpMVPmatrixX );
-	result.position.y = dot4( vertex.position, rpMVPmatrixY );
-	result.position.z = dot4( vertex.position, rpMVPmatrixZ );
-	result.position.w = dot4( vertex.position, rpMVPmatrixW );
+	float4 vertexPos = float4( vertex.position, 1.0f );
+	result.position = mvpMatrix * vertexPos;
 
 	float4 defaultTexCoord = float4( 0.0f, 0.5f, 0.0f, 1.0f );
-
-	//calculate vector to light in R0
-	float4 toLight = rpLocalLightOrigin - vertex.position;
 
 	//textures 1 takes the base coordinates by the texture matrix
 	result.texcoord1 = defaultTexCoord;
@@ -70,40 +63,18 @@ void main( VS_IN vertex, out VS_OUT result ) {
 
 	//# texture 2 has one texgen
 	result.texcoord2 = defaultTexCoord;
-	result.texcoord2.x = dot4( vertex.position, rpLightFalloffS );
+	result.texcoord2.x = dot4( vertexPos, rpLightFalloffS );
 
 	//# texture 3 has three texgens
-	result.texcoord3.x = dot4( vertex.position, rpLightProjectionS );
-	result.texcoord3.y = dot4( vertex.position, rpLightProjectionT );
+	result.texcoord3.x = dot4( vertexPos, rpLightProjectionS );
+	result.texcoord3.y = dot4( vertexPos, rpLightProjectionT );
 	result.texcoord3.z = 0.0f;
-	result.texcoord3.w = dot4( vertex.position, rpLightProjectionQ );
+	result.texcoord3.w = dot4( vertexPos, rpLightProjectionQ );
 
 	//# textures 4 takes the base coordinates by the texture matrix
 	result.texcoord4 = defaultTexCoord;
 	result.texcoord4.x = dot4( vertex.texcoord.xy, rpDiffuseMatrixS );
 	result.texcoord4.y = dot4( vertex.texcoord.xy, rpDiffuseMatrixT );
-
-	//# textures 5 takes the base coordinates by the texture matrix
-	result.texcoord5 = defaultTexCoord;
-	result.texcoord5.x = dot4( vertex.texcoord.xy, rpSpecularMatrixS );
-	result.texcoord5.y = dot4( vertex.texcoord.xy, rpSpecularMatrixT );
-
-	//# texture 6's texcoords will be the halfangle in texture space
-
-	//# calculate normalized vector to light in R0
-	toLight = normalize( toLight );
-
-	//# calculate normalized vector to viewer in R1
-	float4 toView = normalize( rpLocalViewOrigin - vertex.position );
-	
-	//# add together to become the half angle vector in object space (non-normalized)
-	float4 halfAngleVector = toLight + toView;
-
-	//# put into texture space
-	result.texcoord6.x = dot3( tangent, halfAngleVector );
-	result.texcoord6.y = dot3( binormal, halfAngleVector );
-	result.texcoord6.z = dot3( normal, halfAngleVector );
-	result.texcoord6.w = 1.0f;
 
 	//# generate the vertex color, which can be 1.0, color, or 1.0 - color
 	//# for 1.0 : env[16] = 0, env[17] = 1

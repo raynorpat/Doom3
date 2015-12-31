@@ -40,8 +40,7 @@ void main( VS_IN vertex, out VS_OUT result ) {
 	float4 vPos = vertex.position - rpLocalLightOrigin;
 	vPos = ( vPos.wwww * rpLocalLightOrigin ) + vPos;
 
-	result.position.x = dot4( vPos, rpMVPmatrixX );
-	result.position.y = dot4( vPos, rpMVPmatrixY );
-	result.position.z = dot4( vPos, rpMVPmatrixZ );
-	result.position.w = dot4( vPos, rpMVPmatrixW );
+	float4x4 mvpMatrix = float4x4( rpMVPmatrixX, rpMVPmatrixY, rpMVPmatrixZ, rpMVPmatrixW );
+
+	result.position = mvpMatrix * vPos;
 }

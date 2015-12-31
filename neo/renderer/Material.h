@@ -186,31 +186,15 @@ typedef enum {
 } stageVertexColor_t;
 
 static const int	MAX_FRAGMENT_IMAGES = 8;
-static const int	MAX_SHADER_PARMS = 4;
+static const int	MAX_VERTEX_PARMS = 4;
 
 typedef struct {
-    struct uniform_s    *uniform;
+	int					vertexProgram;
+	int					numVertexParms;
+	int					vertexParms[MAX_VERTEX_PARMS][4];	// evaluated register indexes
     
-    int                 registers[4];
-} shaderParm_t;
-
-typedef struct {
-    struct uniform_s    *uniform;
-} shaderMap_t;
-
-typedef struct {
-    struct shaderProgram_s *program;
-    
-	struct shader_s     *vertexShader;
-	struct shader_s		*fragmentShader;
-    
-    idVec2              colorScaleAndBias;
-    
-    int                 numShaderParms;
-    shaderParm_t        shaderParms[MAX_SHADER_PARMS];
-    
+	int					fragmentProgram;
 	int					numFragmentProgramImages;
-    shaderMap_t			shaderMaps[MAX_FRAGMENT_IMAGES];
 	idImage *			fragmentProgramImages[MAX_FRAGMENT_IMAGES];
 
 	idMegaTexture		*megaTexture;		// handles all the binding and parameter setting 
@@ -610,8 +594,8 @@ private:
 	bool				MatchToken( idLexer &src, const char *match );
 	void				ParseSort( idLexer &src );
 	void				ParseBlend( idLexer &src, shaderStage_t *stage );
-	void				ParseShaderParm( idLexer &src, newShaderStage_t *newStage );
-	void				ParseShaderMap( idLexer &src, newShaderStage_t *newStage );
+	void				ParseVertexParm( idLexer &src, newShaderStage_t *newStage );
+	void				ParseFragmentMap( idLexer &src, newShaderStage_t *newStage );
 	void				ParseStage( idLexer &src, const textureRepeat_t trpDefault = TR_REPEAT );
 	void				ParseDeform( idLexer &src );
 	void				ParseDecalInfo( idLexer &src );
