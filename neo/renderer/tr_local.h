@@ -446,8 +446,8 @@ typedef struct {
 	idImage *			diffuseImage;
 	idImage *			specularImage;
 
-	idVec4				diffuseColor;	// may have a light color baked into it, will be < tr.backEndRendererMaxLight
-	idVec4				specularColor;	// may have a light color baked into it, will be < tr.backEndRendererMaxLight
+	idVec4				diffuseColor;	// may have a light color baked into it
+	idVec4				specularColor;	// may have a light color baked into it
 	stageVertexColor_t	vertexColor;	// applies to both diffuse and specular
 
 	int					ambientLight;	// use tr.ambientNormalMap instead of normalization cube map 
@@ -860,10 +860,6 @@ public:
 
 	int						viewportOffset[2];	// for doing larger-than-window tiled renderings
 	int						tiledViewport[2];
-
-	float					backEndRendererMaxLight;	// 1.0 for standard, unlimited for floats
-														// determines how much overbrighting needs
-														// to be done post-process
 
 	float					sortOffset;				// for determinist sorting of equal sort materials
 

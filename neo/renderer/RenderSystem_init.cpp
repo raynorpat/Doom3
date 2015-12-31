@@ -1896,7 +1896,6 @@ void idRenderSystemLocal::Clear( void ) {
 	viewportOffset[1] = 0;
 	tiledViewport[0] = 0;
 	tiledViewport[1] = 0;
-	backEndRendererMaxLight = 999;
 	sortOffset = 0;
 	worlds.Clear();
 	primaryWorld = NULL;
