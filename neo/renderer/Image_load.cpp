@@ -89,10 +89,6 @@ int idImage::BitsForInternalFormat( int internalFormat ) const {
 		return 16;
 	case GL_RGB5:
 		return 16;
-	case GL_COLOR_INDEX8_EXT:
-		return 8;
-	case GL_COLOR_INDEX:
-		return 8;
 	case GL_COMPRESSED_RGB_ARB:
 		return 4;			// not sure
 	case GL_COMPRESSED_RGBA_ARB:
@@ -101,65 +97,6 @@ int idImage::BitsForInternalFormat( int internalFormat ) const {
 		common->Error( "R_BitsForInternalFormat: BAD FORMAT:%i", internalFormat );
 	}
 	return 0;
-}
-
-/*
-==================
-UploadCompressedNormalMap
-
-Create a 256 color palette to be used by compressed normal maps
-==================
-*/
-void idImage::UploadCompressedNormalMap( int width, int height, const byte *rgba, int mipLevel ) {
-	byte	*normals;
-	const byte	*in;
-	byte	*out;
-	int		i, j;
-	int		x, y, z;
-	int		row;
-
-	// OpenGL's pixel packing rule
-	row = width < 4 ? 4 : width;
-
-	normals = (byte *)_alloca( row * height );
-	if ( !normals ) {
-		common->Error( "R_UploadCompressedNormalMap: _alloca failed" );
-	}
-
-	in = rgba;
-	out = normals;
-	for ( i = 0 ; i < height ; i++, out += row, in += width * 4 ) {
-		for ( j = 0 ; j < width ; j++ ) {
-			x = in[ j * 4 + 0 ];
-			y = in[ j * 4 + 1 ];
-			z = in[ j * 4 + 2 ];
-
-			int c;
-			if ( x == 128 && y == 128 && z == 128 ) {
-				// the "nullnormal" color
-				c = 255;
-			} else {
-				c = ( globalImages->originalToCompressed[x] << 4 ) | globalImages->originalToCompressed[y];
-				if ( c == 255 ) {
-					c = 254;	// don't use the nullnormal color
-				}
-			}
-			out[j] = c;
-		}
-	}
-
-	if ( mipLevel == 0 ) {
-		// Optionally write out the paletized normal map to a .tga
-		if ( globalImages->image_writeNormalTGAPalletized.GetBool() ) {
-			char filename[MAX_IMAGE_NAME];
-			ImageProgramStringToCompressedFileName( imgName, filename );
-			char *ext = strrchr(filename, '.');
-			if ( ext ) {
-				strcpy(ext, "_pal.tga");
-				R_WritePalTGA( filename, normals, globalImages->compressedPalette, width, height);
-			}
-		}
-	}
 }
 
 
@@ -595,8 +532,8 @@ void idImage::GenerateImage( const byte *pic, int width, int height,
 		if ( ext ) {
 			strcpy( ext, ".tga" );
 			R_WriteTGA( filename, scaledBuffer, scaled_width, scaled_height, false );
-				}
-			}
+        }
+    }
 
 	// swap the red and alpha for rxgb support
 	// do this even on tga normal maps so we only have to use
@@ -609,14 +546,11 @@ void idImage::GenerateImage( const byte *pic, int width, int height,
 			scaledBuffer[ i ] = 0;
 		}
 	}
+    
 	// upload the main image level
 	Bind();
 
-	if ( internalFormat == GL_COLOR_INDEX8_EXT ) {
-		UploadCompressedNormalMap( scaled_width, scaled_height, scaledBuffer, 0 );
-	} else {
-		qglTexImage2D( GL_TEXTURE_2D, 0, internalFormat, scaled_width, scaled_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, scaledBuffer );
-	}
+	qglTexImage2D( GL_TEXTURE_2D, 0, internalFormat, scaled_width, scaled_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, scaledBuffer );
 
 	// create and upload the mip map levels, which we do in all cases, even if we don't think they are needed
 	int		miplevel;
@@ -647,12 +581,7 @@ void idImage::GenerateImage( const byte *pic, int width, int height,
 		}
 
 		// upload the mip map
-		if ( internalFormat == GL_COLOR_INDEX8_EXT ) {
-			UploadCompressedNormalMap( scaled_width, scaled_height, scaledBuffer, miplevel );
-		} else {
-			qglTexImage2D( GL_TEXTURE_2D, miplevel, internalFormat, scaled_width, scaled_height, 
-				0, GL_RGBA, GL_UNSIGNED_BYTE, scaledBuffer );
-		}
+		qglTexImage2D( GL_TEXTURE_2D, miplevel, internalFormat, scaled_width, scaled_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, scaledBuffer );
 	}
 
 	if ( scaledBuffer != 0 ) {
@@ -739,10 +668,8 @@ void idImage::GenerateCubeImage( const byte *pic[6], int size,
 	}
 
 	// upload the base level
-	// FIXME: support GL_COLOR_INDEX8_EXT?
 	for ( i = 0 ; i < 6 ; i++ ) {
-		qglTexImage2D( GL_TEXTURE_CUBE_MAP_POSITIVE_X_EXT+i, 0, internalFormat, scaled_width, scaled_height, 0, 
-			GL_RGBA, GL_UNSIGNED_BYTE, pic[i] );
+		qglTexImage2D( GL_TEXTURE_CUBE_MAP_POSITIVE_X_EXT+i, 0, internalFormat, scaled_width, scaled_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pic[i] );
 	}
 
 
@@ -876,13 +803,6 @@ void idImage::WritePrecompressedImage() {
 	int altInternalFormat = 0;
 	int bitSize = 0;
 	switch ( internalFormat ) {
-		case GL_COLOR_INDEX8_EXT:
-		case GL_COLOR_INDEX:
-			// this will not work with dds viewers but we need it in this format to save disk
-			// load speed ( i.e. size ) 
-			altInternalFormat = GL_COLOR_INDEX;
-			bitSize = 24;
-		break;
 		case 1:
 		case GL_INTENSITY8:
 		case GL_LUMINANCE8:
@@ -985,7 +905,7 @@ void idImage::WritePrecompressedImage() {
 			break;
 		}
 	} else {
-		header.ddspf.dwFlags = ( internalFormat == GL_COLOR_INDEX8_EXT ) ? DDSF_RGB | DDSF_ID_INDEXCOLOR : DDSF_RGB;
+		header.ddspf.dwFlags = DDSF_RGB;
 		header.ddspf.dwRGBBitCount = bitSize;
 		switch ( altInternalFormat ) {
 		case GL_BGRA_EXT:
@@ -995,7 +915,6 @@ void idImage::WritePrecompressedImage() {
 			// Fall through
 		case GL_BGR_EXT:
 		case GL_LUMINANCE:
-		case GL_COLOR_INDEX:
 			header.ddspf.dwRBitMask = 0x00FF0000;
 			header.ddspf.dwGBitMask = 0x0000FF00;
 			header.ddspf.dwBBitMask = 0x000000FF;
@@ -1298,13 +1217,8 @@ void idImage::UploadPrecompressedImage( byte *data, int len ) {
         externalFormat = GL_BGRA_EXT;
 		internalFormat = GL_RGBA8;
     } else if ( ( header->ddspf.dwFlags & DDSF_RGB ) && header->ddspf.dwRGBBitCount == 24 ) {
-		if ( header->ddspf.dwFlags & DDSF_ID_INDEXCOLOR ) { 
-			externalFormat = GL_COLOR_INDEX;
-			internalFormat = GL_COLOR_INDEX8_EXT;
-		} else {
-			externalFormat = GL_BGR_EXT;
-			internalFormat = GL_RGB8;
-		}
+		externalFormat = GL_BGR_EXT;
+		internalFormat = GL_RGB8;
 	} else if ( header->ddspf.dwRGBBitCount == 8 ) {
 		externalFormat = GL_ALPHA;
 		internalFormat = GL_ALPHA8;
@@ -1468,7 +1382,6 @@ void idImage::PurgeImage() {
 	// clear all the current binding caches, so the next bind will do a real one
 	for ( int i = 0 ; i < MAX_MULTITEXTURE_UNITS ; i++ ) {
 		backEnd.glState.tmu[i].current2DMap = -1;
-		backEnd.glState.tmu[i].current3DMap = -1;
 		backEnd.glState.tmu[i].currentCubeMap = -1;
 	}
 }
@@ -1477,14 +1390,10 @@ void idImage::PurgeImage() {
 ==============
 Bind
 
-Automatically enables 2D mapping, cube mapping, or 3D texturing if needed
+Automatically enables 2D mapping or cube mapping if needed
 ==============
 */
 void idImage::Bind() {
-	if ( tr.logFile ) {
-		RB_LogComment( "idImage::Bind( %s )\n", imgName.c_str() );
-	}
-
 	// if this is an image that we are caching, move it to the front of the LRU chain
 	if ( partialImage ) {
 		if ( cacheUsageNext ) {
@@ -1516,7 +1425,6 @@ void idImage::Bind() {
 		// load the image on demand here, which isn't our normal game operating mode
 		ActuallyLoadImage( true, true );	// check for precompressed, load is from back end
 	}
-
 
 	// bump our statistic counters
 	frameUsed = backEnd.frameCount;
@@ -1568,10 +1476,6 @@ do any enable / disable changes
 ==============
 */
 void idImage::BindFragment() {
-	if ( tr.logFile ) {
-		RB_LogComment( "idImage::BindFragment %s )\n", imgName.c_str() );
-	}
-
 	// if this is an image that we are caching, move it to the front of the LRU chain
 	if ( partialImage ) {
 		if ( cacheUsageNext ) {
@@ -1603,7 +1507,6 @@ void idImage::BindFragment() {
 		// load the image on demand here, which isn't our normal game operating mode
 		ActuallyLoadImage( true, true );	// check for precompressed, load is from back end
 	}
-
 
 	// bump our statistic counters
 	frameUsed = backEnd.frameCount;
@@ -1931,12 +1834,6 @@ void idImage::Print() const {
 		break;
 	case GL_RGB5:
 		common->Printf( "RGB5  " );
-		break;
-	case GL_COLOR_INDEX8_EXT:
-		common->Printf( "CI8   " );
-		break;
-	case GL_COLOR_INDEX:
-		common->Printf( "CI    " );
 		break;
 	case GL_COMPRESSED_RGB_ARB:
 		common->Printf( "RGBC  " );

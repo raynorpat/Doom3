@@ -55,7 +55,6 @@ idCVar idImageManager::image_useNormalCompression( "image_useNormalCompression",
 idCVar idImageManager::image_usePrecompressedTextures( "image_usePrecompressedTextures", "1", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_BOOL, "use .dds files if present" );
 idCVar idImageManager::image_writePrecompressedTextures( "image_writePrecompressedTextures", "0", CVAR_RENDERER | CVAR_BOOL, "write .dds files if necessary" );
 idCVar idImageManager::image_writeNormalTGA( "image_writeNormalTGA", "0", CVAR_RENDERER | CVAR_BOOL, "write .tgas of the final normal maps for debugging" );
-idCVar idImageManager::image_writeNormalTGAPalletized( "image_writeNormalTGAPalletized", "0", CVAR_RENDERER | CVAR_BOOL, "write .tgas of the final palletized normal maps for debugging" );
 idCVar idImageManager::image_writeTGA( "image_writeTGA", "0", CVAR_RENDERER | CVAR_BOOL, "write .tgas of the non normal maps for debugging" );
 idCVar idImageManager::image_useOffLineCompression( "image_useOfflineCompression", "0", CVAR_RENDERER | CVAR_BOOL, "write a batch file for offline compression of DDS files" );
 idCVar idImageManager::image_cacheMinK( "image_cacheMinK", "200", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_INTEGER, "maximum KB of precompressed files to read at specification time" );
@@ -1087,8 +1086,7 @@ void R_ListImages_f( const idCmdArgs &args ) {
 		image = globalImages->images[ i ];
 
 		if ( uncompressedOnly ) {
-			if ( ( image->internalFormat >= GL_COMPRESSED_RGB_S3TC_DXT1_EXT && image->internalFormat <= GL_COMPRESSED_RGBA_S3TC_DXT5_EXT )
-				|| image->internalFormat == GL_COLOR_INDEX8_EXT ) {
+			if ( ( image->internalFormat >= GL_COMPRESSED_RGB_S3TC_DXT1_EXT && image->internalFormat <= GL_COMPRESSED_RGBA_S3TC_DXT5_EXT ) ) {
 				continue;
 			}
 		}
@@ -1190,97 +1188,6 @@ void R_ListImages_f( const idCmdArgs &args ) {
 			}
 		}
 	}
-
-}
-
-/*
-==================
-SetNormalPalette
-
-Create a 256 color palette to be used by compressed normal maps
-==================
-*/
-void idImageManager::SetNormalPalette( void ) {
-	int		i, j;
-	idVec3	v;
-	float	t;
-	//byte temptable[768];
-	byte	*temptable = compressedPalette;
-	int		compressedToOriginal[16];
-
-	// make an ad-hoc separable compression mapping scheme
-	for ( i = 0 ; i < 8 ; i++ ) {
-		float	f, y;
-
-		f = ( i + 1 ) / 8.5;
-		y = idMath::Sqrt( 1.0 - f * f );
-		y = 1.0 - y;
-
-		compressedToOriginal[7-i] = 127 - (int)( y * 127 + 0.5 );
-		compressedToOriginal[8+i] = 128 + (int)( y * 127 + 0.5 );
-	}
-
-	for ( i = 0 ; i < 256 ; i++ ) {
-		if ( i <= compressedToOriginal[0] ) {
-			originalToCompressed[i] = 0;
-		} else if ( i >= compressedToOriginal[15] ) {
-			originalToCompressed[i] = 15;
-		} else {
-			for ( j = 0 ; j < 14 ; j++ ) {
-				if ( i <= compressedToOriginal[j+1] ) {
-					break;
-				}
-			}
-			if ( i - compressedToOriginal[j] < compressedToOriginal[j+1] - i ) {
-				originalToCompressed[i] = j;
-			} else {
-				originalToCompressed[i] = j + 1;
-			}
-		}
-	}
-
-#if 0
-	for ( i = 0; i < 16; i++ ) {
-		for ( j = 0 ; j < 16 ; j++ ) {
-
-			v[0] = ( i - 7.5 ) / 8;
-			v[1] = ( j - 7.5 ) / 8;
-
-			t = 1.0 - ( v[0]*v[0] + v[1]*v[1] );
-			if ( t < 0 ) {
-				t = 0;
-			}
-			v[2] = idMath::Sqrt( t );
-
-			temptable[(i*16+j)*3+0] = 128 + floor( 127 * v[0] + 0.5 );
-			temptable[(i*16+j)*3+1] = 128 + floor( 127 * v[1] );
-			temptable[(i*16+j)*3+2] = 128 + floor( 127 * v[2] );
-		}
-	}
-#else
-	for ( i = 0; i < 16; i++ ) {
-		for ( j = 0 ; j < 16 ; j++ ) {
-
-			v[0] = ( compressedToOriginal[i] - 127.5 ) / 128;
-			v[1] = ( compressedToOriginal[j] - 127.5 ) / 128;
-
-			t = 1.0 - ( v[0]*v[0] + v[1]*v[1] );
-			if ( t < 0 ) {
-				t = 0;
-			}
-			v[2] = idMath::Sqrt( t );
-
-			temptable[(i*16+j)*3+0] = (byte)(128 + floor( 127 * v[0] + 0.5 ));
-			temptable[(i*16+j)*3+1] = (byte)(128 + floor( 127 * v[1] ));
-			temptable[(i*16+j)*3+2] = (byte)(128 + floor( 127 * v[2] ));
-		}
-	}
-#endif
-
-	// color 255 will be the "nullnormal" color for no reflection
-	temptable[255*3+0] =
-	temptable[255*3+1] =
-	temptable[255*3+2] = 128;
 }
 
 /*
@@ -1566,9 +1473,6 @@ ReloadAllImages
 void idImageManager::ReloadAllImages() {
 	idCmdArgs args;
 
-	// build the compressed normal map palette
-	SetNormalPalette();
-
 	args.TokenizeString( "reloadImages reload", false );
 	R_ReloadImages_f( args );
 }
@@ -1810,7 +1714,6 @@ void idImageManager::BindNull() {
 
 	tmu = &backEnd.glState.tmu[backEnd.glState.currenttmu];
 
-	RB_LogComment( "BindNull()\n" );
 	if ( tmu->textureType == TT_CUBIC ) {
 		qglDisable( GL_TEXTURE_CUBE_MAP );
 	} else if ( tmu->textureType == TT_2D ) {

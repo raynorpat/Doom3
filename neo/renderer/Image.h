@@ -200,7 +200,6 @@ public:
 	void		ActuallyLoadImage( bool checkForPrecompressed, bool fromBackEnd );
 	void		StartBackgroundImageLoad();
 	int			BitsForInternalFormat( int internalFormat ) const;
-	void		UploadCompressedNormalMap( int width, int height, const byte *rgba, int mipLevel );
 	GLenum		SelectInternalFormat( const byte **dataPtrs, int numDataPtrs, int width, int height, textureDepth_t minimumDepth ) const;
 	void		ImageProgramStringToCompressedFileName( const char *imageProg, char *fileName ) const;
 	int			NumLevelsForImageSize( int width, int height ) const;
@@ -284,8 +283,6 @@ ID_INLINE idImage::idImage() {
 
 // data is RGBA
 void	R_WriteTGA( const char *filename, const byte *data, int width, int height, bool flipVertical = false );
-// data is an 8 bit index into palette, which is RGB (no A)
-void	R_WritePalTGA( const char *filename, const byte *data, const byte *palette, int width, int height, bool flipVertical = false );
 // data is in top-to-bottom raster order unless flipVertical is set
 
 
@@ -363,7 +360,6 @@ public:
 	static idCVar		image_usePrecompressedTextures;	// use .dds files if present
 	static idCVar		image_writePrecompressedTextures; // write .dds files if necessary
 	static idCVar		image_writeNormalTGA;		// debug tool to write out .tgas of the final normal maps
-	static idCVar		image_writeNormalTGAPalletized;		// debug tool to write out palletized versions of the final normal maps
 	static idCVar		image_writeTGA;				// debug tool to write out .tgas of the non normal maps
 	static idCVar		image_useNormalCompression;	// 1 = use 256 color compression for normal maps if available, 2 = use rxgb compression
 	static idCVar		image_useOffLineCompression; // will write a batch file with commands for the offline compression
@@ -403,7 +399,6 @@ public:
 	//--------------------------------------------------------
 	
 	idImage *			AllocImage( const char *name );
-	void				SetNormalPalette();
 	void				ChangeTextureFilter();
 
 	idList<idImage*>	images;
