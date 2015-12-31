@@ -167,7 +167,7 @@ void idRenderProgManager::KillAllShaders()
     {
         if( vertexShaders[i].progId != INVALID_PROGID )
         {
-            qglDeleteShader( vertexShaders[i].progId );
+            glDeleteShader( vertexShaders[i].progId );
             vertexShaders[i].progId = INVALID_PROGID;
         }
     }
@@ -175,7 +175,7 @@ void idRenderProgManager::KillAllShaders()
     {
         if( fragmentShaders[i].progId != INVALID_PROGID )
         {
-            qglDeleteShader( fragmentShaders[i].progId );
+            glDeleteShader( fragmentShaders[i].progId );
             fragmentShaders[i].progId = INVALID_PROGID;
         }
     }
@@ -183,7 +183,7 @@ void idRenderProgManager::KillAllShaders()
     {
         if( glslPrograms[i].progId != INVALID_PROGID )
         {
-            qglDeleteProgram( glslPrograms[i].progId );
+            glDeleteProgram( glslPrograms[i].progId );
             glslPrograms[i].progId = INVALID_PROGID;
         }
     }
@@ -295,7 +295,7 @@ void idRenderProgManager::BindShader( int vIndex, int fIndex )
     {
         currentRenderProgram = vIndex;
         RENDERLOG_PRINTF( "Binding GLSL Program %s\n", glslPrograms[vIndex].name.c_str() );
-        qglUseProgram( glslPrograms[vIndex].progId );
+        glUseProgram( glslPrograms[vIndex].progId );
     }
 }
 
@@ -309,7 +309,7 @@ void idRenderProgManager::Unbind()
     currentVertexShader = -1;
     currentFragmentShader = -1;
     
-    qglUseProgram( 0 );
+    glUseProgram( 0 );
 }
 
 /*

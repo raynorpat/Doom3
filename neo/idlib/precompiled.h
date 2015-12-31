@@ -81,7 +81,7 @@ If you have questions concerning this license or the applicable additional terms
 #pragma warning(disable : 4996)				// unsafe string operations
 
 #include <malloc.h>							// no malloc.h on mac or unix
-#include <windows.h>						// for qgl.h
+#include <windows.h>						// for gl.h
 #undef FindText								// stupid namespace poluting Microsoft monkeys
 
 #endif /* _WIN32 */
@@ -139,7 +139,7 @@ const int MAX_EXPRESSION_OPS = 4096;
 const int MAX_EXPRESSION_REGISTERS = 4096;
 
 // renderer
-#include "../renderer/qgl.h"
+#include "../libs/glew/include/GL/glew.h"
 #include "../renderer/Cinematic.h"
 #include "../renderer/Material.h"
 #include "../renderer/Model.h"

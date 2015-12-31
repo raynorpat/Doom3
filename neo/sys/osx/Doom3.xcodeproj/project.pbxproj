@@ -235,9 +235,8 @@
 		E50CC7231C29B1F50050B5B1 /* RenderLog.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E50CC7211C29B1F50050B5B1 /* RenderLog.cpp */; };
 		E50CC7281C29B5920050B5B1 /* RenderProgs_GLSL.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E50CC7251C29B5920050B5B1 /* RenderProgs_GLSL.cpp */; };
 		E50CC7291C29B5920050B5B1 /* RenderProgs.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E50CC7261C29B5920050B5B1 /* RenderProgs.cpp */; };
-		E51F8DEE1A9A2EEC000D5575 /* draw_glsl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E51F8DED1A9A2EEC000D5575 /* draw_glsl.cpp */; };
-		E51F8DF01A9ACB9B000D5575 /* tr_glsl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E51F8DEF1A9ACB9B000D5575 /* tr_glsl.cpp */; };
-		E55471111ABE1FCC003E4B8C /* draw_stencilshadow.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E554710F1ABE1FCC003E4B8C /* draw_stencilshadow.cpp */; };
+		E58A9F551C35E701004B9204 /* draw_arb2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E58A9F541C35E701004B9204 /* draw_arb2.cpp */; };
+		E58A9F591C35EA2F004B9204 /* glew.c in Sources */ = {isa = PBXBuildFile; fileRef = E58A9F581C35EA2F004B9204 /* glew.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -380,7 +379,6 @@
 		8122570B0912BC79005D34B9 /* Cinematic.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = Cinematic.cpp; sourceTree = "<group>"; };
 		8122570C0912BC79005D34B9 /* Cinematic.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = Cinematic.h; sourceTree = "<group>"; };
 		8122570F0912BC79005D34B9 /* draw_common.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = draw_common.cpp; sourceTree = "<group>"; };
-		812257150912BC79005D34B9 /* glext.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = glext.h; sourceTree = "<group>"; };
 		812257160912BC79005D34B9 /* GuiModel.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = GuiModel.cpp; sourceTree = "<group>"; };
 		812257170912BC79005D34B9 /* GuiModel.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = GuiModel.h; sourceTree = "<group>"; };
 		812257180912BC79005D34B9 /* Image.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = Image.h; sourceTree = "<group>"; };
@@ -476,8 +474,6 @@
 		812257730912BC79005D34B9 /* ModelManager.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = ModelManager.h; sourceTree = "<group>"; };
 		812257740912BC79005D34B9 /* ModelOverlay.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = ModelOverlay.cpp; sourceTree = "<group>"; };
 		812257750912BC79005D34B9 /* ModelOverlay.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = ModelOverlay.h; sourceTree = "<group>"; };
-		812257760912BC79005D34B9 /* qgl.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = qgl.h; sourceTree = "<group>"; };
-		812257770912BC79005D34B9 /* qgl_linked.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = qgl_linked.h; sourceTree = "<group>"; };
 		812257780912BC79005D34B9 /* RenderEntity.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = RenderEntity.cpp; sourceTree = "<group>"; };
 		812257790912BC79005D34B9 /* RenderSystem.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = RenderSystem.cpp; sourceTree = "<group>"; };
 		8122577A0912BC79005D34B9 /* RenderSystem.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = RenderSystem.h; sourceTree = "<group>"; };
@@ -508,7 +504,6 @@
 		812257930912BC79005D34B9 /* tr_trisurf.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = tr_trisurf.cpp; sourceTree = "<group>"; };
 		812257950912BC79005D34B9 /* VertexCache.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = VertexCache.cpp; sourceTree = "<group>"; };
 		812257960912BC79005D34B9 /* VertexCache.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = VertexCache.h; sourceTree = "<group>"; };
-		812257970912BC79005D34B9 /* wglext.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = wglext.h; sourceTree = "<group>"; };
 		8122579A0912BC79005D34B9 /* AsyncClient.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = AsyncClient.cpp; sourceTree = "<group>"; };
 		8122579B0912BC79005D34B9 /* AsyncClient.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = AsyncClient.h; sourceTree = "<group>"; };
 		8122579C0912BC79005D34B9 /* AsyncNetwork.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = AsyncNetwork.cpp; sourceTree = "<group>"; };
@@ -647,9 +642,8 @@
 		E50CC7251C29B5920050B5B1 /* RenderProgs_GLSL.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RenderProgs_GLSL.cpp; sourceTree = "<group>"; };
 		E50CC7261C29B5920050B5B1 /* RenderProgs.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RenderProgs.cpp; sourceTree = "<group>"; };
 		E50CC7271C29B5920050B5B1 /* RenderProgs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RenderProgs.h; sourceTree = "<group>"; };
-		E51F8DED1A9A2EEC000D5575 /* draw_glsl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = draw_glsl.cpp; path = ../../../Doom3/neo/renderer/draw_glsl.cpp; sourceTree = "<group>"; };
-		E51F8DEF1A9ACB9B000D5575 /* tr_glsl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = tr_glsl.cpp; path = ../../../Doom3/neo/renderer/tr_glsl.cpp; sourceTree = "<group>"; };
-		E554710F1ABE1FCC003E4B8C /* draw_stencilshadow.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = draw_stencilshadow.cpp; sourceTree = "<group>"; };
+		E58A9F541C35E701004B9204 /* draw_arb2.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = draw_arb2.cpp; sourceTree = "<group>"; };
+		E58A9F581C35EA2F004B9204 /* glew.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = glew.c; path = ../../libs/glew/src/glew.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -727,6 +721,7 @@
 		812256420912BC26005D34B9 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				E58A9F561C35EA1E004B9204 /* libs */,
 				812256970912BC79005D34B9 /* sys */,
 				812256B40912BC79005D34B9 /* sound */,
 				812257060912BC79005D34B9 /* renderer */,
@@ -939,10 +934,7 @@
 				8122570B0912BC79005D34B9 /* Cinematic.cpp */,
 				8122570C0912BC79005D34B9 /* Cinematic.h */,
 				8122570F0912BC79005D34B9 /* draw_common.cpp */,
-				E554710F1ABE1FCC003E4B8C /* draw_stencilshadow.cpp */,
-				E51F8DED1A9A2EEC000D5575 /* draw_glsl.cpp */,
-				E51F8DEF1A9ACB9B000D5575 /* tr_glsl.cpp */,
-				812257150912BC79005D34B9 /* glext.h */,
+				E58A9F541C35E701004B9204 /* draw_arb2.cpp */,
 				812257160912BC79005D34B9 /* GuiModel.cpp */,
 				812257170912BC79005D34B9 /* GuiModel.h */,
 				812257180912BC79005D34B9 /* Image.h */,
@@ -979,8 +971,6 @@
 				812257730912BC79005D34B9 /* ModelManager.h */,
 				812257740912BC79005D34B9 /* ModelOverlay.cpp */,
 				812257750912BC79005D34B9 /* ModelOverlay.h */,
-				812257760912BC79005D34B9 /* qgl.h */,
-				812257770912BC79005D34B9 /* qgl_linked.h */,
 				812257780912BC79005D34B9 /* RenderEntity.cpp */,
 				812257790912BC79005D34B9 /* RenderSystem.cpp */,
 				8122577A0912BC79005D34B9 /* RenderSystem.h */,
@@ -1011,7 +1001,6 @@
 				812257930912BC79005D34B9 /* tr_trisurf.cpp */,
 				812257950912BC79005D34B9 /* VertexCache.cpp */,
 				812257960912BC79005D34B9 /* VertexCache.h */,
-				812257970912BC79005D34B9 /* wglext.h */,
 			);
 			name = renderer;
 			path = ../../renderer;
@@ -1256,6 +1245,22 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		E58A9F561C35EA1E004B9204 /* libs */ = {
+			isa = PBXGroup;
+			children = (
+				E58A9F571C35EA24004B9204 /* glew */,
+			);
+			name = libs;
+			sourceTree = "<group>";
+		};
+		E58A9F571C35EA24004B9204 /* glew */ = {
+			isa = PBXGroup;
+			children = (
+				E58A9F581C35EA2F004B9204 /* glew.c */,
+			);
+			name = glew;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -1429,6 +1434,7 @@
 				812258620912BC79005D34B9 /* snd_cache.cpp in Sources */,
 				E50CC7231C29B1F50050B5B1 /* RenderLog.cpp in Sources */,
 				812258630912BC79005D34B9 /* snd_decoder.cpp in Sources */,
+				E58A9F551C35E701004B9204 /* draw_arb2.cpp in Sources */,
 				812258640912BC79005D34B9 /* snd_emitter.cpp in Sources */,
 				812258650912BC79005D34B9 /* snd_shader.cpp in Sources */,
 				812258660912BC79005D34B9 /* snd_system.cpp in Sources */,
@@ -1436,7 +1442,6 @@
 				812258680912BC79005D34B9 /* snd_world.cpp in Sources */,
 				812258690912BC79005D34B9 /* Model_ma.cpp in Sources */,
 				8122586A0912BC79005D34B9 /* Model_sprite.cpp in Sources */,
-				E55471111ABE1FCC003E4B8C /* draw_stencilshadow.cpp in Sources */,
 				8122586C0912BC79005D34B9 /* Cinematic.cpp in Sources */,
 				8122586F0912BC79005D34B9 /* draw_common.cpp in Sources */,
 				812258750912BC79005D34B9 /* GuiModel.cpp in Sources */,
@@ -1454,7 +1459,6 @@
 				812258800912BC79005D34B9 /* jcdctmgr.c in Sources */,
 				812258810912BC79005D34B9 /* jchuff.c in Sources */,
 				812258820912BC79005D34B9 /* jcinit.c in Sources */,
-				E51F8DF01A9ACB9B000D5575 /* tr_glsl.cpp in Sources */,
 				812258830912BC79005D34B9 /* jcmainct.c in Sources */,
 				812258840912BC79005D34B9 /* jcmarker.c in Sources */,
 				812258850912BC79005D34B9 /* jcmaster.c in Sources */,
@@ -1540,6 +1544,7 @@
 				812258DB0912BC79005D34B9 /* CmdSystem.cpp in Sources */,
 				812258DC0912BC79005D34B9 /* Common.cpp in Sources */,
 				812258DD0912BC79005D34B9 /* Compressor.cpp in Sources */,
+				E58A9F591C35EA2F004B9204 /* glew.c in Sources */,
 				812258DE0912BC79005D34B9 /* Console.cpp in Sources */,
 				812258DF0912BC79005D34B9 /* CVarSystem.cpp in Sources */,
 				812258E00912BC79005D34B9 /* DeclAF.cpp in Sources */,
@@ -1578,7 +1583,6 @@
 				812259000912BC79005D34B9 /* SimpleWindow.cpp in Sources */,
 				812259010912BC79005D34B9 /* SliderWindow.cpp in Sources */,
 				812259020912BC79005D34B9 /* UserInterface.cpp in Sources */,
-				E51F8DEE1A9A2EEC000D5575 /* draw_glsl.cpp in Sources */,
 				812259030912BC79005D34B9 /* Window.cpp in Sources */,
 				812259040912BC79005D34B9 /* Winvar.cpp in Sources */,
 				812259050912BC79005D34B9 /* CollisionModel_contacts.cpp in Sources */,
@@ -1676,6 +1680,7 @@
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = "\"$(SRCROOT)/../../libs/glew/include\"";
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
 				LIBRARY_SEARCH_PATHS = "\"$(SRCROOT)/../../curl/lib\"";
@@ -1709,6 +1714,7 @@
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				HEADER_SEARCH_PATHS = "\"$(SRCROOT)/../../libs/glew/include\"";
 				INFOPLIST_FILE = Info.plist;
 				LIBRARY_SEARCH_PATHS = "\"$(SRCROOT)/../../curl/lib\"";
 				ONLY_ACTIVE_ARCH = YES;

@@ -75,37 +75,11 @@ CheckErrors
 void CheckErrors( void ) {		
 	GLenum   err;
 
-	err = qglGetError();
+	err = glGetError();
 	if ( err != GL_NO_ERROR ) {
-		common->Error( "glGetError: %s\n", qglGetString( err ) );
+		common->Error( "glGetError: %s\n", glGetString( err ) );
 	}
 }
-
-#if !defined(NDEBUG) && defined(QGL_CHECK_GL_ERRORS)
-
-unsigned int QGLBeginStarted = 0;
-
-void QGLErrorBreak(void) { }
-
-void QGLCheckError( const char *message ) {
-	GLenum        error;
-	static unsigned int errorCount = 0;
-    
-	error = _glGetError();
-	if (error != GL_NO_ERROR) {
-		if (errorCount == 100) {
-			common->Printf("100 GL errors printed ... disabling further error reporting.\n");
-		} else if (errorCount < 100) {
-			if (errorCount == 0) {
-				common->Warning("BREAK ON QGLErrorBreak to stop at the GL errors\n");
-			}
-			common->Warning("OpenGL Error(%s): 0x%04x -- %s\n", message, (int)error,  gluErrorString(error));
-			QGLErrorBreak();
-		}
-		errorCount++;
-	}
-}
-#endif
 
 /*
 ** GLimp_SetMode
@@ -122,12 +96,12 @@ bool GLimp_SetMode(  glimpParms_t parms ) {
 	glConfig.isFullscreen = parms.fullScreen;
     
 	// draw something to show that GL is alive	
-	qglClearColor( 0.5, 0.5, 0.7, 0 );
-	qglClear( GL_COLOR_BUFFER_BIT );
+	glClearColor( 0.5, 0.5, 0.7, 0 );
+	glClear( GL_COLOR_BUFFER_BIT );
 	GLimp_SwapBuffers();
         
-	qglClearColor( 0.5, 0.5, 0.7, 0 );
-	qglClear( GL_COLOR_BUFFER_BIT );
+	glClearColor( 0.5, 0.5, 0.7, 0 );
+	glClear( GL_COLOR_BUFFER_BIT );
 	GLimp_SwapBuffers();
 
 	Sys_UnfadeScreen( Sys_DisplayToUse(), NULL );
@@ -420,7 +394,7 @@ static bool CreateGameWindow(  glimpParms_t parms ) {
 // This can be used to temporarily disassociate the GL context from the screen so that CoreGraphics can be used to draw to the screen.
 void Sys_PauseGL () {
 	if (!glw_state.glPauseCount) {
-		qglFinish (); // must do this to ensure the queue is complete
+		glFinish (); // must do this to ensure the queue is complete
         
 		// Have to call both to actually deallocate kernel resources and free the NSSurface
 		CGLClearDrawable(OSX_GetCGLContext());
@@ -479,11 +453,22 @@ bool GLimp_Init( glimpParms_t parms ) {
 	}
 
 	common->Printf(  "------------------\n" );
+    
+    GLenum glewResult = glewInit();
+    if( GLEW_OK != glewResult )
+    {
+        // glewInit failed, something is seriously wrong
+        common->Printf( "^3GLimp_Init() - GLEW could not load OpenGL subsystem: %s", glewGetErrorString( glewResult ) );
+    }
+    else
+    {
+        common->Printf( "Using GLEW %s\n", glewGetString( GLEW_VERSION ) );
+    }
 
 	// get our config strings
-	glConfig.vendor_string = (const char *)qglGetString( GL_VENDOR );
-	glConfig.renderer_string = (const char *)qglGetString( GL_RENDERER );
-	glConfig.version_string = (const char *)qglGetString( GL_VERSION );
+	glConfig.vendor_string = (const char *)glGetString( GL_VENDOR );
+	glConfig.renderer_string = (const char *)glGetString( GL_RENDERER );
+	glConfig.version_string = (const char *)glGetString( GL_VERSION );
 
 	//
 	// chipset specific configuration
@@ -517,10 +502,6 @@ void GLimp_SwapBuffers( void ) {
 	if ( r_swapInterval.IsModified() ) {
 		r_swapInterval.ClearModified();
 	}
-
-#if !defined(NDEBUG) && defined(QGL_CHECK_GL_ERRORS)
-	QGLCheckError("GLimp_EndFrame");
-#endif
 
 	if (!glw_state.glPauseCount && !isHidden) {
 		glw_state.bufferSwapCount++;
@@ -665,33 +646,6 @@ void GLimp_SetGamma(unsigned short red[256],
 }
 
 /*****************************************************************************/
-
-GLExtension_t GLimp_ExtensionPointer(const char *name) {
-	NSSymbol symbol;
-	char *symbolName;
-
-	// Prepend a '_' for the Unix C symbol mangling convention
-	symbolName = (char *)alloca(strlen(name) + 2);
-	strcpy(symbolName + 1, name);
-	symbolName[0] = '_';
-
-	if ( !NSIsSymbolNameDefined( symbolName ) ) {
-		return NULL;
-	}
-
-	symbol = NSLookupAndBindSymbol(symbolName);
-	if ( !symbol ) {
-		// shouldn't happen ...
-		return NULL;
-	}
-
-	return (GLExtension_t)(NSAddressOfSymbol(symbol));
-}
-
-void * wglGetProcAddress(const char *name) {
-	return (void *)GLimp_ExtensionPointer( name );
-}
-
 
 /*
 ** GLW_InitExtensions

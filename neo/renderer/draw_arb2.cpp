@@ -26,7 +26,7 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-#include "precompiled.h"
+#include "../idlib/precompiled.h"
 #pragma hdrstop
 
 #include "tr_local.h"
@@ -126,16 +126,16 @@ void R_LoadARBProgram( int progIndex ) {
 	}
 	end[3] = 0;
 
-	qglBindProgramARB( progs[progIndex].target, progs[progIndex].ident );
-	qglGetError();
+	glBindProgramARB( progs[progIndex].target, progs[progIndex].ident );
+	glGetError();
 
-	qglProgramStringARB( progs[progIndex].target, GL_PROGRAM_FORMAT_ASCII_ARB,
+	glProgramStringARB( progs[progIndex].target, GL_PROGRAM_FORMAT_ASCII_ARB,
 		strlen( start ), (unsigned char *)start );
 
-	err = qglGetError();
-	qglGetIntegerv( GL_PROGRAM_ERROR_POSITION_ARB, (GLint *)&ofs );
+	err = glGetError();
+	glGetIntegerv( GL_PROGRAM_ERROR_POSITION_ARB, (GLint *)&ofs );
 	if ( err == GL_INVALID_OPERATION ) {
-		const GLubyte *str = qglGetString( GL_PROGRAM_ERROR_STRING_ARB );
+		const GLubyte *str = glGetString( GL_PROGRAM_ERROR_STRING_ARB );
 		common->Printf( "\nGL_PROGRAM_ERROR_STRING_ARB: %s\n", str );
 		if ( ofs < 0 ) {
 			common->Printf( "GL_PROGRAM_ERROR_POSITION_ARB < 0 with error\n" );
@@ -218,8 +218,6 @@ R_ARB2_Init
 ==================
 */
 void R_ARB2_Init( void ) {
-	glConfig.allowARB2Path = false;
-
 	common->Printf( "---------- R_ARB2_Init ----------\n" );
 
 	if ( !glConfig.ARBVertexProgramAvailable || !glConfig.ARBFragmentProgramAvailable ) {
@@ -230,7 +228,5 @@ void R_ARB2_Init( void ) {
 	common->Printf( "Available.\n" );
 
 	common->Printf( "---------------------------------\n" );
-
-	glConfig.allowARB2Path = true;
 }
 

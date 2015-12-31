@@ -15,8 +15,6 @@ void	IN_ActivateMouse( void);
 void	IN_Activate (bool active);
 void	IN_Frame (void);
 
-void * wglGetProcAddress(const char *name);
-
 void	Sleep( const int time );
 
 void	Sys_UpdateWindowMouseInputRect( void );

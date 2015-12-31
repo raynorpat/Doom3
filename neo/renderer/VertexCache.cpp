@@ -76,7 +76,7 @@ static void GL_BindBuffer( GLenum target, GLuint buffer ) {
         return;
     }
     
-    qglBindBufferARB( target, buffer );
+    glBindBuffer( target, buffer );
 }
 
 
@@ -106,7 +106,7 @@ void idVertexCache::ActuallyFree( vertCache_t *block ) {
             // with block size. Removing this is probably ok but you cannot remove
             // the if ( block->vbo ) cause then it will crash.
             GL_BindBuffer(GL_ARRAY_BUFFER_ARB, block->vbo);
-            qglBufferDataARB(GL_ARRAY_BUFFER_ARB, block->size, NULL, GL_DYNAMIC_DRAW_ARB);
+            glBufferData(GL_ARRAY_BUFFER_ARB, block->size, NULL, GL_DYNAMIC_DRAW_ARB);
         } else if ( block->virtMem ) {
 			Mem_Free( block->virtMem );
 			block->virtMem = NULL;
@@ -256,7 +256,7 @@ void idVertexCache::Alloc( void *data, int size, vertCache_t **buffer, bool inde
 		for ( int i = 0; i < EXPAND_HEADERS; i++ ) {
 			block = headerAllocator.Alloc ();
 
-			qglGenBuffersARB( 1, &block->vbo );
+			glGenBuffers( 1, &block->vbo );
             block->size = 0;
             block->next = this->freeStaticHeaders.next;
             block->prev = &this->freeStaticHeaders;
@@ -293,8 +293,8 @@ void idVertexCache::Alloc( void *data, int size, vertCache_t **buffer, bool inde
     if ( block->vbo ) {
         // orphan the buffer in case it needs respecifying (it usually will)
         GL_BindBuffer( target, block->vbo );
-        qglBufferDataARB( target, (GLsizeiptr) size, NULL, usage );
-        qglBufferDataARB( target, (GLsizeiptr) size, data, usage );
+        glBufferData( target, (GLsizeiptr) size, NULL, usage );
+        glBufferData( target, (GLsizeiptr) size, data, usage );
     } else {
         block->virtMem = Mem_Alloc( size );
         SIMDProcessor->Memcpy( block->virtMem, data, size );
@@ -452,7 +452,7 @@ vertCache_t	*idVertexCache::AllocFrameTemp( void *data, int size ) {
         GL_BindBuffer( GL_ARRAY_BUFFER, block->vbo );
 
         // try to get an unsynchronized map if at all possible
-        if ( glConfig.ARBMapBufferRangeAvailable && r_useArbBufferRange.GetBool() ) {
+        if ( glConfig.mapBufferRangeAvailable && r_useArbBufferRange.GetBool() ) {
             void *dst = NULL;
             GLbitfield access = GL_MAP_WRITE_BIT|GL_MAP_UNSYNCHRONIZED_BIT|GL_MAP_INVALIDATE_RANGE_BIT;
 
@@ -462,15 +462,15 @@ vertCache_t	*idVertexCache::AllocFrameTemp( void *data, int size ) {
             } else {
                 access = GL_MAP_WRITE_BIT|GL_MAP_UNSYNCHRONIZED_BIT|GL_MAP_INVALIDATE_RANGE_BIT;
             }
-            if ( (dst = qglMapBufferRange(GL_ARRAY_BUFFER, block->offset, (GLsizeiptr) size, access)) != NULL ) {
+            if ( (dst = glMapBufferRange(GL_ARRAY_BUFFER, block->offset, (GLsizeiptr) size, access)) != NULL ) {
                 SIMDProcessor->Memcpy( (byte *)dst, data, size );
-                qglUnmapBufferARB( GL_ARRAY_BUFFER );
+                glUnmapBuffer( GL_ARRAY_BUFFER );
                 return block;
             } else {
-                qglBufferSubDataARB( GL_ARRAY_BUFFER, block->offset, (GLsizeiptr) size, data );
+                glBufferSubData( GL_ARRAY_BUFFER, block->offset, (GLsizeiptr) size, data );
             }
         } else {
-            qglBufferSubDataARB( GL_ARRAY_BUFFER, block->offset, (GLsizeiptr) size, data );
+            glBufferSubData( GL_ARRAY_BUFFER, block->offset, (GLsizeiptr) size, data );
         }
 	} else {
 		SIMDProcessor->Memcpy( (byte *)block->virtMem + block->offset, data, size );
