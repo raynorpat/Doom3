@@ -888,7 +888,6 @@ public:
 	drawSurfsCommand_t		lockSurfacesCmd;	// use this when r_lockSurfaces = 1
 
 	viewEntity_t			identitySpace;		// can use if we don't know viewDef->worldSpace is valid
-	FILE *					logFile;			// for logging GL calls and frame breaks
 
 	int						stencilIncr, stencilDecr;	// GL_INCR / INCR_WRAP_EXT, GL_DECR / GL_DECR_EXT
 
@@ -1219,8 +1218,6 @@ void		GLimp_DeactivateContext( void );
 // most OpenGL implementations, this will result in all OpenGL calls
 // being immediate returns, which lets us guage how much time is
 // being spent inside OpenGL.
-
-void		GLimp_EnableLogging( bool enable );
 
 
 /*
@@ -1648,9 +1645,6 @@ TR_BACKEND
 
 void RB_SetDefaultGLState( void );
 void RB_SetGL2D( void );
-
-// write a comment to the r_logFile if it is enabled
-void RB_LogComment( const char *comment, ... ) id_attribute((format(printf,1,2)));
 
 void RB_ShowImages( void );
 

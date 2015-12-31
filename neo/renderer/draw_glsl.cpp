@@ -42,7 +42,7 @@ void RB_FinishStageTexturing( const shaderStage_t *pStage, const drawSurf_t *sur
 static void GL_SelectTextureNoClient( int unit ) {
     backEnd.glState.currenttmu = unit;
     qglActiveTextureARB( GL_TEXTURE0_ARB + unit );
-    RB_LogComment( "glActiveTextureARB( %i )\n", unit );
+    RENDERLOG_PRINTF( "glActiveTextureARB( %i )\n", unit );
 }
 
 /*
@@ -235,7 +235,7 @@ void RB_GLSL_FillDepthBuffer( drawSurf_t **drawSurfs, int numDrawSurfs ) {
         return;
     }
     
-    RB_LogComment( "---------- RB_GLSL_FillDepthBuffer ----------\n" );
+    RENDERLOG_PRINTF( "---------- RB_GLSL_FillDepthBuffer ----------\n" );
     
     // the first texture will be used for alpha tested surfaces
     GL_SelectTexture( 0 );

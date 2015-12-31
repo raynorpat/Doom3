@@ -265,12 +265,8 @@ void idRenderLog::StartFrame()
     struct tm*		newtime;
     time_t			aclock;
     
-    char ospath[ MAX_OSPATH ];
-    
     char qpath[128];
-    sprintf( qpath, "renderlogPC_%04i.txt", r_logFile.GetInteger() );
-    idStr finalPath = fileSystem->RelativePathToOSPath( qpath );
-    sprintf( ospath, "%s", finalPath.c_str() );
+    sprintf( qpath, "renderlogPC_frame%04i.txt", r_logFile.GetInteger() );
     
     common->SetRefreshOnPrint( false );	// problems are caused if this print causes a refresh...
     
@@ -280,13 +276,13 @@ void idRenderLog::StartFrame()
         logFile = NULL;
     }
     
-    logFile = fileSystem->OpenFileWrite( ospath );
+    logFile = fileSystem->OpenFileWrite( qpath, "fs_savepath" );
     if( logFile == NULL )
     {
-        common->Warning( "Failed to open logfile %s", ospath );
+        common->Warning( "Failed to open logfile %s", qpath );
         return;
     }
-    common->Printf( "Opened logfile %s\n", ospath );
+    common->Printf( "Opened logfile %s\n", qpath );
     
     // write the time out to the top of the file
     time( &aclock );

@@ -657,9 +657,7 @@ void RB_CreateSingleDrawInteractions( const drawSurf_t *surf, void (*DrawInterac
 		return;
 	}
 
-	if ( tr.logFile ) {
-		RB_LogComment( "---------- RB_CreateSingleDrawInteractions %s on %s ----------\n", lightShader->GetName(), surfaceShader->GetName() );
-	}
+	RENDERLOG_PRINTF( "---------- RB_CreateSingleDrawInteractions %s on %s ----------\n", lightShader->GetName(), surfaceShader->GetName() );
 
 	// change the matrix and light projection vectors if needed
 	if ( surf->space != backEnd.currentSpace ) {

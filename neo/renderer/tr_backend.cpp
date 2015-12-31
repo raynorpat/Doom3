@@ -46,7 +46,7 @@ may touch, including the editor.
 void RB_SetDefaultGLState( void ) {
 	int		i;
 
-	RB_LogComment( "--- R_SetDefaultGLState ---\n" );
+	RENDERLOG_PRINTF( "--- R_SetDefaultGLState ---\n" );
 
 	qglClearDepth( 1.0f );
 	qglColor4f (1,1,1,1);
@@ -100,33 +100,13 @@ void RB_SetDefaultGLState( void ) {
 	}
 }
 
-
-/*
-====================
-RB_LogComment
-====================
-*/
-void RB_LogComment( const char *comment, ... ) {
-   va_list marker;
-
-	if ( !tr.logFile ) {
-		return;
-	}
-
-	fprintf( tr.logFile, "// " );
-	va_start( marker, comment );
-	vfprintf( tr.logFile, comment, marker );
-	va_end( marker );
-}
-
-
 //=============================================================================
 
 /*
- ==================
- GL_BindProgram
- ==================
- */
+==================
+GL_BindProgram
+==================
+*/
 void GL_BindProgram( shaderProgram_t *program ) {
     if ( !program ) {
         backEnd.glState.program = NULL;
@@ -157,7 +137,7 @@ void GL_SelectTexture( int unit ) {
 
 	qglActiveTextureARB( GL_TEXTURE0_ARB + unit );
 	qglClientActiveTextureARB( GL_TEXTURE0_ARB + unit );
-	RB_LogComment( "glActiveTextureARB( %i );\nglClientActiveTextureARB( %i );\n", unit, unit );
+	RENDERLOG_PRINTF( "glActiveTextureARB( %i );\nglClientActiveTextureARB( %i );\n", unit, unit );
 
 	backEnd.glState.currenttmu = unit;
 }
@@ -570,7 +550,7 @@ const void	RB_SwapBuffers( const void *data ) {
 		qglFinish();
 	}
 
-    RB_LogComment( "***************** RB_SwapBuffers *****************\n\n\n" );
+    RENDERLOG_PRINTF( "***************** RB_SwapBuffers *****************\n\n\n" );
 
 	// don't flip if drawing to front buffer
 	if ( !r_frontBuffer.GetBool() ) {
@@ -594,7 +574,7 @@ const void	RB_CopyRender( const void *data ) {
 		return;
 	}
 
-    RB_LogComment( "***************** RB_CopyRender *****************\n" );
+    RENDERLOG_PRINTF( "***************** RB_CopyRender *****************\n" );
 
 	if (cmd->image) {
 		cmd->image->CopyFramebuffer( cmd->x, cmd->y, cmd->imageWidth, cmd->imageHeight, false );
@@ -619,6 +599,8 @@ void RB_ExecuteBackEndCommands( const emptyCommand_t *cmds ) {
 	}
 
 	backEndStartTime = Sys_Milliseconds();
+    
+    renderLog.StartFrame();
 
 	// needed for editor rendering
 	RB_SetDefaultGLState();
@@ -669,4 +651,6 @@ void RB_ExecuteBackEndCommands( const emptyCommand_t *cmds ) {
 		common->Printf( "3d: %i, 2d: %i, SetBuf: %i, SwpBuf: %i, CpyRenders: %i, CpyFrameBuf: %i\n", c_draw3d, c_draw2d, c_setBuffers, c_swapBuffers, c_copyRenders, backEnd.c_copyFrameBuffer );
 		backEnd.c_copyFrameBuffer = 0;
 	}
+    
+    renderLog.EndFrame();
 }

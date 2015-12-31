@@ -200,7 +200,7 @@ void RB_StencilShadowPass( const drawSurf_t *drawSurfs ) {
         return;
     }
     
-    RB_LogComment( "---------- RB_StencilShadowPass ----------\n" );
+    RENDERLOG_PRINTF( "---------- RB_StencilShadowPass ----------\n" );
     
     GL_BindProgram( tr.stencilShadowProgram );
     

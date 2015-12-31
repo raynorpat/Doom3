@@ -2331,7 +2331,7 @@ void RB_RenderDebugTools( drawSurf_t **drawSurfs, int numDrawSurfs ) {
 		return;
 	}
 
-	RB_LogComment( "---------- RB_RenderDebugTools ----------\n" );
+	RENDERLOG_PRINTF( "---------- RB_RenderDebugTools ----------\n" );
 
 	GL_State( GLS_DEFAULT );
 	backEnd.currentScissor = backEnd.viewDef->scissor;
@@ -2339,7 +2339,6 @@ void RB_RenderDebugTools( drawSurf_t **drawSurfs, int numDrawSurfs ) {
 		backEnd.viewDef->viewport.y1 + backEnd.currentScissor.y1,
 		backEnd.currentScissor.x2 + 1 - backEnd.currentScissor.x1,
 		backEnd.currentScissor.y2 + 1 - backEnd.currentScissor.y1 );
-
 
 	RB_ShowLightCount();
 	RB_ShowShadowCount();
