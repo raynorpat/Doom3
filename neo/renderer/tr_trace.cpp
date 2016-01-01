@@ -374,7 +374,7 @@ void RB_ShowTrace( drawSurf_t **drawSurfs, int numDrawSurfs ) {
 	end = start + 4000 * backEnd.viewDef->renderView.viewaxis[0];
 
 	// check and draw the surfaces
-	glDisableClientState( GL_TEXTURE_COORD_ARRAY );
+    glDisableVertexAttribArray( PC_ATTRIB_INDEX_ST );
 	GL_TexEnv( GL_MODULATE );
 
 	globalImages->whiteImage->Bind();

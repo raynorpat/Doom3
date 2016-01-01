@@ -117,10 +117,10 @@ void RB_PrepareStageTexturing( const shaderStage_t *pStage,  const drawSurf_t *s
 
 	// texgens
 	if ( pStage->texture.texgen == TG_DIFFUSE_CUBE ) {
-		glTexCoordPointer( 3, GL_FLOAT, sizeof( idDrawVert ), ac->normal.ToFloatPtr() );
+        glVertexAttribPointer( PC_ATTRIB_INDEX_ST, 3, GL_FLOAT, false, sizeof( idDrawVert ), ac->normal.ToFloatPtr() );
 	}
 	if ( pStage->texture.texgen == TG_SKYBOX_CUBE || pStage->texture.texgen == TG_WOBBLESKY_CUBE ) {
-		glTexCoordPointer( 3, GL_FLOAT, 0, vertexCache.Position( surf->dynamicTexCoords ) );
+        glVertexAttribPointer( PC_ATTRIB_INDEX_ST, 3, GL_FLOAT, false, 0, vertexCache.Position( surf->dynamicTexCoords ) );
 	}
 	if ( pStage->texture.texgen == TG_SCREEN ) {
 		glEnable( GL_TEXTURE_GEN_S );
@@ -223,13 +223,13 @@ void RB_PrepareStageTexturing( const shaderStage_t *pStage,  const drawSurf_t *s
 			bumpStage->texture.image->Bind();
 			GL_SelectTexture( 0 );
 
-			glNormalPointer( GL_FLOAT, sizeof( idDrawVert ), ac->normal.ToFloatPtr() );
-			glVertexAttribPointerARB( 10, 3, GL_FLOAT, false, sizeof( idDrawVert ), ac->tangents[1].ToFloatPtr() );
-			glVertexAttribPointerARB( 9, 3, GL_FLOAT, false, sizeof( idDrawVert ), ac->tangents[0].ToFloatPtr() );
+            glVertexAttribPointer( PC_ATTRIB_INDEX_NORMAL, 3, GL_FLOAT, false, sizeof( idDrawVert ), ac->normal.ToFloatPtr() );
+			glVertexAttribPointer( PC_ATTRIB_INDEX_BITANGENT, 3, GL_FLOAT, false, sizeof( idDrawVert ), ac->tangents[1].ToFloatPtr() );
+			glVertexAttribPointer( PC_ATTRIB_INDEX_TANGENT, 3, GL_FLOAT, false, sizeof( idDrawVert ), ac->tangents[0].ToFloatPtr() );
 
-			glEnableVertexAttribArrayARB( 9 );
-			glEnableVertexAttribArrayARB( 10 );
-			glEnableClientState( GL_NORMAL_ARRAY );
+			glEnableVertexAttribArray( PC_ATTRIB_INDEX_TANGENT );
+			glEnableVertexAttribArray( PC_ATTRIB_INDEX_BITANGENT );
+            glEnableVertexAttribArray( PC_ATTRIB_INDEX_NORMAL );
           
 			// Program env 5, 6, 7, 8 have been set in RB_SetProgramEnvironmentSpace
             
@@ -239,8 +239,8 @@ void RB_PrepareStageTexturing( const shaderStage_t *pStage,  const drawSurf_t *s
 			glEnable( GL_VERTEX_PROGRAM_ARB );
 		} else {
 			// per-pixel reflection mapping without a normal map
-			glNormalPointer( GL_FLOAT, sizeof( idDrawVert ), ac->normal.ToFloatPtr() );
-			glEnableClientState( GL_NORMAL_ARRAY );
+            glVertexAttribPointer( PC_ATTRIB_INDEX_NORMAL, 3, GL_FLOAT, false, sizeof( idDrawVert ), ac->normal.ToFloatPtr() );
+			glEnableVertexAttribArray( PC_ATTRIB_INDEX_NORMAL );
 
 			glBindProgramARB( GL_FRAGMENT_PROGRAM_ARB, FPROG_ENVIRONMENT );
 			glEnable( GL_FRAGMENT_PROGRAM_ARB );
@@ -263,7 +263,7 @@ void RB_FinishStageTexturing( const shaderStage_t *pStage, const drawSurf_t *sur
 
 	if ( pStage->texture.texgen == TG_DIFFUSE_CUBE || pStage->texture.texgen == TG_SKYBOX_CUBE
 		|| pStage->texture.texgen == TG_WOBBLESKY_CUBE ) {
-		glTexCoordPointer( 2, GL_FLOAT, sizeof( idDrawVert ), (void *)&ac->st );
+        glVertexAttribPointer( PC_ATTRIB_INDEX_ST, 2, GL_FLOAT, false, sizeof( idDrawVert ), (void *)&ac->st );
 	}
 
 	if ( pStage->texture.texgen == TG_SCREEN ) {
@@ -302,13 +302,14 @@ void RB_FinishStageTexturing( const shaderStage_t *pStage, const drawSurf_t *sur
 			globalImages->BindNull();
 			GL_SelectTexture( 0 );
 
-			glDisableVertexAttribArrayARB( 9 );
-			glDisableVertexAttribArrayARB( 10 );
+			glDisableVertexAttribArray( PC_ATTRIB_INDEX_TANGENT );
+			glDisableVertexAttribArray( PC_ATTRIB_INDEX_BITANGENT );
 		} else {
 			// per-pixel reflection mapping without bump mapping
 		}
+        
+        glDisableVertexAttribArray( PC_ATTRIB_INDEX_NORMAL );
 
-		glDisableClientState( GL_NORMAL_ARRAY );
 		glDisable( GL_FRAGMENT_PROGRAM_ARB );
 		glDisable( GL_VERTEX_PROGRAM_ARB );
 	}
@@ -402,8 +403,8 @@ void RB_T_FillDepthBuffer( const drawSurf_t *surf ) {
 	}
 
 	idDrawVert *ac = (idDrawVert *)vertexCache.Position( tri->ambientCache );
-	glVertexPointer( 3, GL_FLOAT, sizeof( idDrawVert ), ac->xyz.ToFloatPtr() );
-	glTexCoordPointer( 2, GL_FLOAT, sizeof( idDrawVert ), reinterpret_cast<void *>(&ac->st) );
+    glVertexAttribPointer( PC_ATTRIB_INDEX_VERTEX, 3, GL_FLOAT, false, sizeof( idDrawVert ), ac->xyz.ToFloatPtr() );
+    glVertexAttribPointer( PC_ATTRIB_INDEX_ST, 2, GL_FLOAT, false, sizeof( idDrawVert ), reinterpret_cast<void *>(&ac->st) );
 
 	bool drawSolid = false;
 
@@ -505,7 +506,7 @@ void RB_STD_FillDepthBuffer( drawSurf_t **drawSurfs, int numDrawSurfs ) {
 
 	// the first texture will be used for alpha tested surfaces
 	GL_SelectTexture( 0 );
-	glEnableClientState( GL_TEXTURE_COORD_ARRAY );
+	glEnableVertexAttribArray( PC_ATTRIB_INDEX_ST );
 
 	// decal surfaces may enable polygon offset
 	glPolygonOffset( r_offsetFactor.GetFloat(), r_offsetUnits.GetFloat() );
@@ -720,8 +721,8 @@ void RB_STD_T_RenderShaderPasses( const drawSurf_t *surf ) {
 	}
 
 	idDrawVert *ac = (idDrawVert *)vertexCache.Position( tri->ambientCache );
-	glVertexPointer( 3, GL_FLOAT, sizeof( idDrawVert ), ac->xyz.ToFloatPtr() );
-	glTexCoordPointer( 2, GL_FLOAT, sizeof( idDrawVert ), reinterpret_cast<void *>(&ac->st) );
+    glVertexAttribPointer( PC_ATTRIB_INDEX_VERTEX, 3, GL_FLOAT, false, sizeof( idDrawVert ), ac->xyz.ToFloatPtr() );
+    glVertexAttribPointer( PC_ATTRIB_INDEX_ST, 2, GL_FLOAT, false, sizeof( idDrawVert ), reinterpret_cast<void *>(&ac->st) );
 
 	for ( stage = 0; stage < shader->GetNumStages() ; stage++ ) {		
 		pStage = shader->GetStage(stage);
@@ -752,15 +753,15 @@ void RB_STD_T_RenderShaderPasses( const drawSurf_t *surf ) {
 			if ( r_skipNewAmbient.GetBool() ) {
 				continue;
 			}
-			glColorPointer( 4, GL_UNSIGNED_BYTE, sizeof( idDrawVert ), (void *)&ac->color );
-			glVertexAttribPointerARB( 9, 3, GL_FLOAT, false, sizeof( idDrawVert ), ac->tangents[0].ToFloatPtr() );
-			glVertexAttribPointerARB( 10, 3, GL_FLOAT, false, sizeof( idDrawVert ), ac->tangents[1].ToFloatPtr() );
-			glNormalPointer( GL_FLOAT, sizeof( idDrawVert ), ac->normal.ToFloatPtr() );
+            glVertexAttribPointer( PC_ATTRIB_INDEX_COLOR, 4, GL_UNSIGNED_BYTE, false, sizeof( idDrawVert ), (void *)&ac->color );
+			glVertexAttribPointer( PC_ATTRIB_INDEX_TANGENT, 3, GL_FLOAT, false, sizeof( idDrawVert ), ac->tangents[0].ToFloatPtr() );
+			glVertexAttribPointer( PC_ATTRIB_INDEX_BITANGENT, 3, GL_FLOAT, false, sizeof( idDrawVert ), ac->tangents[1].ToFloatPtr() );
+            glVertexAttribPointer( PC_ATTRIB_INDEX_NORMAL, 3, GL_FLOAT, false, sizeof( idDrawVert ), ac->normal.ToFloatPtr() );
 
-			glEnableClientState( GL_COLOR_ARRAY );
-			glEnableVertexAttribArrayARB( 9 );
-			glEnableVertexAttribArrayARB( 10 );
-			glEnableClientState( GL_NORMAL_ARRAY );
+            glEnableVertexAttribArray( PC_ATTRIB_INDEX_COLOR );
+			glEnableVertexAttribArray( PC_ATTRIB_INDEX_TANGENT );
+			glEnableVertexAttribArray( PC_ATTRIB_INDEX_BITANGENT );
+            glEnableVertexAttribArray( PC_ATTRIB_INDEX_NORMAL );
 
 			GL_State( pStage->drawStateBits );
 			
@@ -811,10 +812,10 @@ void RB_STD_T_RenderShaderPasses( const drawSurf_t *surf ) {
 			glDisable( GL_VERTEX_PROGRAM_ARB );
 			glDisable( GL_FRAGMENT_PROGRAM_ARB );
 
-			glDisableClientState( GL_COLOR_ARRAY );
-			glDisableVertexAttribArrayARB( 9 );
-			glDisableVertexAttribArrayARB( 10 );
-			glDisableClientState( GL_NORMAL_ARRAY );
+            glDisableVertexAttribArray( PC_ATTRIB_INDEX_COLOR );
+			glDisableVertexAttribArray( PC_ATTRIB_INDEX_TANGENT );
+			glDisableVertexAttribArray( PC_ATTRIB_INDEX_BITANGENT );
+			glDisableVertexAttribArray( PC_ATTRIB_INDEX_NORMAL );
 			continue;
 		}
 
@@ -846,8 +847,8 @@ void RB_STD_T_RenderShaderPasses( const drawSurf_t *surf ) {
 		if ( pStage->vertexColor == SVC_IGNORE ) {
 			glColor4fv( color );
 		} else {
-			glColorPointer( 4, GL_UNSIGNED_BYTE, sizeof( idDrawVert ), (void *)&ac->color );
-			glEnableClientState( GL_COLOR_ARRAY );
+            glVertexAttribPointer( PC_ATTRIB_INDEX_COLOR, 4, GL_UNSIGNED_BYTE, false, sizeof( idDrawVert ), (void *)&ac->color );
+            glEnableVertexAttribArray( PC_ATTRIB_INDEX_COLOR );
 
 			if ( pStage->vertexColor == SVC_INVERSE_MODULATE ) {
 				GL_TexEnv( GL_COMBINE_ARB );
@@ -901,7 +902,7 @@ void RB_STD_T_RenderShaderPasses( const drawSurf_t *surf ) {
 		RB_FinishStageTexturing( pStage, surf, ac );
 		
 		if ( pStage->vertexColor != SVC_IGNORE ) {
-			glDisableClientState( GL_COLOR_ARRAY );
+            glDisableVertexAttribArray( PC_ATTRIB_INDEX_COLOR );
 
 			GL_SelectTexture( 1 );
 			GL_TexEnv( GL_MODULATE );
@@ -957,7 +958,7 @@ int RB_STD_DrawShaderPasses( drawSurf_t **drawSurfs, int numDrawSurfs ) {
 	globalImages->BindNull();
 
 	GL_SelectTexture( 0 );
-	glEnableClientState( GL_TEXTURE_COORD_ARRAY );
+	glEnableVertexAttribArray( PC_ATTRIB_INDEX_ST );
 
 	RB_SetProgramEnvironment();
 
@@ -1030,7 +1031,7 @@ static void RB_T_Shadow( const drawSurf_t *surf ) {
 		return;
 	}
 
-	glVertexPointer( 4, GL_FLOAT, sizeof( shadowCache_t ), vertexCache.Position(tri->shadowCache) );
+    glVertexAttribPointer( PC_ATTRIB_INDEX_VERTEX, 4, GL_FLOAT, false, sizeof( shadowCache_t ), vertexCache.Position(tri->shadowCache) );
 
 	// we always draw the sil planes, but we may not need to draw the front or rear caps
 	int	numIndexes;
@@ -1173,7 +1174,7 @@ void RB_StencilShadowPass( const drawSurf_t *drawSurfs ) {
 	RENDERLOG_PRINTF("---------- RB_StencilShadowPass ----------\n");
 
 	globalImages->BindNull();
-	glDisableClientState( GL_TEXTURE_COORD_ARRAY );
+    glDisableVertexAttribArray( PC_ATTRIB_INDEX_ST );
 
 	// for visualizing the shadows
 	if ( r_showShadows.GetInteger() ) {
@@ -1216,7 +1217,7 @@ void RB_StencilShadowPass( const drawSurf_t *drawSurfs ) {
 		glDisable( GL_DEPTH_BOUNDS_TEST_EXT );
 	}
 
-	glEnableClientState( GL_TEXTURE_COORD_ARRAY );
+	glEnableVertexAttribArray( PC_ATTRIB_INDEX_ST );
 
 	glStencilFunc( GL_GEQUAL, 128, 255 );
 	glStencilOp( GL_KEEP, GL_KEEP, GL_KEEP );
@@ -1264,10 +1265,10 @@ static void RB_T_BlendLight( const drawSurf_t *surf ) {
 	// this gets used for both blend lights and shadow draws
 	if ( tri->ambientCache ) {
 		idDrawVert	*ac = (idDrawVert *)vertexCache.Position( tri->ambientCache );
-		glVertexPointer( 3, GL_FLOAT, sizeof( idDrawVert ), ac->xyz.ToFloatPtr() );
+        glVertexAttribPointer( PC_ATTRIB_INDEX_VERTEX, 3, GL_FLOAT, false, sizeof( idDrawVert ), ac->xyz.ToFloatPtr() );
 	} else if ( tri->shadowCache ) {
 		shadowCache_t	*sc = (shadowCache_t *)vertexCache.Position( tri->shadowCache );
-		glVertexPointer( 3, GL_FLOAT, sizeof( shadowCache_t ), sc->xyz.ToFloatPtr() );
+        glVertexAttribPointer( PC_ATTRIB_INDEX_VERTEX, 3, GL_FLOAT, false, sizeof( shadowCache_t ), sc->xyz.ToFloatPtr() );
 	}
 
 	RB_DrawElementsWithCounters( tri );
@@ -1301,14 +1302,14 @@ static void RB_BlendLight( const drawSurf_t *drawSurfs,  const drawSurf_t *drawS
 
 	// texture 1 will get the falloff texture
 	GL_SelectTexture( 1 );
-	glDisableClientState( GL_TEXTURE_COORD_ARRAY );
+	glDisableVertexAttribArray( PC_ATTRIB_INDEX_ST );
 	glEnable( GL_TEXTURE_GEN_S );
 	glTexCoord2f( 0, 0.5 );
 	backEnd.vLight->falloffImage->Bind();
 
 	// texture 0 will get the projected texture
 	GL_SelectTexture( 0 );
-	glDisableClientState( GL_TEXTURE_COORD_ARRAY );
+	glDisableVertexAttribArray( PC_ATTRIB_INDEX_ST );
 	glEnable( GL_TEXTURE_GEN_S );
 	glEnable( GL_TEXTURE_GEN_T );
 	glEnable( GL_TEXTURE_GEN_Q );
@@ -1454,7 +1455,7 @@ static void RB_FogPass( const drawSurf_t *drawSurfs,  const drawSurf_t *drawSurf
 	GL_SelectTexture( 0 );
 	globalImages->fogImage->Bind();
 	//GL_Bind( tr.whiteImage );
-	glDisableClientState( GL_TEXTURE_COORD_ARRAY );
+	glDisableVertexAttribArray( PC_ATTRIB_INDEX_ST );
 	glEnable( GL_TEXTURE_GEN_S );
 	glEnable( GL_TEXTURE_GEN_T );
 	glTexCoord2f( 0.5f, 0.5f );		// make sure Q is set
@@ -1473,7 +1474,7 @@ static void RB_FogPass( const drawSurf_t *drawSurfs,  const drawSurf_t *drawSurf
 	// texture 1 is the entering plane fade correction
 	GL_SelectTexture( 1 );
 	globalImages->fogEnterImage->Bind();
-	glDisableClientState( GL_TEXTURE_COORD_ARRAY );
+	glDisableVertexAttribArray( PC_ATTRIB_INDEX_ST );
 	glEnable( GL_TEXTURE_GEN_S );
 	glEnable( GL_TEXTURE_GEN_T );
 
@@ -1642,11 +1643,11 @@ void RB_STD_CreateDrawInteractions(const drawSurf_t *surf) {
 	}
 
 	// enable the vertex arrays
-	glEnableVertexAttribArrayARB(8);
-	glEnableVertexAttribArrayARB(9);
-	glEnableVertexAttribArrayARB(10);
-	glEnableVertexAttribArrayARB(11);
-	glEnableClientState(GL_COLOR_ARRAY);
+	glEnableVertexAttribArray(PC_ATTRIB_INDEX_ST);
+	glEnableVertexAttribArray(PC_ATTRIB_INDEX_TANGENT);
+	glEnableVertexAttribArray(PC_ATTRIB_INDEX_BITANGENT);
+	glEnableVertexAttribArray(PC_ATTRIB_INDEX_NORMAL);
+	glEnableVertexAttribArray(PC_ATTRIB_INDEX_COLOR);
 
 	for (; surf; surf = surf->nextOnLight) {
 		// perform setup here that will not change over multiple interaction passes
@@ -1658,24 +1659,24 @@ void RB_STD_CreateDrawInteractions(const drawSurf_t *surf) {
 
 		// set the vertex pointers
 		idDrawVert	*ac = (idDrawVert *)vertexCache.Position(surf->geo->ambientCache);
-		glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(idDrawVert), ac->color);
-		glVertexAttribPointerARB(11, 3, GL_FLOAT, false, sizeof(idDrawVert), ac->normal.ToFloatPtr());
-		glVertexAttribPointerARB(10, 3, GL_FLOAT, false, sizeof(idDrawVert), ac->tangents[1].ToFloatPtr());
-		glVertexAttribPointerARB(9, 3, GL_FLOAT, false, sizeof(idDrawVert), ac->tangents[0].ToFloatPtr());
-		glVertexAttribPointerARB(8, 2, GL_FLOAT, false, sizeof(idDrawVert), ac->st.ToFloatPtr());
-		glVertexPointer(3, GL_FLOAT, sizeof(idDrawVert), ac->xyz.ToFloatPtr());
+        glVertexAttribPointer(PC_ATTRIB_INDEX_COLOR, 4, GL_UNSIGNED_BYTE, false, sizeof( idDrawVert ), (void *)&ac->color);
+		glVertexAttribPointer(PC_ATTRIB_INDEX_NORMAL, 3, GL_FLOAT, false, sizeof(idDrawVert), ac->normal.ToFloatPtr());
+		glVertexAttribPointer(PC_ATTRIB_INDEX_BITANGENT, 3, GL_FLOAT, false, sizeof(idDrawVert), ac->tangents[1].ToFloatPtr());
+		glVertexAttribPointer(PC_ATTRIB_INDEX_TANGENT, 3, GL_FLOAT, false, sizeof(idDrawVert), ac->tangents[0].ToFloatPtr());
+		glVertexAttribPointer(PC_ATTRIB_INDEX_ST, 2, GL_FLOAT, false, sizeof(idDrawVert), ac->st.ToFloatPtr());
+        glVertexAttribPointer(PC_ATTRIB_INDEX_VERTEX, 3, GL_FLOAT, false, sizeof(idDrawVert), ac->xyz.ToFloatPtr());
 
 		// this may cause RB_STD_DrawInteraction to be executed multiple
 		// times with different colors and images if the surface or light have multiple layers
 		RB_CreateSingleDrawInteractions(surf, RB_STD_DrawInteraction);
 	}
 
-	glDisableVertexAttribArrayARB(8);
-	glDisableVertexAttribArrayARB(9);
-	glDisableVertexAttribArrayARB(10);
-	glDisableVertexAttribArrayARB(11);
-	glDisableClientState(GL_COLOR_ARRAY);
-
+	glDisableVertexAttribArray(PC_ATTRIB_INDEX_ST);
+	glDisableVertexAttribArray(PC_ATTRIB_INDEX_TANGENT);
+	glDisableVertexAttribArray(PC_ATTRIB_INDEX_BITANGENT);
+	glDisableVertexAttribArray(PC_ATTRIB_INDEX_NORMAL);
+    glDisableVertexAttribArray(PC_ATTRIB_INDEX_COLOR);
+    
 	// disable features
 	GL_SelectTextureNoClient(4);
 	globalImages->BindNull();
@@ -1709,7 +1710,7 @@ void RB_STD_DrawInteractions(void) {
 	renderLog.OpenBlock( "RB_DrawInteractions" );
 
 	GL_SelectTexture(0);
-	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+	glDisableVertexAttribArray( PC_ATTRIB_INDEX_ST );
 
 	//
 	// for each light, perform adding and shadowing
@@ -1801,7 +1802,7 @@ void RB_STD_DrawInteractions(void) {
 	glStencilFunc(GL_ALWAYS, 128, 255);
 
 	GL_SelectTexture(0);
-	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+	glEnableVertexAttribArray( PC_ATTRIB_INDEX_ST );
 
 	renderLog.CloseBlock();
 	renderLog.CloseMainBlock();

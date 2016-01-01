@@ -52,9 +52,9 @@ void RB_SetDefaultGLState( void ) {
 	glColor4f (1,1,1,1);
 
 	// the vertex array is always enabled
-	glEnableClientState( GL_VERTEX_ARRAY );
-	glEnableClientState( GL_TEXTURE_COORD_ARRAY );
-	glDisableClientState( GL_COLOR_ARRAY );
+    glEnableVertexAttribArray( PC_ATTRIB_INDEX_ST );
+    glEnableVertexAttribArray( PC_ATTRIB_INDEX_VERTEX );
+    glDisableVertexAttribArray( PC_ATTRIB_INDEX_COLOR );
 
 	//
 	// make sure our GL state vector is set correctly

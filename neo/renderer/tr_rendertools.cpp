@@ -554,7 +554,7 @@ void RB_ShowSilhouette( void ) {
 	//
 	// clear all triangle edges to black
 	//
-	glDisableClientState( GL_TEXTURE_COORD_ARRAY );
+	glDisableVertexAttribArray( PC_ATTRIB_INDEX_ST );
 	globalImages->BindNull();
 	glDisable( GL_TEXTURE_2D );
 	glDisable( GL_STENCIL_TEST );
@@ -740,7 +740,7 @@ static void RB_ShowTris( drawSurf_t **drawSurfs, int numDrawSurfs ) {
 		return;
 	}
 
-	glDisableClientState( GL_TEXTURE_COORD_ARRAY );
+	glDisableVertexAttribArray( PC_ATTRIB_INDEX_ST );
 	globalImages->BindNull();
 	glDisable( GL_TEXTURE_2D );
 	glDisable( GL_STENCIL_TEST );
@@ -799,7 +799,7 @@ static void RB_ShowSurfaceInfo( drawSurf_t **drawSurfs, int numDrawSurfs ) {
 		return;
 	}
 
-	glDisableClientState( GL_TEXTURE_COORD_ARRAY );
+	glDisableVertexAttribArray( PC_ATTRIB_INDEX_ST );
 	globalImages->BindNull();
 	glDisable( GL_TEXTURE_2D );
 	glDisable( GL_STENCIL_TEST );
@@ -850,7 +850,7 @@ static void RB_ShowViewEntitys( viewEntity_t *vModels ) {
 		return;
 	}
 
-	glDisableClientState( GL_TEXTURE_COORD_ARRAY );
+	glDisableVertexAttribArray( PC_ATTRIB_INDEX_ST );
 	globalImages->BindNull();
 	glDisable( GL_TEXTURE_2D );
 	glDisable( GL_STENCIL_TEST );
@@ -913,7 +913,7 @@ static void RB_ShowTexturePolarity( drawSurf_t **drawSurfs, int numDrawSurfs ) {
 	if ( !r_showTexturePolarity.GetBool() ) {
 		return;
 	}
-	glDisableClientState( GL_TEXTURE_COORD_ARRAY );
+	glDisableVertexAttribArray( PC_ATTRIB_INDEX_ST );
 	globalImages->BindNull();
 	glDisable( GL_STENCIL_TEST );
 
@@ -982,7 +982,7 @@ static void RB_ShowUnsmoothedTangents( drawSurf_t **drawSurfs, int numDrawSurfs 
 	if ( !r_showUnsmoothedTangents.GetBool() ) {
 		return;
 	}
-	glDisableClientState( GL_TEXTURE_COORD_ARRAY );
+	glDisableVertexAttribArray( PC_ATTRIB_INDEX_ST );
 	globalImages->BindNull();
 	glDisable( GL_STENCIL_TEST );
 
@@ -1037,7 +1037,7 @@ static void RB_ShowTangentSpace( drawSurf_t **drawSurfs, int numDrawSurfs ) {
 	if ( !r_showTangentSpace.GetInteger() ) {
 		return;
 	}
-	glDisableClientState( GL_TEXTURE_COORD_ARRAY );
+	glDisableVertexAttribArray( PC_ATTRIB_INDEX_ST );
 	globalImages->BindNull();
 	glDisable( GL_STENCIL_TEST );
 
@@ -1091,7 +1091,7 @@ static void RB_ShowVertexColor( drawSurf_t **drawSurfs, int numDrawSurfs ) {
 	if ( !r_showVertexColor.GetBool() ) {
 		return;
 	}
-	glDisableClientState( GL_TEXTURE_COORD_ARRAY );
+	glDisableVertexAttribArray( PC_ATTRIB_INDEX_ST );
 	globalImages->BindNull();
 	glDisable( GL_STENCIL_TEST );
 
@@ -1142,7 +1142,7 @@ static void RB_ShowNormals( drawSurf_t **drawSurfs, int numDrawSurfs ) {
 	}
 
 	GL_State( GLS_POLYMODE_LINE );
-	glDisableClientState( GL_TEXTURE_COORD_ARRAY );
+	glDisableVertexAttribArray( PC_ATTRIB_INDEX_ST );
 
 	globalImages->BindNull();
 	glDisable( GL_STENCIL_TEST );
@@ -1233,7 +1233,7 @@ static void RB_AltShowNormals( drawSurf_t **drawSurfs, int numDrawSurfs ) {
 	}
 
 	GL_State( GLS_DEFAULT );
-	glDisableClientState( GL_TEXTURE_COORD_ARRAY );
+	glDisableVertexAttribArray( PC_ATTRIB_INDEX_ST );
 
 	globalImages->BindNull();
 	glDisable( GL_STENCIL_TEST );
@@ -1309,7 +1309,7 @@ static void RB_ShowTextureVectors( drawSurf_t **drawSurfs, int numDrawSurfs ) {
 	}
 
 	GL_State( GLS_DEPTHFUNC_LESS );
-	glDisableClientState( GL_TEXTURE_COORD_ARRAY );
+	glDisableVertexAttribArray( PC_ATTRIB_INDEX_ST );
 
 	globalImages->BindNull();
 
@@ -1405,7 +1405,7 @@ static void RB_ShowDominantTris( drawSurf_t **drawSurfs, int numDrawSurfs ) {
 	}
 
 	GL_State( GLS_DEPTHFUNC_LESS );
-	glDisableClientState( GL_TEXTURE_COORD_ARRAY );
+	glDisableVertexAttribArray( PC_ATTRIB_INDEX_ST );
 
 	glPolygonOffset( -1, -2 );
 	glEnable( GL_POLYGON_OFFSET_LINE );
@@ -1468,7 +1468,7 @@ static void RB_ShowEdges( drawSurf_t **drawSurfs, int numDrawSurfs ) {
 	}
 
 	GL_State( GLS_DEFAULT );
-	glDisableClientState( GL_TEXTURE_COORD_ARRAY );
+	glDisableVertexAttribArray( PC_ATTRIB_INDEX_ST );
 
 	globalImages->BindNull();
 	glDisable( GL_DEPTH_TEST );
@@ -1571,14 +1571,12 @@ void RB_ShowLights( void ) {
 	// all volumes are expressed in world coordinates
 	RB_SimpleWorldSetup();
 
-	glDisableClientState( GL_TEXTURE_COORD_ARRAY );
+	glDisableVertexAttribArray( PC_ATTRIB_INDEX_ST );
 	globalImages->BindNull();
 	glDisable( GL_STENCIL_TEST );
 
-
 	GL_Cull( CT_TWO_SIDED );
 	glDisable( GL_DEPTH_TEST );
-
 
 	common->Printf( "volumes: " );	// FIXME: not in back end!
 
