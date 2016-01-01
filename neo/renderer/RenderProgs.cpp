@@ -3,6 +3,7 @@
  
  Doom 3 BFG Edition GPL Source Code
  Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+ Copyright (C) 2013-2014 Robert Beckebans
  
  This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
  
@@ -108,6 +109,7 @@ void idRenderProgManager::Init()
         { BUILTIN_STEREO_INTERLACE, "stereoInterlace.vfp" },
         { BUILTIN_MOTION_BLUR, "motionBlur.vfp" },
 */
+        { BUILTIN_SHADOW, "shadow.vfp" },
     };
     int numBuiltins = sizeof( builtins ) / sizeof( builtins[0] );
     vertexShaders.SetNum( numBuiltins );
@@ -123,11 +125,7 @@ void idRenderProgManager::Init()
         LoadFragmentShader( i );
         LoadGLSLProgram( i, i, i );
     }
-    
-    // Special case handling for fastZ shaders
-    builtinShaders[BUILTIN_SHADOW] = FindVertexShader( "shadow.vp" );
-    FindGLSLProgram( "shadow.vp", builtinShaders[BUILTIN_SHADOW], -1 );
-    
+
     glslUniforms.SetNum( RENDERPARM_USER + MAX_GLSL_USER_PARMS, vec4_zero );
     
     cmdSystem->AddCommand( "reloadShaders", R_ReloadShaders, CMD_FL_RENDERER, "reloads shaders" );
@@ -282,22 +280,54 @@ void idRenderProgManager::LoadFragmentShader( int index )
 idRenderProgManager::BindShader
 ================================================================================================
 */
-void idRenderProgManager::BindShader( int vIndex, int fIndex )
+// RB begin
+void idRenderProgManager::BindShader( int progIndex, int vIndex, int fIndex, bool builtin )
 {
     if( currentVertexShader == vIndex && currentFragmentShader == fIndex )
     {
         return;
     }
-    currentVertexShader = vIndex;
-    currentFragmentShader = fIndex;
-    // vIndex denotes the GLSL program
-    if( vIndex >= 0 && vIndex < glslPrograms.Num() )
+    
+    if( builtin )
     {
-        currentRenderProgram = vIndex;
-        RENDERLOG_PRINTF( "Binding GLSL Program %s\n", glslPrograms[vIndex].name.c_str() );
-        glUseProgram( glslPrograms[vIndex].progId );
+        currentVertexShader = vIndex;
+        currentFragmentShader = fIndex;
+
+        // vIndex denotes the GLSL program
+        if( vIndex >= 0 && vIndex < glslPrograms.Num() )
+        {
+            currentRenderProgram = vIndex;
+            RENDERLOG_PRINTF( "Binding GLSL Program %s\n", glslPrograms[vIndex].name.c_str() );
+            glUseProgram( glslPrograms[vIndex].progId );
+        }
+    }
+    else
+    {
+        if( progIndex == -1 )
+        {
+            // RB: FIXME linear search
+            for( int i = 0; i < glslPrograms.Num(); ++i )
+            {
+                if( ( glslPrograms[i].vertexShaderIndex == vIndex ) && ( glslPrograms[i].fragmentShaderIndex == fIndex ) )
+                {
+                    progIndex = i;
+                    break;
+                }
+            }
+        }
+
+        currentVertexShader = vIndex;
+        currentFragmentShader = fIndex;
+
+        if( progIndex >= 0 && progIndex < glslPrograms.Num() )
+        {
+            currentRenderProgram = progIndex;
+            RENDERLOG_PRINTF( "Binding GLSL Program %s\n", glslPrograms[progIndex].name.c_str() );
+            glUseProgram( glslPrograms[progIndex].progId );
+        }
     }
 }
+// RB end
 
 /*
 ================================================================================================
@@ -311,6 +341,13 @@ void idRenderProgManager::Unbind()
     
     glUseProgram( 0 );
 }
+
+// RB begin
+bool idRenderProgManager::IsShaderBound() const
+{
+    return ( currentVertexShader != -1 );
+}
+// RB end
 
 /*
 ================================================================================================

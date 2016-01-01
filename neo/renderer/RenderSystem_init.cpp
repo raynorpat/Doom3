@@ -3,7 +3,8 @@
 
 Doom 3 GPL Source Code
 Copyright (C) 1999-2011 id Software LLC, a ZeniMax Media company. 
-
+Copyright (C) 2012-2014 Robert Beckebans
+ 
 This file is part of the Doom 3 GPL Source Code (?Doom 3 Source Code?).  
 
 Doom 3 Source Code is free software: you can redistribute it and/or modify
@@ -254,6 +255,9 @@ static void R_CheckPortableExtensions( void ) {
 	} else if ( idStr::Icmpn( glConfig.renderer_string, "Intel", 5 ) == 0 ) {
 		glConfig.vendor = VENDOR_INTEL;
 	}
+    
+    // FORCE GL2.0 with 3.0 Extensions
+    glConfig.driverType = GLDRV_OPENGL3X;
 
 	// GL_ARB_multitexture
     glConfig.multitextureAvailable = GLEW_ARB_multitexture != 0;
@@ -583,17 +587,27 @@ void R_InitOpenGL( void ) {
 GL_CheckErrors
 ==================
 */
-void GL_CheckErrors( void ) {
+// RB: added filename, line parms
+bool GL_CheckErrors_( const char* filename, int line )
+{
     int		err;
     char	s[64];
 	int		i;
+    
+    if( r_ignoreGLErrors.GetBool() )
+    {
+        return false;
+    }
 
 	// check for up to 10 errors pending
+    bool error = false;
 	for ( i = 0 ; i < 10 ; i++ ) {
 		err = glGetError();
 		if ( err == GL_NO_ERROR ) {
-			return;
+			break;
 		}
+        
+        error = true;
 		switch( err ) {
 			case GL_INVALID_ENUM:
 				strcpy( s, "GL_INVALID_ENUM" );
@@ -618,11 +632,12 @@ void GL_CheckErrors( void ) {
 				break;
 		}
 
-		if ( !r_ignoreGLErrors.GetBool() ) {
-			common->Printf( "GL_CheckErrors: %s\n", s );
-		}
+		common->Printf( "caught OpenGL error: %s in file %s line %i\n", s, filename, line );
 	}
+    
+    return error;
 }
+// RB end
 
 /*
 =====================

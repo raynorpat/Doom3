@@ -3,6 +3,7 @@
  
  Doom 3 BFG Edition GPL Source Code
  Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+ Copyright (C) 2013-2014 Robert Beckebans
  
  This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
  
@@ -147,7 +148,9 @@ public:
     int		FindVertexShader( const char* name );
     int		FindFragmentShader( const char* name );
     
-    void	BindShader( int vIndex, int fIndex );
+    // RB: added progIndex to handle many custom renderprogs
+    void	BindShader( int progIndex, int vIndex, int fIndex, bool builtin );
+    // RB end
     
 	void	BindShader_GUI( ) { BindShader_Builtin( BUILTIN_GUI ); }
 	void	BindShader_Color( ) { BindShader_Builtin( BUILTIN_COLOR ); }
@@ -161,7 +164,12 @@ public:
 	void	BindShader_BumpyEnvironment() { BindShader_Builtin( BUILTIN_BUMPY_ENVIRONMENT ); }
 
 	void	BindShader_Depth() { BindShader_Builtin( BUILTIN_DEPTH ); }
-	void	BindShader_Shadow() { BindShader( builtinShaders[BUILTIN_SHADOW], -1 ); }
+    void	BindShader_Shadow()
+    {
+        // RB begin
+        BindShader( -1, builtinShaders[BUILTIN_SHADOW], -1, true );
+        // RB end
+    }
 	void	BindShader_ShadowDebug() { BindShader_Builtin( BUILTIN_SHADOW_DEBUG ); }
 
 	void	BindShader_BlendLight() { BindShader_Builtin( BUILTIN_BLENDLIGHT ); }
@@ -176,6 +184,10 @@ public:
     
     // unbind the currently bound render program
     void	Unbind();
+    
+    // RB begin
+    bool	IsShaderBound() const;
+    // RB end
     
     // this should only be called via the reload shader console command
     void	LoadAllShaders();
@@ -228,7 +240,7 @@ protected:
     int builtinShaders[MAX_BUILTINS];
     void BindShader_Builtin( int i )
     {
-        BindShader( builtinShaders[i], builtinShaders[i] );
+        BindShader( -1, builtinShaders[i], builtinShaders[i], true );
     }
     
     bool	CompileGLSL( GLenum target, const char* name );

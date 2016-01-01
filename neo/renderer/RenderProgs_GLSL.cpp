@@ -3,7 +3,7 @@
  
  Doom 3 BFG Edition GPL Source Code
  Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
- Copyright (C) 2012 Robert Beckebans
+ Copyright (C) 2013-2014 Robert Beckebans
  
  This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
  
@@ -38,6 +38,10 @@ idCVar r_useUniformArrays( "r_useUniformArrays", "1", CVAR_BOOL, "" );
 idCVar r_displayGLSLCompilerMessages( "r_displayGLSLCompilerMessages", "1", CVAR_BOOL | CVAR_ARCHIVE, "Show info messages the GPU driver outputs when compiling the shaders" );
 // DG end
 
+// RB begin
+idCVar r_alwaysExportGLSL( "r_alwaysExportGLSL", "1", CVAR_BOOL, "" );
+// RB end
+
 #define VERTEX_UNIFORM_ARRAY_NAME				"_va_"
 #define FRAGMENT_UNIFORM_ARRAY_NAME				"_fa_"
 
@@ -45,6 +49,11 @@ static const int AT_VS_IN  = BIT( 1 );
 static const int AT_VS_OUT = BIT( 2 );
 static const int AT_PS_IN  = BIT( 3 );
 static const int AT_PS_OUT = BIT( 4 );
+// RB begin
+static const int AT_VS_OUT_RESERVED = BIT( 5 );
+static const int AT_PS_IN_RESERVED	= BIT( 6 );
+static const int AT_PS_OUT_RESERVED = BIT( 7 );
+// RB end
 
 struct idCGBlock
 {
@@ -73,16 +82,6 @@ struct attribInfo_t
 /*
  ================================================
  vertexMask_t
- 
- NOTE: There is a PS3 dependency between the bit flag specified here and the vertex
- attribute index and attribute semantic specified in DeclRenderProg.cpp because the
- stored render prog vertexMask is initialized with cellCgbGetVertexConfiguration().
- The ATTRIB_INDEX_ defines are used to make sure the vertexMask_t and attrib assignment
- in DeclRenderProg.cpp are in sync.
- 
- Even though VERTEX_MASK_XYZ_SHORT and VERTEX_MASK_ST_SHORT are not real attributes,
- they come before the VERTEX_MASK_MORPH to reduce the range of vertex program
- permutations defined by the vertexMask_t bits on the Xbox 360 (see MAX_VERTEX_DECLARATIONS).
  ================================================
  */
 enum vertexMask_t
@@ -106,7 +105,7 @@ attribInfo_t attribsPC[] =
     { "float4",		"color",		"COLOR0",		"in_Color",				PC_ATTRIB_INDEX_COLOR,			AT_VS_IN,		VERTEX_MASK_COLOR },
     
     // pre-defined vertex program output
-    { "float4",		"position",		"POSITION",		"gl_Position",			0,	AT_VS_OUT,		0 },
+    { "float4",		"position",		"POSITION",		"gl_Position",			0,	AT_VS_OUT | AT_VS_OUT_RESERVED, 0 },
     { "float",		"clip0",		"CLP0",			"gl_ClipDistance[0]",	0,	AT_VS_OUT,		0 },
     { "float",		"clip1",		"CLP1",			"gl_ClipDistance[1]",	0,	AT_VS_OUT,		0 },
     { "float",		"clip2",		"CLP2",			"gl_ClipDistance[2]",	0,	AT_VS_OUT,		0 },
@@ -115,32 +114,32 @@ attribInfo_t attribsPC[] =
     { "float",		"clip5",		"CLP5",			"gl_ClipDistance[5]",	0,	AT_VS_OUT,		0 },
     
     // pre-defined fragment program input
-    { "float4",		"position",		"WPOS",			"gl_FragCoord",			0,	AT_PS_IN,		0 },
-    { "half4",		"hposition",	"WPOS",			"gl_FragCoord",			0,	AT_PS_IN,		0 },
-    { "float",		"facing",		"FACE",			"gl_FrontFacing",		0,	AT_PS_IN,		0 },
+    { "float4",		"position",		"WPOS",			"gl_FragCoord",			0,	AT_PS_IN | AT_PS_IN_RESERVED, 0 },
+    { "half4",		"hposition",	"WPOS",			"gl_FragCoord",			0,	AT_PS_IN | AT_PS_IN_RESERVED, 0 },
+    { "float",		"facing",		"FACE",			"gl_FrontFacing",		0,	AT_PS_IN | AT_PS_IN_RESERVED, 0 },
     
     // fragment program output
-    { "float4",		"color",		"COLOR",		"gl_FragColor",		0,	AT_PS_OUT,		0 }, // GLSL version 1.2 doesn't allow for custom color name mappings
-    { "half4",		"hcolor",		"COLOR",		"gl_FragColor",		0,	AT_PS_OUT,		0 },
-    { "float4",		"color0",		"COLOR0",		"gl_FragColor",		0,	AT_PS_OUT,		0 },
-    { "float4",		"color1",		"COLOR1",		"gl_FragColor",		1,	AT_PS_OUT,		0 },
-    { "float4",		"color2",		"COLOR2",		"gl_FragColor",		2,	AT_PS_OUT,		0 },
-    { "float4",		"color3",		"COLOR3",		"gl_FragColor",		3,	AT_PS_OUT,		0 },
-    { "float",		"depth",		"DEPTH",		"gl_FragDepth",		4,	AT_PS_OUT,		0 },
+    { "float4",		"color",		"COLOR",		"gl_FragColor",		0,	AT_PS_OUT | AT_PS_OUT_RESERVED,	0 }, // GLSL version 1.2 doesn't allow for custom color name mappings
+    { "half4",		"hcolor",		"COLOR",		"gl_FragColor",		0,	AT_PS_OUT | AT_PS_OUT_RESERVED,	0 },
+    { "float4",		"color0",		"COLOR0",		"gl_FragColor",		0,	AT_PS_OUT | AT_PS_OUT_RESERVED,	0 },
+    { "float4",		"color1",		"COLOR1",		"gl_FragColor",		1,	AT_PS_OUT | AT_PS_OUT_RESERVED,	0 },
+    { "float4",		"color2",		"COLOR2",		"gl_FragColor",		2,	AT_PS_OUT | AT_PS_OUT_RESERVED,	0 },
+    { "float4",		"color3",		"COLOR3",		"gl_FragColor",		3,	AT_PS_OUT | AT_PS_OUT_RESERVED,	0 },
+    { "float",		"depth",		"DEPTH",		"gl_FragDepth",		4,	AT_PS_OUT | AT_PS_OUT_RESERVED,	0 },
     
     // vertex to fragment program pass through
-    { "float4",		"color",		"COLOR",		"gl_FrontColor",			0,	AT_VS_OUT,	0 },
-    { "float4",		"color0",		"COLOR0",		"gl_FrontColor",			0,	AT_VS_OUT,	0 },
-    { "float4",		"color1",		"COLOR1",		"gl_FrontSecondaryColor",	0,	AT_VS_OUT,	0 },
+    { "float4",		"color",		"COLOR",		"vofi_Color",			0,	AT_VS_OUT,	0 },
+    { "float4",		"color0",		"COLOR0",		"vofi_Color",			0,	AT_VS_OUT,	0 },
+    { "float4",		"color1",		"COLOR1",		"vofi_SecondaryColor",	0,	AT_VS_OUT,	0 },
     
     
-    { "float4",		"color",		"COLOR",		"gl_Color",				0,	AT_PS_IN,	0 },
-    { "float4",		"color0",		"COLOR0",		"gl_Color",				0,	AT_PS_IN,	0 },
-    { "float4",		"color1",		"COLOR1",		"gl_SecondaryColor",	0,	AT_PS_IN,	0 },
+    { "float4",		"color",		"COLOR",		"vofi_Color",				0,	AT_PS_IN,	0 },
+    { "float4",		"color0",		"COLOR0",		"vofi_Color",				0,	AT_PS_IN,	0 },
+    { "float4",		"color1",		"COLOR1",		"vofi_SecondaryColor",	0,	AT_PS_IN,	0 },
     
-    { "half4",		"hcolor",		"COLOR",		"gl_Color",				0,	AT_PS_IN,		0 },
-    { "half4",		"hcolor0",		"COLOR0",		"gl_Color",				0,	AT_PS_IN,		0 },
-    { "half4",		"hcolor1",		"COLOR1",		"gl_SecondaryColor",	0,	AT_PS_IN,		0 },
+    { "half4",		"hcolor",		"COLOR",		"vofi_Color",				0,	AT_PS_IN,		0 },
+    { "half4",		"hcolor0",		"COLOR0",		"vofi_Color",				0,	AT_PS_IN,		0 },
+    { "half4",		"hcolor1",		"COLOR1",		"vofi_SecondaryColor",	0,	AT_PS_IN,		0 },
     
     { "float4",		"texcoord0",	"TEXCOORD0_centroid",	"vofi_TexCoord0",	0,	AT_PS_IN,	0 },
     { "float4",		"texcoord1",	"TEXCOORD1_centroid",	"vofi_TexCoord1",	0,	AT_PS_IN,	0 },
@@ -555,7 +554,21 @@ struct typeConversion_t
     { NULL, NULL }
 };
 
-const char* vertexInsert =
+const char* vertexInsert_GLSL_1_20 =
+{
+    "#version 120\n"
+    "#define PC\n"
+    "#extension GL_EXT_gpu_shader4 : enable\n"
+    "\n"
+    "float saturate( float v ) { return clamp( v, 0.0, 1.0 ); }\n"
+    "vec2 saturate( vec2 v ) { return clamp( v, 0.0, 1.0 ); }\n"
+    "vec3 saturate( vec3 v ) { return clamp( v, 0.0, 1.0 ); }\n"
+    "vec4 saturate( vec4 v ) { return clamp( v, 0.0, 1.0 ); }\n"
+    "vec4 tex2Dlod( sampler2D sampler, vec4 texcoord ) { return texture2DLod( sampler, texcoord.xy, texcoord.w ); }\n"
+    "\n"
+};
+
+const char* vertexInsert_GLSL_1_50 =
 {
     "#version 150\n"
     "#define PC\n"
@@ -568,7 +581,48 @@ const char* vertexInsert =
     "\n"
 };
 
-const char* fragmentInsert =
+const char* fragmentInsert_GLSL_1_20 =
+{
+    "#version 120\n"
+    "#define PC\n"
+    "#extension GL_EXT_gpu_shader4 : enable\n"
+    "\n"
+    "void clip( float v ) { if ( v < 0.0 ) { discard; } }\n"
+    "void clip( vec2 v ) { if ( any( lessThan( v, vec2( 0.0 ) ) ) ) { discard; } }\n"
+    "void clip( vec3 v ) { if ( any( lessThan( v, vec3( 0.0 ) ) ) ) { discard; } }\n"
+    "void clip( vec4 v ) { if ( any( lessThan( v, vec4( 0.0 ) ) ) ) { discard; } }\n"
+    "\n"
+    "float saturate( float v ) { return clamp( v, 0.0, 1.0 ); }\n"
+    "vec2 saturate( vec2 v ) { return clamp( v, 0.0, 1.0 ); }\n"
+    "vec3 saturate( vec3 v ) { return clamp( v, 0.0, 1.0 ); }\n"
+    "vec4 saturate( vec4 v ) { return clamp( v, 0.0, 1.0 ); }\n"
+    "\n"
+    "vec4 tex2D( sampler2D sampler, vec2 texcoord ) { return texture2D( sampler, texcoord.xy ); }\n"
+    //"vec4 tex2D( sampler2DShadow sampler, vec3 texcoord ) { return vec4( texture( sampler, texcoord.xyz ) ); }\n"
+    "\n"
+    //"vec4 tex2D( sampler2D sampler, vec2 texcoord, vec2 dx, vec2 dy ) { return textureGrad( sampler, texcoord.xy, dx, dy ); }\n"
+    //"vec4 tex2D( sampler2DShadow sampler, vec3 texcoord, vec2 dx, vec2 dy ) { return vec4( textureGrad( sampler, texcoord.xyz, dx, dy ) ); }\n"
+    //"\n"
+    "vec4 texCUBE( samplerCube sampler, vec3 texcoord ) { return textureCube( sampler, texcoord.xyz ); }\n"
+    //"vec4 texCUBE( samplerCubeShadow sampler, vec4 texcoord ) { return vec4( textureCube( sampler, texcoord.xyzw ) ); }\n"
+    "\n"
+    //"vec4 tex1Dproj( sampler1D sampler, vec2 texcoord ) { return textureProj( sampler, texcoord ); }\n"
+    "vec4 tex2Dproj( sampler2D sampler, vec3 texcoord ) { return texture2DProj( sampler, texcoord ); }\n"
+    //"vec4 tex3Dproj( sampler3D sampler, vec4 texcoord ) { return textureProj( sampler, texcoord ); }\n"
+    "\n"
+    //"vec4 tex1Dbias( sampler1D sampler, vec4 texcoord ) { return texture( sampler, texcoord.x, texcoord.w ); }\n"
+    //"vec4 tex2Dbias( sampler2D sampler, vec4 texcoord ) { return texture( sampler, texcoord.xy, texcoord.w ); }\n"
+    //"vec4 tex3Dbias( sampler3D sampler, vec4 texcoord ) { return texture( sampler, texcoord.xyz, texcoord.w ); }\n"
+    //"vec4 texCUBEbias( samplerCube sampler, vec4 texcoord ) { return texture( sampler, texcoord.xyz, texcoord.w ); }\n"
+    //"\n"
+    //"vec4 tex1Dlod( sampler1D sampler, vec4 texcoord ) { return textureLod( sampler, texcoord.x, texcoord.w ); }\n"
+    //"vec4 tex2Dlod( sampler2D sampler, vec4 texcoord ) { return textureLod( sampler, texcoord.xy, texcoord.w ); }\n"
+    //"vec4 tex3Dlod( sampler3D sampler, vec4 texcoord ) { return textureLod( sampler, texcoord.xyz, texcoord.w ); }\n"
+    //"vec4 texCUBElod( samplerCube sampler, vec4 texcoord ) { return textureLod( sampler, texcoord.xyz, texcoord.w ); }\n"
+    //"\n"
+};
+
+const char* fragmentInsert_GLSL_1_50 =
 {
     "#version 150\n"
     "#define PC\n"
@@ -636,7 +690,7 @@ struct inOutVariable_t
  ParseInOutStruct
  ========================
  */
-void ParseInOutStruct( idLexer& src, int attribType, idList< inOutVariable_t >& inOutVars )
+void ParseInOutStruct( idLexer& src, int attribType, int attribIgnoreType, idList< inOutVariable_t >& inOutVars )
 {
     src.ExpectTokenString( "{" );
     
@@ -694,6 +748,32 @@ void ParseInOutStruct( idLexer& src, int attribType, idList< inOutVariable_t >& 
             }
         }
         
+        // RB: ignore reserved builtin gl_ uniforms
+        switch( glConfig.driverType )
+        {
+            case GLDRV_OPENGL32_CORE_PROFILE:
+            case GLDRV_OPENGL_ES2:
+            case GLDRV_OPENGL_ES3:
+            case GLDRV_OPENGL_MESA:
+            default:
+            {
+                for( int i = 0; attribsPC[i].semantic != NULL; i++ )
+                {
+                    if( var.nameGLSL.Cmp( attribsPC[i].glsl ) == 0 )
+                    {
+                        if( ( attribsPC[i].flags & attribIgnoreType ) != 0 )
+                        {
+                            var.declareInOut = false;
+                            break;
+                        }
+                    }
+                }
+                
+                break;
+            }
+        }
+        // RB end
+        
         inOutVars.Append( var );
     }
     
@@ -748,39 +828,100 @@ idStr ConvertCG2GLSL( const idStr& in, const char* name, bool isVertexProgram, i
         {
             if( src.CheckTokenString( "VS_IN" ) )
             {
-                ParseInOutStruct( src, AT_VS_IN, varsIn );
+                // RB begin
+                ParseInOutStruct( src, AT_VS_IN, 0, varsIn );
+                // RB end
+                
                 program += "\n\n";
                 for( int i = 0; i < varsIn.Num(); i++ )
                 {
                     if( varsIn[i].declareInOut )
                     {
-                        program += "in " + varsIn[i].type + " " + varsIn[i].nameGLSL + ";\n";
+                        // RB begin
+                        switch( glConfig.driverType )
+                        {
+                            case GLDRV_OPENGL_ES2:
+                            case GLDRV_OPENGL_ES3:
+                            case GLDRV_OPENGL_MESA:
+                            case GLDRV_OPENGL3X:
+                            {
+                                program += "attribute " + varsIn[i].type + " " + varsIn[i].nameGLSL + ";\n";
+                                break;
+                            }
+                                
+                            default:
+                            {
+                                program += "in " + varsIn[i].type + " " + varsIn[i].nameGLSL + ";\n";
+                                break;
+                            }
+                        }
+                        // RB end
                     }
                 }
                 continue;
             }
             else if( src.CheckTokenString( "VS_OUT" ) )
             {
-                ParseInOutStruct( src, AT_VS_OUT, varsOut );
+                // RB begin
+                ParseInOutStruct( src, AT_VS_OUT, AT_VS_OUT_RESERVED, varsOut );
+                // RB end
+                
                 program += "\n";
                 for( int i = 0; i < varsOut.Num(); i++ )
                 {
                     if( varsOut[i].declareInOut )
                     {
-                        program += "out " + varsOut[i].type + " " + varsOut[i].nameGLSL + ";\n";
+                        // RB begin
+                        switch( glConfig.driverType )
+                        {
+                            case GLDRV_OPENGL_ES2:
+                            case GLDRV_OPENGL_ES3:
+                            case GLDRV_OPENGL_MESA:
+                            case GLDRV_OPENGL3X:
+                            {
+                                program += "varying " + varsOut[i].type + " " + varsOut[i].nameGLSL + ";\n";
+                                break;
+                            }
+                                
+                            default:
+                            {
+                                program += "out " + varsOut[i].type + " " + varsOut[i].nameGLSL + ";\n";
+                                break;
+                            }
+                        }
+                        // RB end
                     }
                 }
                 continue;
             }
             else if( src.CheckTokenString( "PS_IN" ) )
             {
-                ParseInOutStruct( src, AT_PS_IN, varsIn );
+                // RB begin
+                ParseInOutStruct( src, AT_PS_IN, AT_PS_IN_RESERVED, varsIn );
+                // RB end
+                
                 program += "\n\n";
                 for( int i = 0; i < varsIn.Num(); i++ )
                 {
                     if( varsIn[i].declareInOut )
                     {
-                        program += "in " + varsIn[i].type + " " + varsIn[i].nameGLSL + ";\n";
+                        // RB begin
+                        switch( glConfig.driverType )
+                        {
+                            case GLDRV_OPENGL_ES2:
+                            case GLDRV_OPENGL_ES3:
+                            case GLDRV_OPENGL_MESA:
+                            case GLDRV_OPENGL3X:
+                            {
+                                program += "varying " + varsIn[i].type + " " + varsIn[i].nameGLSL + ";\n";
+                                break;
+                            }
+                                
+                            default:
+                                program += "in " + varsIn[i].type + " " + varsIn[i].nameGLSL + ";\n";
+                                break;
+                        }
+                        // RB end
                     }
                 }
                 inOutVariable_t var;
@@ -792,7 +933,10 @@ idStr ConvertCG2GLSL( const idStr& in, const char* name, bool isVertexProgram, i
             }
             else if( src.CheckTokenString( "PS_OUT" ) )
             {
-                ParseInOutStruct( src, AT_PS_OUT, varsOut );
+                // RB begin
+                ParseInOutStruct( src, AT_PS_OUT, AT_PS_OUT_RESERVED, varsOut );
+                // RB end
+                
                 program += "\n";
                 for( int i = 0; i < varsOut.Num(); i++ )
                 {
@@ -993,16 +1137,48 @@ idStr ConvertCG2GLSL( const idStr& in, const char* name, bool isVertexProgram, i
     
     idStr out;
     
+    // RB: changed to allow multiple versions of GLSL
     if( isVertexProgram )
     {
-        out.ReAllocate( idStr::Length( vertexInsert ) + in.Length() * 2, false );
-        out += vertexInsert;
+        switch( glConfig.driverType )
+        {
+            case GLDRV_OPENGL3X:
+            {
+                out.ReAllocate( idStr::Length( vertexInsert_GLSL_1_20 ) + in.Length() * 2, false );
+                out += vertexInsert_GLSL_1_20;
+                break;
+            }
+                
+            default:
+            {
+                out.ReAllocate( idStr::Length( vertexInsert_GLSL_1_50 ) + in.Length() * 2, false );
+                out += vertexInsert_GLSL_1_50;
+                break;
+            }
+        }
+        
+        
     }
     else
     {
-        out.ReAllocate( idStr::Length( fragmentInsert ) + in.Length() * 2, false );
-        out += fragmentInsert;
+        switch( glConfig.driverType )
+        {
+            case GLDRV_OPENGL3X:
+            {
+                out.ReAllocate( idStr::Length( fragmentInsert_GLSL_1_20 ) + in.Length() * 2, false );
+                out += fragmentInsert_GLSL_1_20;
+                break;
+            }
+                
+            default:
+            {
+                out.ReAllocate( idStr::Length( fragmentInsert_GLSL_1_50 ) + in.Length() * 2, false );
+                out += fragmentInsert_GLSL_1_50;
+                break;
+            }
+        }
     }
+    // RB end
     
     if( uniformList.Num() > 0 )
     {
@@ -1052,9 +1228,24 @@ GLuint idRenderProgManager::LoadGLSLShader( GLenum target, const char* name, idL
     inFile.StripFileExtension();
     outFileHLSL.Format( "renderprogs/hlsl/%s", name );
     outFileHLSL.StripFileExtension();
-    outFileGLSL.Format( "renderprogs/glsl/%s", name );
+    
+    switch( glConfig.driverType )
+    {
+        case GLDRV_OPENGL3X:
+        {
+            outFileGLSL.Format( "renderprogs/glsl-1.20/%s", name );
+            outFileUniforms.Format( "renderprogs/glsl-1.20/%s", name );
+            break;
+        }
+            
+        default:
+        {
+            outFileGLSL.Format( "renderprogs/glsl-1.50/%s", name );
+            outFileUniforms.Format( "renderprogs/glsl-1.50/%s", name );
+        }
+    }
+    
     outFileGLSL.StripFileExtension();
-    outFileUniforms.Format( "renderprogs/glsl/%s", name );
     outFileUniforms.StripFileExtension();
     // RB end
     
@@ -1083,7 +1274,7 @@ GLuint idRenderProgManager::LoadGLSLShader( GLenum target, const char* name, idL
     // if the glsl file doesn't exist or we have a newer HLSL file we need to recreate the glsl file.
     idStr programGLSL;
     idStr programUniforms;
-    if( ( glslFileLength <= 0 ) || ( hlslTimeStamp > glslTimeStamp ) )
+    if( ( glslFileLength <= 0 ) || ( hlslTimeStamp > glslTimeStamp ) || r_alwaysExportGLSL.GetBool() )
     {
         if( hlslFileLength <= 0 )
         {
@@ -1235,7 +1426,6 @@ GLuint idRenderProgManager::LoadGLSLShader( GLenum target, const char* name, idL
  */
 int	 idRenderProgManager::FindGLSLProgram( const char* name, int vIndex, int fIndex )
 {
-    
     for( int i = 0; i < glslPrograms.Num(); ++i )
     {
         if( ( glslPrograms[i].vertexShaderIndex == vIndex ) && ( glslPrograms[i].fragmentShaderIndex == fIndex ) )

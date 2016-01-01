@@ -953,8 +953,16 @@ GL wrapper/helper functions
 ====================================================================
 */
 
+// RB begin
+bool    GL_CheckErrors_( const char* filename, int line );
+#if 1 // !defined(RETAIL)
+#define GL_CheckErrors() GL_CheckErrors_(__FILE__, __LINE__)
+#else
+#define GL_CheckErrors() false
+#endif
+// RB end
+
 void	GL_SelectTexture( int unit );
-void	GL_CheckErrors( void );
 void	GL_ClearStateDelta( void );
 void	GL_State( int stateVector );
 void	GL_TexEnv( int env );

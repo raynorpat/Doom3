@@ -3,6 +3,7 @@
 
 Doom 3 GPL Source Code
 Copyright (C) 1999-2011 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 2013-2014 Robert Beckebans
 
 This file is part of the Doom 3 GPL Source Code (?Doom 3 Source Code?).  
 
@@ -45,6 +46,18 @@ enum graphicsVendor_t {
 	VENDOR_INTEL
 };
 
+// RB: similar to Q3A - allow separate codepaths between OpenGL 3.x, OpenGL ES versions
+enum graphicsDriverType_t
+{
+    GLDRV_OPENGL3X,							// best for development with legacy OpenGL tools
+    GLDRV_OPENGL32_COMPATIBILITY_PROFILE,
+    GLDRV_OPENGL32_CORE_PROFILE,			// best for shipping to PC
+    GLDRV_OPENGL_ES2,
+    GLDRV_OPENGL_ES3,
+    GLDRV_OPENGL_MESA,						// fear this, it is probably the best to disable GPU skinning and run shaders in GLSL ES 1.0
+};
+// RB end
+
 // Contains variables specific to the OpenGL configuration being run right now.
 // These are constant once the OpenGL subsystem is initialized.
 typedef struct glconfig_s {
@@ -57,6 +70,9 @@ typedef struct glconfig_s {
 
 	float				glVersion;				// atof( version_string )
 	graphicsVendor_t	vendor;
+    // RB begin
+    graphicsDriverType_t driverType;
+    // RB end
 
 	int					maxTextureSize;			// queried from GL
 	int					maxTextureUnits;

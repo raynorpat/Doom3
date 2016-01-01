@@ -1493,7 +1493,6 @@ static void RB_FogPass( const drawSurf_t *drawSurfs,  const drawSurf_t *drawSurf
 
 	glTexCoord2f( FOG_ENTER + s, FOG_ENTER );
 
-
 	// draw it
 	RB_RenderDrawSurfChainWithFunction( drawSurfs, RB_T_BasicFog );
 	RB_RenderDrawSurfChainWithFunction( drawSurfs2, RB_T_BasicFog );
