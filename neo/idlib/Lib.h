@@ -101,6 +101,16 @@ class idVec4;
 #define BIT( num )				( 1 << ( num ) )
 #endif
 
+#ifdef _MSC_VER
+#define ALIGN16( x )			__declspec(align(16)) x
+#define ALIGNTYPE16				__declspec(align(16))
+#define ALIGNTYPE128			__declspec(align(128))
+#else
+#define ALIGN16( x )			x __attribute__ ((aligned (16)))
+#define ALIGNTYPE16				__attribute__ ((aligned (16)))
+#define ALIGNTYPE128			__attribute__ ((aligned (128)))
+#endif
+
 #define	MAX_STRING_CHARS		1024		// max length of a string
 
 // maximum world size
@@ -156,6 +166,15 @@ void AssertFailed( const char *file, int line, const char *expression );
 #define assert( X )		if ( X ) { } else AssertFailed( __FILE__, __LINE__, #X )
 #endif
 
+#define assert_2_byte_aligned( ptr )		assert( ( ((uintptr_t)(ptr)) &  1 ) == 0 )
+#define assert_4_byte_aligned( ptr )		assert( ( ((uintptr_t)(ptr)) &  3 ) == 0 )
+#define assert_8_byte_aligned( ptr )		assert( ( ((uintptr_t)(ptr)) &  7 ) == 0 )
+#define assert_16_byte_aligned( ptr )		assert( ( ((uintptr_t)(ptr)) & 15 ) == 0 )
+#define assert_32_byte_aligned( ptr )		assert( ( ((uintptr_t)(ptr)) & 31 ) == 0 )
+#define assert_64_byte_aligned( ptr )		assert( ( ((uintptr_t)(ptr)) & 63 ) == 0 )
+#define assert_128_byte_aligned( ptr )		assert( ( ((uintptr_t)(ptr)) & 127 ) == 0 )
+#define assert_aligned_to_type_size( ptr )	assert( ( ((uintptr_t)(ptr)) & ( sizeof( (ptr)[0] ) - 1 ) ) == 0 )
+
 class idException {
 public:
 	char error[MAX_STRING_CHARS];
@@ -206,6 +225,7 @@ template<class T> ID_INLINE T	Min( T x, T y ) { return ( x < y ) ? x : y; }
 #include "bv/Frustum.h"
 
 // geometry
+#include "geometry/RenderMatrix.h"
 #include "geometry/DrawVert.h"
 #include "geometry/JointTransform.h"
 #include "geometry/Winding.h"

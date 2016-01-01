@@ -243,6 +243,10 @@
 		81C858C40912AD510095BC33 /* Token.h in Headers */ = {isa = PBXBuildFile; fileRef = 81C857C80912AD0D0095BC33 /* Token.h */; };
 		D7D7BBF51895335E000A495C /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D7D7BBF41895335E000A495C /* OpenGL.framework */; };
 		D7D7BBF618953367000A495C /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D7D7BBF41895335E000A495C /* OpenGL.framework */; };
+		E58A9F5C1C370118004B9204 /* RenderMatrix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E58A9F5A1C370118004B9204 /* RenderMatrix.cpp */; };
+		E58A9F5D1C370118004B9204 /* RenderMatrix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E58A9F5A1C370118004B9204 /* RenderMatrix.cpp */; };
+		E58A9F5E1C370118004B9204 /* RenderMatrix.h in Headers */ = {isa = PBXBuildFile; fileRef = E58A9F5B1C370118004B9204 /* RenderMatrix.h */; };
+		E58A9F5F1C370118004B9204 /* RenderMatrix.h in Headers */ = {isa = PBXBuildFile; fileRef = E58A9F5B1C370118004B9204 /* RenderMatrix.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -366,6 +370,8 @@
 		81C858490912AD370095BC33 /* libidlib_nopic.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libidlib_nopic.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		D2AAC046055464E500DB518D /* libidlib_pic.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libidlib_pic.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		D7D7BBF41895335E000A495C /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
+		E58A9F5A1C370118004B9204 /* RenderMatrix.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RenderMatrix.cpp; sourceTree = "<group>"; };
+		E58A9F5B1C370118004B9204 /* RenderMatrix.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RenderMatrix.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -488,6 +494,8 @@
 		81C8576A0912AD0D0095BC33 /* geometry */ = {
 			isa = PBXGroup;
 			children = (
+				E58A9F5A1C370118004B9204 /* RenderMatrix.cpp */,
+				E58A9F5B1C370118004B9204 /* RenderMatrix.h */,
 				81C8576B0912AD0D0095BC33 /* DrawVert.cpp */,
 				81C8576C0912AD0D0095BC33 /* DrawVert.h */,
 				81C8576D0912AD0D0095BC33 /* JointTransform.cpp */,
@@ -636,6 +644,7 @@
 				81C858A60912AD510095BC33 /* Quat.h in Headers */,
 				81C858A70912AD510095BC33 /* Random.h in Headers */,
 				81C858A90912AD510095BC33 /* Rotation.h in Headers */,
+				E58A9F5F1C370118004B9204 /* RenderMatrix.h in Headers */,
 				81C858AB0912AD510095BC33 /* Simd.h in Headers */,
 				81C858AD0912AD510095BC33 /* Simd_3DNow.h in Headers */,
 				81C858AF0912AD510095BC33 /* Simd_AltiVec.h in Headers */,
@@ -710,6 +719,7 @@
 				81C858240912AD0D0095BC33 /* Quat.h in Headers */,
 				81C858250912AD0D0095BC33 /* Random.h in Headers */,
 				81C858270912AD0D0095BC33 /* Rotation.h in Headers */,
+				E58A9F5E1C370118004B9204 /* RenderMatrix.h in Headers */,
 				81C858290912AD0D0095BC33 /* Simd.h in Headers */,
 				81C8582B0912AD0D0095BC33 /* Simd_3DNow.h in Headers */,
 				81C8582D0912AD0D0095BC33 /* Simd_AltiVec.h in Headers */,
@@ -842,6 +852,7 @@
 				81C858B00912AD510095BC33 /* Simd_Generic.cpp in Sources */,
 				81C858B20912AD510095BC33 /* Simd_MMX.cpp in Sources */,
 				81C858B40912AD510095BC33 /* Simd_SSE.cpp in Sources */,
+				E58A9F5D1C370118004B9204 /* RenderMatrix.cpp in Sources */,
 				81C858B60912AD510095BC33 /* Simd_SSE2.cpp in Sources */,
 				81C858B80912AD510095BC33 /* Simd_SSE3.cpp in Sources */,
 				81C858BA0912AD510095BC33 /* Vector.cpp in Sources */,
@@ -899,6 +910,7 @@
 				81C8582E0912AD0D0095BC33 /* Simd_Generic.cpp in Sources */,
 				81C858300912AD0D0095BC33 /* Simd_MMX.cpp in Sources */,
 				81C858320912AD0D0095BC33 /* Simd_SSE.cpp in Sources */,
+				E58A9F5C1C370118004B9204 /* RenderMatrix.cpp in Sources */,
 				81C858340912AD0D0095BC33 /* Simd_SSE2.cpp in Sources */,
 				81C858360912AD0D0095BC33 /* Simd_SSE3.cpp in Sources */,
 				81C858380912AD0D0095BC33 /* Vector.cpp in Sources */,

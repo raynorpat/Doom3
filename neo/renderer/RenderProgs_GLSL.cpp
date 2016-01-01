@@ -132,7 +132,6 @@ attribInfo_t attribsPC[] =
     { "float4",		"color0",		"COLOR0",		"vofi_Color",			0,	AT_VS_OUT,	0 },
     { "float4",		"color1",		"COLOR1",		"vofi_SecondaryColor",	0,	AT_VS_OUT,	0 },
     
-    
     { "float4",		"color",		"COLOR",		"vofi_Color",				0,	AT_PS_IN,	0 },
     { "float4",		"color0",		"COLOR0",		"vofi_Color",				0,	AT_PS_IN,	0 },
     { "float4",		"color1",		"COLOR1",		"vofi_SecondaryColor",	0,	AT_PS_IN,	0 },

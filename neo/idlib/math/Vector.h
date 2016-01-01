@@ -55,6 +55,10 @@ public:
 	float			y;
 
 					idVec2( void );
+                    explicit idVec2( const float x )
+                    {
+                        Set( x, x );
+                    }
 					explicit idVec2( const float x, const float y );
 
 	void 			Set( const float x, const float y );
@@ -320,6 +324,10 @@ public:
 	float			z;
 
 					idVec3( void );
+                    explicit idVec3( const float xyz )
+                    {
+                        Set( xyz, xyz, xyz );
+                    }
 					explicit idVec3( const float x, const float y, const float z );
 
 	void 			Set( const float x, const float y, const float z );
@@ -813,6 +821,10 @@ public:
 	float			w;
 
 					idVec4( void );
+                    explicit idVec4( const float x )
+                    {
+                        Set( x, x, x, x );
+                    }
 					explicit idVec4( const float x, const float y, const float z, const float w );
 
 	void 			Set( const float x, const float y, const float z, const float w );

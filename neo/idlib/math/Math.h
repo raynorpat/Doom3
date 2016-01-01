@@ -75,20 +75,48 @@ If you have questions concerning this license or the applicable additional terms
 #define	FLOAT_IS_DENORMAL(x)	(((*(const unsigned long *)&x) & 0x7f800000) == 0x00000000 && \
 								 ((*(const unsigned long *)&x) & 0x007fffff) != 0x00000000 )
 
-#define IEEE_FLT_MANTISSA_BITS	23
-#define IEEE_FLT_EXPONENT_BITS	8
-#define IEEE_FLT_EXPONENT_BIAS	127
-#define IEEE_FLT_SIGN_BIT		31
+/*
+================================================================================================
 
-#define IEEE_DBL_MANTISSA_BITS	52
-#define IEEE_DBL_EXPONENT_BITS	11
-#define IEEE_DBL_EXPONENT_BIAS	1023
-#define IEEE_DBL_SIGN_BIT		63
+    floating point bit layouts according to the IEEE 754-1985 and 754-2008 standard
 
-#define IEEE_DBLE_MANTISSA_BITS	63
-#define IEEE_DBLE_EXPONENT_BITS	15
-#define IEEE_DBLE_EXPONENT_BIAS	0
-#define IEEE_DBLE_SIGN_BIT		79
+================================================================================================
+*/
+
+#define IEEE_FLT16_MANTISSA_BITS	10
+#define IEEE_FLT16_EXPONENT_BITS	5
+#define IEEE_FLT16_EXPONENT_BIAS	15
+#define IEEE_FLT16_SIGN_BIT			15
+#define IEEE_FLT16_SIGN_MASK		( 1U << IEEE_FLT16_SIGN_BIT )
+
+#define IEEE_FLT_MANTISSA_BITS		23
+#define IEEE_FLT_EXPONENT_BITS		8
+#define IEEE_FLT_EXPONENT_BIAS		127
+#define IEEE_FLT_SIGN_BIT			31
+#define IEEE_FLT_SIGN_MASK			( 1UL << IEEE_FLT_SIGN_BIT )
+
+#define IEEE_DBL_MANTISSA_BITS		52
+#define IEEE_DBL_EXPONENT_BITS		11
+#define IEEE_DBL_EXPONENT_BIAS		1023
+#define IEEE_DBL_SIGN_BIT			63
+#define IEEE_DBL_SIGN_MASK			( 1ULL << IEEE_DBL_SIGN_BIT )
+
+#define IEEE_DBLE_MANTISSA_BITS		63
+#define IEEE_DBLE_EXPONENT_BITS		15
+#define IEEE_DBLE_EXPONENT_BIAS		0
+#define IEEE_DBLE_SIGN_BIT			79
+
+/*
+================================================================================================
+
+    floating point sign bit tests
+
+================================================================================================
+*/
+
+#define IEEE_FLT_SIGNBITSET( a )	(reinterpret_cast<const unsigned int &>(a) >> IEEE_FLT_SIGN_BIT)
+#define IEEE_FLT_SIGNBITNOTSET( a )	((~reinterpret_cast<const unsigned int &>(a)) >> IEEE_FLT_SIGN_BIT)
+#define IEEE_FLT_ISNOTZERO( a )		(reinterpret_cast<const unsigned int &>(a) & ~(1u<<IEEE_FLT_SIGN_BIT))
 
 template<class T> ID_INLINE int	MaxIndex( T x, T y ) { return  ( x > y ) ? 0 : 1; }
 template<class T> ID_INLINE int	MinIndex( T x, T y ) { return ( x < y ) ? 0 : 1; }
@@ -215,6 +243,7 @@ public:
 	static const float			M_MS2SEC;					// milliseconds to seconds multiplier
 	static const float			INFINITY;					// huge number which should be larger than any valid number used
 	static const float			FLT_EPSILON;				// smallest positive number such that 1.0+FLT_EPSILON != 1.0
+    static const float			FLT_SMALLEST_NON_DENORMAL;	// smallest non-denormal 32-bit floating point value
 
 private:
 	enum {

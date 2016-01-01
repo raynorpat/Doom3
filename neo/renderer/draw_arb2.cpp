@@ -210,23 +210,3 @@ void R_ReloadARBPrograms_f( const idCmdArgs &args ) {
 	}
 	common->Printf( "-------------------------------\n" );
 }
-
-/*
-==================
-R_ARB2_Init
-
-==================
-*/
-void R_ARB2_Init( void ) {
-	common->Printf( "---------- R_ARB2_Init ----------\n" );
-
-	if ( !glConfig.ARBVertexProgramAvailable || !glConfig.ARBFragmentProgramAvailable ) {
-		common->Printf( "Not available.\n" );
-		return;
-	}
-
-	common->Printf( "Available.\n" );
-
-	common->Printf( "---------------------------------\n" );
-}
-

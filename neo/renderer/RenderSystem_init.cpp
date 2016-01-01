@@ -545,8 +545,6 @@ void R_InitOpenGL( void ) {
 	renderProgManager.Init();
 
 	// parse our vertex and fragment programs
-	R_ARB2_Init();
-
 	cmdSystem->AddCommand( "reloadARBprograms", R_ReloadARBPrograms_f, CMD_FL_RENDERER, "reloads ARB programs" );
 	R_ReloadARBPrograms_f( idCmdArgs() );
 
