@@ -1462,12 +1462,15 @@ void idRenderProgManager::LoadGLSLProgram( const int programIndex, const int ver
         // sort the uniforms based on index
         prog.uniformLocations.SortWithTemplate( idSort_QuickUniforms() );
     }
-
-    // get the uniform buffer binding for skinning joint matrices
-    GLint blockIndex = glGetUniformBlockIndex( program, "matrices_ubo" );
-    if( blockIndex != -1 )
+    
+    if( glConfig.uniformBufferAvailable )
     {
-        glUniformBlockBinding( program, blockIndex, 0 );
+        // get the uniform buffer binding for skinning joint matrices
+        GLint blockIndex = glGetUniformBlockIndex( program, "matrices_ubo" );
+        if( blockIndex != -1 )
+        {
+            glUniformBlockBinding( program, blockIndex, 0 );
+        }
     }
     
     // set the texture unit locations once for the render program. We only need to do this once since we only link the program once
