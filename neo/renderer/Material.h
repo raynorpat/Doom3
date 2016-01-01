@@ -194,6 +194,7 @@ typedef struct {
 	int					vertexParms[MAX_VERTEX_PARMS][4];	// evaluated register indexes
     
 	int					fragmentProgram;
+    int					glslProgram;
 	int					numFragmentProgramImages;
 	idImage *			fragmentProgramImages[MAX_FRAGMENT_IMAGES];
 
@@ -595,6 +596,7 @@ private:
 	void				ParseSort( idLexer &src );
 	void				ParseBlend( idLexer &src, shaderStage_t *stage );
 	void				ParseVertexParm( idLexer &src, newShaderStage_t *newStage );
+    void                ParseVertexParm2( idLexer &src, newShaderStage_t *newStage );
 	void				ParseFragmentMap( idLexer &src, newShaderStage_t *newStage );
 	void				ParseStage( idLexer &src, const textureRepeat_t trpDefault = TR_REPEAT );
 	void				ParseDeform( idLexer &src );
