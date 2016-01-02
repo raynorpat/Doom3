@@ -779,10 +779,10 @@ void R_TransformClipToDevice( const idPlane &clip, const viewDef_t *view, idVec3
 
 /*
 ==========================
-myGlMultMatrix
+R_MatrixMultiply
 ==========================
 */
-void myGlMultMatrix( const float a[16], const float b[16], float out[16] ) {
+void R_MatrixMultiply( const float a[16], const float b[16], float out[16] ) {
 	int		i, j;
 
 	for ( i = 0 ; i < 4 ; i++ ) {
@@ -798,10 +798,10 @@ void myGlMultMatrix( const float a[16], const float b[16], float out[16] ) {
 
 /*
 ================
-R_TransposeGLMatrix
+R_MatrixTranspose
 ================
 */
-void R_TransposeGLMatrix( const float in[16], float out[16] ) {
+void R_MatrixTranspose( const float in[16], float out[16] ) {
 	int		i, j;
 
 	for ( i = 0 ; i < 4 ; i++ ) {
@@ -865,7 +865,7 @@ void R_SetViewMatrix( viewDef_t *viewDef ) {
 
 	// convert from our coordinate system (looking down X)
 	// to OpenGL's coordinate system (looking down -Z)
-	myGlMultMatrix( viewerMatrix, s_flipMatrix, world->modelViewMatrix );
+	R_MatrixMultiply( viewerMatrix, s_flipMatrix, world->modelViewMatrix );
 }
 
 /*

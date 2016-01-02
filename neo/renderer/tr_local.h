@@ -120,8 +120,6 @@ typedef struct drawSurf_s {
 	const struct drawSurf_s	*nextOnLight;	// viewLight chains
 	idScreenRect			scissorRect;	// for scissor clipping, local inside renderView viewport
 	int						dsFlags;			// DSF_VIEW_INSIDE_SHADOW, etc
-	struct vertCache_s		*dynamicTexCoords;	// float * in vertex cache memory
-	// specular directions for non vertex program cards, skybox texcoords, etc
 } drawSurf_t;
 
 
@@ -962,6 +960,11 @@ bool    GL_CheckErrors_( const char* filename, int line );
 #endif
 // RB end
 
+void    GL_Color( float r, float g, float b, float a );
+void    GL_Color( const idVec3& color );
+void    GL_Color( const idVec4& color );
+void    GL_Color( float r, float g, float b );
+
 void	GL_SelectTexture( int unit );
 void	GL_ClearStateDelta( void );
 void	GL_State( int stateVector );
@@ -1114,11 +1117,11 @@ void R_TransformModelToClip( const idVec3 &src, const float *modelMatrix, const 
 
 void R_TransformClipToDevice( const idPlane &clip, const viewDef_t *view, idVec3 &normalized );
 
-void R_TransposeGLMatrix( const float in[16], float out[16] );
+void R_MatrixTranspose( const float in[16], float out[16] );
 
 void R_SetViewMatrix( viewDef_t *viewDef );
 
-void myGlMultMatrix( const float *a, const float *b, float *out );
+void R_MatrixMultiply( const float *a, const float *b, float *out );
 
 /*
 ============================================================
@@ -1216,7 +1219,6 @@ void RB_RenderDrawSurfChainWithFunction( const drawSurf_t *drawSurfs,
 										void (*triFunc_)( const drawSurf_t *) );
 void RB_DrawShaderPasses( drawSurf_t **drawSurfs, int numDrawSurfs );
 void RB_LoadShaderTextureMatrix( const float *shaderRegisters, const textureStage_t *texture );
-void RB_GetShaderTextureMatrix( const float *shaderRegisters, const textureStage_t *texture, float matrix[16] );
 void RB_CreateSingleDrawInteractions( const drawSurf_t *surf, void (*DrawInteraction)(const drawInteraction_t *) );
 
 const shaderStage_t *RB_SetLightTexture( const idRenderLightLocal *light );
@@ -1319,7 +1321,6 @@ typedef enum {
 
 	PP_LIGHT_FALLOFF_TQ = 20	// only for NV programs
 } programParameter_t;
-
 
 /*
 ============================================================

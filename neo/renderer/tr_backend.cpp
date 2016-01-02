@@ -103,6 +103,45 @@ void RB_SetDefaultGLState( void ) {
 
 //=============================================================================
 
+/*
+====================
+GL_Color
+====================
+*/
+void GL_Color( float r, float g, float b, float a )
+{
+    float parm[4];
+    parm[0] = idMath::ClampFloat( 0.0f, 1.0f, r );
+    parm[1] = idMath::ClampFloat( 0.0f, 1.0f, g );
+    parm[2] = idMath::ClampFloat( 0.0f, 1.0f, b );
+    parm[3] = idMath::ClampFloat( 0.0f, 1.0f, a );
+    renderProgManager.SetRenderParm( RENDERPARM_COLOR, parm );
+}
+
+/*
+====================
+GL_Color
+====================
+*/
+void GL_Color( const idVec3& color )
+{
+    GL_Color( color[0], color[1], color[2], 1.0f );
+}
+
+void GL_Color( const idVec4& color )
+{
+    GL_Color( color[0], color[1], color[2], color[3] );
+}
+
+/*
+====================
+GL_Color
+====================
+*/
+void GL_Color( float r, float g, float b )
+{
+    GL_Color( r, g, b, 1.0f );
+}
 
 /*
 ====================

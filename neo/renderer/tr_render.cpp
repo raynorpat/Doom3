@@ -37,6 +37,8 @@ If you have questions concerning this license or the applicable additional terms
 
 */
 
+void RB_SetMVPMatrix( const struct viewEntity_s *space );
+
 
 /*
 =================
@@ -187,9 +189,7 @@ void RB_EnterWeaponDepthHack( const drawSurf_t *surf ) {
 	glLoadMatrixf( matrix );
 	glMatrixMode(GL_MODELVIEW);
 
-	float  mat[16];
-	myGlMultMatrix(surf->space->modelViewMatrix, matrix, mat);
-	renderProgManager.SetRenderParms( RENDERPARM_MVPMATRIX_X, mat, 4 );
+	RB_SetMVPMatrix( surf->space );
 }
 
 /*
@@ -210,9 +210,7 @@ void RB_EnterModelDepthHack( const drawSurf_t *surf ) {
 	glLoadMatrixf( matrix );
 	glMatrixMode(GL_MODELVIEW);
 
-	float  mat[16];
-	myGlMultMatrix(surf->space->modelViewMatrix, matrix, mat);
-	renderProgManager.SetRenderParms( RENDERPARM_MVPMATRIX_X, mat, 4 );
+	RB_SetMVPMatrix( surf->space );
 }
 
 /*
@@ -227,9 +225,7 @@ void RB_LeaveDepthHack( const drawSurf_t *surf ) {
 	glLoadMatrixf( backEnd.viewDef->projectionMatrix );
 	glMatrixMode(GL_MODELVIEW);
 
-	float  mat[16];
-	myGlMultMatrix(surf->space->modelViewMatrix, backEnd.viewDef->projectionMatrix, mat);
-	renderProgManager.SetRenderParms( RENDERPARM_MVPMATRIX_X, mat, 4 );
+	RB_SetMVPMatrix( surf->space );
 }
 
 /*
@@ -256,9 +252,7 @@ void RB_RenderDrawSurfListWithFunction( drawSurf_t **drawSurfs, int numDrawSurfs
 		if ( drawSurf->space != backEnd.currentSpace ) {
 			glLoadMatrixf( drawSurf->space->modelViewMatrix );
 
-			float  mat[16];
-			myGlMultMatrix(drawSurf->space->modelViewMatrix, backEnd.viewDef->projectionMatrix, mat);
-			renderProgManager.SetRenderParms( RENDERPARM_MVPMATRIX_X, mat, 4 );
+			RB_SetMVPMatrix( drawSurf->space );
  
 			// we need the model matrix without it being combined with the view matrix
 			// so we can transform local vectors to global coordinates
@@ -343,35 +337,37 @@ void RB_RenderDrawSurfChainWithFunction( const drawSurf_t *drawSurfs,
 RB_GetShaderTextureMatrix
 ======================
 */
-void RB_GetShaderTextureMatrix( const float *shaderRegisters, const textureStage_t *texture, float matrix[16] ) {
-	matrix[0*4+0] = shaderRegisters[ texture->matrix[0][0] ];
-	matrix[1*4+0] = shaderRegisters[ texture->matrix[0][1] ];
-	matrix[2*4+0] = 0.0f;
-	matrix[3*4+0] = shaderRegisters[ texture->matrix[0][2] ];
-
-	matrix[0*4+1] = shaderRegisters[ texture->matrix[1][0] ];
-	matrix[1*4+1] = shaderRegisters[ texture->matrix[1][1] ];
-	matrix[2*4+1] = 0.0f;
-	matrix[3*4+1] = shaderRegisters[ texture->matrix[1][2] ];
-
-	// we attempt to keep scrolls from generating incredibly large texture values, but
-	// center rotations and center scales can still generate offsets that need to be > 1
-	if ( matrix[3*4+0] < -40.0f || matrix[12] > 40.0f ) {
-		matrix[3*4+0] -= (int)matrix[3*4+0];
-	}
-	if ( matrix[13] < -40.0f || matrix[13] > 40.0f ) {
-		matrix[13] -= (int)matrix[13];
-	}
-
-	matrix[0*4+2] = 0.0f;
-	matrix[1*4+2] = 0.0f;
-	matrix[2*4+2] = 1.0f;
-	matrix[3*4+2] = 0.0f;
-
-	matrix[0*4+3] = 0.0f;
-	matrix[1*4+3] = 0.0f;
-	matrix[2*4+3] = 0.0f;
-	matrix[3*4+3] = 1.0f;
+static void RB_GetShaderTextureMatrix( const float *shaderRegisters, const textureStage_t *texture, float matrix[16] ) {
+    matrix[0 * 4 + 0] = shaderRegisters[ texture->matrix[0][0] ];
+    matrix[1 * 4 + 0] = shaderRegisters[ texture->matrix[0][1] ];
+    matrix[2 * 4 + 0] = 0.0f;
+    matrix[3 * 4 + 0] = shaderRegisters[ texture->matrix[0][2] ];
+    
+    matrix[0 * 4 + 1] = shaderRegisters[ texture->matrix[1][0] ];
+    matrix[1 * 4 + 1] = shaderRegisters[ texture->matrix[1][1] ];
+    matrix[2 * 4 + 1] = 0.0f;
+    matrix[3 * 4 + 1] = shaderRegisters[ texture->matrix[1][2] ];
+    
+    // we attempt to keep scrolls from generating incredibly large texture values, but
+    // center rotations and center scales can still generate offsets that need to be > 1
+    if( matrix[3 * 4 + 0] < -40.0f || matrix[12] > 40.0f )
+    {
+        matrix[3 * 4 + 0] -= ( int )matrix[3 * 4 + 0];
+    }
+    if( matrix[13] < -40.0f || matrix[13] > 40.0f )
+    {
+        matrix[13] -= ( int )matrix[13];
+    }
+    
+    matrix[0 * 4 + 2] = 0.0f;
+    matrix[1 * 4 + 2] = 0.0f;
+    matrix[2 * 4 + 2] = 1.0f;
+    matrix[3 * 4 + 2] = 0.0f;
+    
+    matrix[0 * 4 + 3] = 0.0f;
+    matrix[1 * 4 + 3] = 0.0f;
+    matrix[2 * 4 + 3] = 0.0f;
+    matrix[3 * 4 + 3] = 1.0f;
 }
 
 /*
@@ -380,12 +376,32 @@ RB_LoadShaderTextureMatrix
 ======================
 */
 void RB_LoadShaderTextureMatrix( const float *shaderRegisters, const textureStage_t *texture ) {
-	float	matrix[16];
-
-	RB_GetShaderTextureMatrix( shaderRegisters, texture, matrix );
-	glMatrixMode( GL_TEXTURE );
-	glLoadMatrixf( matrix );
-	glMatrixMode( GL_MODELVIEW );
+    float texS[4] = { 1.0f, 0.0f, 0.0f, 0.0f };
+    float texT[4] = { 0.0f, 1.0f, 0.0f, 0.0f };
+    
+    if( texture->hasMatrix )
+    {
+        float matrix[16];
+        RB_GetShaderTextureMatrix( shaderRegisters, texture, matrix );
+        texS[0] = matrix[0 * 4 + 0];
+        texS[1] = matrix[1 * 4 + 0];
+        texS[2] = matrix[2 * 4 + 0];
+        texS[3] = matrix[3 * 4 + 0];
+        
+        texT[0] = matrix[0 * 4 + 1];
+        texT[1] = matrix[1 * 4 + 1];
+        texT[2] = matrix[2 * 4 + 1];
+        texT[3] = matrix[3 * 4 + 1];
+        
+        RENDERLOG_PRINTF( "Setting Texture Matrix\n" );
+        renderLog.Indent();
+        RENDERLOG_PRINTF( "Texture Matrix S : %4.3f, %4.3f, %4.3f, %4.3f\n", texS[0], texS[1], texS[2], texS[3] );
+        RENDERLOG_PRINTF( "Texture Matrix T : %4.3f, %4.3f, %4.3f, %4.3f\n", texT[0], texT[1], texT[2], texT[3] );
+        renderLog.Outdent();
+    }
+    
+    renderProgManager.SetRenderParm( RENDERPARM_TEXTUREMATRIX_S, texS );
+    renderProgManager.SetRenderParm( RENDERPARM_TEXTUREMATRIX_T, texT );
 }
 
 /*
@@ -576,16 +592,17 @@ void RB_CreateSingleDrawInteractions( const drawSurf_t *surf, void (*DrawInterac
 	const float			*lightRegs = vLight->shaderRegisters;
 	drawInteraction_t	inter;
 
-	if ( r_skipInteractions.GetBool() || !surf->geo || !surf->geo->ambientCache ) {
+	if ( !surf->geo || !surf->geo->ambientCache ) {
 		return;
 	}
 
-	RENDERLOG_PRINTF( "---------- RB_CreateSingleDrawInteractions %s on %s ----------\n", lightShader->GetName(), surfaceShader->GetName() );
-
-	// change the matrix and light projection vectors if needed
+    // change the matrix and light projection vectors if needed
 	if ( surf->space != backEnd.currentSpace ) {
 		backEnd.currentSpace = surf->space;
 		glLoadMatrixf( surf->space->modelViewMatrix );
+        
+        // set the modelview matrix for the viewer
+        RB_SetMVPMatrix( surf->space );
 	}
 
 	// change the scissor if needed

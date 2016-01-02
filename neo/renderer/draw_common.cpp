@@ -30,6 +30,17 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "tr_local.h"
 
+/*
+================
+RB_SetMVPMatrix
+================
+*/
+void RB_SetMVPMatrix(  const struct viewEntity_s *space  ) {
+    float mat[16];
+    R_MatrixMultiply( space->modelViewMatrix, backEnd.viewDef->projectionMatrix, mat );
+    renderProgManager.SetRenderParms( RENDERPARM_MVPMATRIX_X, mat, 4 );
+}
+
 static const float zero[4] = { 0, 0, 0, 0 };
 static const float one[4] = { 1, 1, 1, 1 };
 static const float negOne[4] = { -1, -1, -1, -1 };
@@ -85,7 +96,7 @@ void RB_BakeTextureMatrixIntoTexgen( idPlane lightProject[3], const float *textu
 	genMatrix[11] = lightProject[2][2];
 	genMatrix[15] = lightProject[2][3];
 
-	myGlMultMatrix( genMatrix, backEnd.lightTextureMatrix, final );
+	R_MatrixMultiply( genMatrix, backEnd.lightTextureMatrix, final );
 
 	lightProject[0][0] = final[0];
 	lightProject[0][1] = final[4];
@@ -104,6 +115,8 @@ RB_PrepareStageTexturing
 ================
 */
 void RB_PrepareStageTexturing( const shaderStage_t *pStage,  const drawSurf_t *surf, idDrawVert *ac ) {
+    float useTexGenParm[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+    
 	// set privatePolygonOffset if necessary
 	if ( pStage->privatePolygonOffset ) {
 		glEnable( GL_POLYGON_OFFSET_FILL );
@@ -111,143 +124,134 @@ void RB_PrepareStageTexturing( const shaderStage_t *pStage,  const drawSurf_t *s
 	}
 
 	// set the texture matrix if needed
-	if ( pStage->texture.hasMatrix ) {
-		RB_LoadShaderTextureMatrix( surf->shaderRegisters, &pStage->texture );
-	}
+	RB_LoadShaderTextureMatrix( surf->shaderRegisters, &pStage->texture );
 
 	// texgens
-	if ( pStage->texture.texgen == TG_DIFFUSE_CUBE ) {
-        glVertexAttribPointer( PC_ATTRIB_INDEX_ST, 3, GL_FLOAT, false, sizeof( idDrawVert ), ac->normal.ToFloatPtr() );
-	}
-	if ( pStage->texture.texgen == TG_SKYBOX_CUBE || pStage->texture.texgen == TG_WOBBLESKY_CUBE ) {
-        glVertexAttribPointer( PC_ATTRIB_INDEX_ST, 3, GL_FLOAT, false, 0, vertexCache.Position( surf->dynamicTexCoords ) );
-	}
-	if ( pStage->texture.texgen == TG_SCREEN ) {
-		glEnable( GL_TEXTURE_GEN_S );
-		glEnable( GL_TEXTURE_GEN_T );
-		glEnable( GL_TEXTURE_GEN_Q );
-
-		float	mat[16], plane[4];
-		myGlMultMatrix( surf->space->modelViewMatrix, backEnd.viewDef->projectionMatrix, mat );
-
-		plane[0] = mat[0];
-		plane[1] = mat[4];
-		plane[2] = mat[8];
-		plane[3] = mat[12];
-		glTexGenfv( GL_S, GL_OBJECT_PLANE, plane );
-
-		plane[0] = mat[1];
-		plane[1] = mat[5];
-		plane[2] = mat[9];
-		plane[3] = mat[13];
-		glTexGenfv( GL_T, GL_OBJECT_PLANE, plane );
-
-		plane[0] = mat[3];
-		plane[1] = mat[7];
-		plane[2] = mat[11];
-		plane[3] = mat[15];
-		glTexGenfv( GL_Q, GL_OBJECT_PLANE, plane );
-	}
-
-	if ( pStage->texture.texgen == TG_SCREEN2 ) {
-		glEnable( GL_TEXTURE_GEN_S );
-		glEnable( GL_TEXTURE_GEN_T );
-		glEnable( GL_TEXTURE_GEN_Q );
-
-		float	mat[16], plane[4];
-		myGlMultMatrix( surf->space->modelViewMatrix, backEnd.viewDef->projectionMatrix, mat );
-
-		plane[0] = mat[0];
-		plane[1] = mat[4];
-		plane[2] = mat[8];
-		plane[3] = mat[12];
-		glTexGenfv( GL_S, GL_OBJECT_PLANE, plane );
-
-		plane[0] = mat[1];
-		plane[1] = mat[5];
-		plane[2] = mat[9];
-		plane[3] = mat[13];
-		glTexGenfv( GL_T, GL_OBJECT_PLANE, plane );
-
-		plane[0] = mat[3];
-		plane[1] = mat[7];
-		plane[2] = mat[11];
-		plane[3] = mat[15];
-		glTexGenfv( GL_Q, GL_OBJECT_PLANE, plane );
-	}
-    
-	if ( pStage->texture.texgen == TG_GLASSWARP ) {
-		glBindProgramARB( GL_FRAGMENT_PROGRAM_ARB, FPROG_GLASSWARP );
-		glEnable( GL_FRAGMENT_PROGRAM_ARB );
-
-		GL_SelectTexture( 2 );
-		globalImages->scratchImage->Bind();
-        
-		GL_SelectTexture( 1 );
-		globalImages->scratchImage2->Bind();
-
-		glEnable( GL_TEXTURE_GEN_S );
-		glEnable( GL_TEXTURE_GEN_T );
-		glEnable( GL_TEXTURE_GEN_Q );
-
-		float	mat[16], plane[4];
-		myGlMultMatrix( surf->space->modelViewMatrix, backEnd.viewDef->projectionMatrix, mat );
-
-		plane[0] = mat[0];
-		plane[1] = mat[4];
-		plane[2] = mat[8];
-		plane[3] = mat[12];
-		glTexGenfv( GL_S, GL_OBJECT_PLANE, plane );
-
-		plane[0] = mat[1];
-		plane[1] = mat[5];
-		plane[2] = mat[9];
-		plane[3] = mat[13];
-		glTexGenfv( GL_T, GL_OBJECT_PLANE, plane );
-
-		plane[0] = mat[3];
-		plane[1] = mat[7];
-		plane[2] = mat[11];
-		plane[3] = mat[15];
-		glTexGenfv( GL_Q, GL_OBJECT_PLANE, plane );
-
-		GL_SelectTexture( 0 );
-	}
-
-	if ( pStage->texture.texgen == TG_REFLECT_CUBE ) {
-		// see if there is also a bump map specified
+    if ( pStage->texture.texgen == TG_REFLECT_CUBE ) {
+        // see if there is also a bump map specified
         const shaderStage_t *bumpStage = surf->material->GetBumpStage();
-		if ( bumpStage ) {
-			// per-pixel reflection mapping with bump mapping
-			GL_SelectTexture( 1 );
-			bumpStage->texture.image->Bind();
-			GL_SelectTexture( 0 );
-
-            glVertexAttribPointer( PC_ATTRIB_INDEX_NORMAL, 3, GL_FLOAT, false, sizeof( idDrawVert ), ac->normal.ToFloatPtr() );
-			glVertexAttribPointer( PC_ATTRIB_INDEX_BITANGENT, 3, GL_FLOAT, false, sizeof( idDrawVert ), ac->tangents[1].ToFloatPtr() );
-			glVertexAttribPointer( PC_ATTRIB_INDEX_TANGENT, 3, GL_FLOAT, false, sizeof( idDrawVert ), ac->tangents[0].ToFloatPtr() );
-
-			glEnableVertexAttribArray( PC_ATTRIB_INDEX_TANGENT );
-			glEnableVertexAttribArray( PC_ATTRIB_INDEX_BITANGENT );
-            glEnableVertexAttribArray( PC_ATTRIB_INDEX_NORMAL );
-          
-			// Program env 5, 6, 7, 8 have been set in RB_SetProgramEnvironmentSpace
+        if ( bumpStage ) {
+            // per-pixel reflection mapping with bump mapping
+            GL_SelectTexture( 1 );
+            bumpStage->texture.image->Bind();
+            GL_SelectTexture( 0 );
             
-			glBindProgramARB( GL_FRAGMENT_PROGRAM_ARB, FPROG_BUMPY_ENVIRONMENT );
-			glEnable( GL_FRAGMENT_PROGRAM_ARB );
-			glBindProgramARB( GL_VERTEX_PROGRAM_ARB, VPROG_BUMPY_ENVIRONMENT );
-			glEnable( GL_VERTEX_PROGRAM_ARB );
-		} else {
-			// per-pixel reflection mapping without a normal map
             glVertexAttribPointer( PC_ATTRIB_INDEX_NORMAL, 3, GL_FLOAT, false, sizeof( idDrawVert ), ac->normal.ToFloatPtr() );
-			glEnableVertexAttribArray( PC_ATTRIB_INDEX_NORMAL );
+            glVertexAttribPointer( PC_ATTRIB_INDEX_BITANGENT, 3, GL_FLOAT, false, sizeof( idDrawVert ), ac->tangents[1].ToFloatPtr() );
+            glVertexAttribPointer( PC_ATTRIB_INDEX_TANGENT, 3, GL_FLOAT, false, sizeof( idDrawVert ), ac->tangents[0].ToFloatPtr() );
+            
+            glEnableVertexAttribArray( PC_ATTRIB_INDEX_TANGENT );
+            glEnableVertexAttribArray( PC_ATTRIB_INDEX_BITANGENT );
+            glEnableVertexAttribArray( PC_ATTRIB_INDEX_NORMAL );
+            
+            RENDERLOG_PRINTF( "TexGen: TG_REFLECT_CUBE: Bumpy Environment\n" );
+            renderProgManager.BindShader_BumpyEnvironment();
+        } else {
+            // per-pixel reflection mapping without a normal map
+            glVertexAttribPointer( PC_ATTRIB_INDEX_NORMAL, 3, GL_FLOAT, false, sizeof( idDrawVert ), ac->normal.ToFloatPtr() );
+            glEnableVertexAttribArray( PC_ATTRIB_INDEX_NORMAL );
+            
+            RENDERLOG_PRINTF( "TexGen: TG_REFLECT_CUBE: Environment\n" );
+            renderProgManager.BindShader_Environment();
+        }
+    }
+	else if ( pStage->texture.texgen == TG_SKYBOX_CUBE ) {
+        renderProgManager.BindShader_SkyBox();
+	}
+    else if ( pStage->texture.texgen == TG_WOBBLESKY_CUBE ) {
+        const int* parms = surf->material->GetTexGenRegisters();
+        
+        float wobbleDegrees = surf->shaderRegisters[ parms[0] ] * ( idMath::PI / 180.0f );
+        float wobbleSpeed = surf->shaderRegisters[ parms[1] ] * ( 2.0f * idMath::PI / 60.0f );
+        float rotateSpeed = surf->shaderRegisters[ parms[2] ] * ( 2.0f * idMath::PI / 60.0f );
+        
+        idVec3 axis[3];
+        {
+            // very ad-hoc "wobble" transform
+            float s, c;
+            idMath::SinCos( wobbleSpeed * backEnd.viewDef->floatTime * 0.001f, s, c );
+            
+            float ws, wc;
+            idMath::SinCos( wobbleDegrees, ws, wc );
+            
+            axis[2][0] = ws * c;
+            axis[2][1] = ws * s;
+            axis[2][2] = wc;
+            
+            axis[1][0] = -s * s * ws;
+            axis[1][2] = -s * ws * ws;
+            axis[1][1] = idMath::Sqrt( idMath::Fabs( 1.0f - ( axis[1][0] * axis[1][0] + axis[1][2] * axis[1][2] ) ) );
+            
+            // make the second vector exactly perpendicular to the first
+            axis[1] -= ( axis[2] * axis[1] ) * axis[2];
+            axis[1].Normalize();
+            
+            // construct the third with a cross
+            axis[0].Cross( axis[1], axis[2] );
+        }
+        
+        // add the rotate
+        float rs, rc;
+        idMath::SinCos( rotateSpeed * backEnd.viewDef->floatTime * 0.001f, rs, rc );
+        
+        float transform[12];
+        transform[0 * 4 + 0] = axis[0][0] * rc + axis[1][0] * rs;
+        transform[0 * 4 + 1] = axis[0][1] * rc + axis[1][1] * rs;
+        transform[0 * 4 + 2] = axis[0][2] * rc + axis[1][2] * rs;
+        transform[0 * 4 + 3] = 0.0f;
+        
+        transform[1 * 4 + 0] = axis[1][0] * rc - axis[0][0] * rs;
+        transform[1 * 4 + 1] = axis[1][1] * rc - axis[0][1] * rs;
+        transform[1 * 4 + 2] = axis[1][2] * rc - axis[0][2] * rs;
+        transform[1 * 4 + 3] = 0.0f;
+        
+        transform[2 * 4 + 0] = axis[2][0];
+        transform[2 * 4 + 1] = axis[2][1];
+        transform[2 * 4 + 2] = axis[2][2];
+        transform[2 * 4 + 3] = 0.0f;
+        
+        renderProgManager.SetRenderParms( RENDERPARM_WOBBLESKY_X, transform, 3 );
+        renderProgManager.BindShader_WobbleSky();
+    }
+    else if ( pStage->texture.texgen == TG_SCREEN || pStage->texture.texgen == TG_SCREEN2 ) {
+		glEnable( GL_TEXTURE_GEN_S );
+		glEnable( GL_TEXTURE_GEN_T );
+		glEnable( GL_TEXTURE_GEN_Q );
 
-			glBindProgramARB( GL_FRAGMENT_PROGRAM_ARB, FPROG_ENVIRONMENT );
-			glEnable( GL_FRAGMENT_PROGRAM_ARB );
-			glBindProgramARB( GL_VERTEX_PROGRAM_ARB, VPROG_ENVIRONMENT );
-			glEnable( GL_VERTEX_PROGRAM_ARB );
+		float	mat[16], plane[4];
+		R_MatrixMultiply( surf->space->modelViewMatrix, backEnd.viewDef->projectionMatrix, mat );
+
+		plane[0] = mat[0];
+		plane[1] = mat[4];
+		plane[2] = mat[8];
+		plane[3] = mat[12];
+		glTexGenfv( GL_S, GL_OBJECT_PLANE, plane );
+
+		plane[0] = mat[1];
+		plane[1] = mat[5];
+		plane[2] = mat[9];
+		plane[3] = mat[13];
+		glTexGenfv( GL_T, GL_OBJECT_PLANE, plane );
+
+		plane[0] = mat[3];
+		plane[1] = mat[7];
+		plane[2] = mat[11];
+		plane[3] = mat[15];
+		glTexGenfv( GL_Q, GL_OBJECT_PLANE, plane );
+	}
+    else if( pStage->texture.texgen == TG_DIFFUSE_CUBE )
+    {
+        // As far as I can tell, this is never used
+        idLib::Warning( "Using Diffuse Cube! Please contact Brian!" );
+        
     }
+    else if( pStage->texture.texgen == TG_GLASSWARP )
+    {
+        // As far as I can tell, this is never used
+        idLib::Warning( "Using GlassWarp! Please contact Brian!" );
     }
+    
+    renderProgManager.SetRenderParm( RENDERPARM_TEXGEN_0_ENABLED, useTexGenParm );
 }
 
 /*
@@ -259,38 +263,6 @@ void RB_FinishStageTexturing( const shaderStage_t *pStage, const drawSurf_t *sur
 	// unset privatePolygonOffset if necessary
 	if ( pStage->privatePolygonOffset && !surf->material->TestMaterialFlag( MF_POLYGONOFFSET ) ) {
 		glDisable( GL_POLYGON_OFFSET_FILL );
-	}
-
-	if ( pStage->texture.texgen == TG_DIFFUSE_CUBE || pStage->texture.texgen == TG_SKYBOX_CUBE
-		|| pStage->texture.texgen == TG_WOBBLESKY_CUBE ) {
-        glVertexAttribPointer( PC_ATTRIB_INDEX_ST, 2, GL_FLOAT, false, sizeof( idDrawVert ), (void *)&ac->st );
-	}
-
-	if ( pStage->texture.texgen == TG_SCREEN ) {
-		glDisable( GL_TEXTURE_GEN_S );
-		glDisable( GL_TEXTURE_GEN_T );
-		glDisable( GL_TEXTURE_GEN_Q );
-	}
-	if ( pStage->texture.texgen == TG_SCREEN2 ) {
-		glDisable( GL_TEXTURE_GEN_S );
-		glDisable( GL_TEXTURE_GEN_T );
-		glDisable( GL_TEXTURE_GEN_Q );
-	}
-
-	if ( pStage->texture.texgen == TG_GLASSWARP ) {
-		GL_SelectTexture( 2 );
-		globalImages->BindNull();
-
-		GL_SelectTexture( 1 );
-		if ( pStage->texture.hasMatrix ) {
-			RB_LoadShaderTextureMatrix( surf->shaderRegisters, &pStage->texture );
-		}
-		glDisable( GL_TEXTURE_GEN_S );
-		glDisable( GL_TEXTURE_GEN_T );
-		glDisable( GL_TEXTURE_GEN_Q );
-		glDisable( GL_FRAGMENT_PROGRAM_ARB );
-		globalImages->BindNull();
-		GL_SelectTexture( 0 );
 	}
 
 	if ( pStage->texture.texgen == TG_REFLECT_CUBE ) {
@@ -310,14 +282,7 @@ void RB_FinishStageTexturing( const shaderStage_t *pStage, const drawSurf_t *sur
         
         glDisableVertexAttribArray( PC_ATTRIB_INDEX_NORMAL );
 
-		glDisable( GL_FRAGMENT_PROGRAM_ARB );
-		glDisable( GL_VERTEX_PROGRAM_ARB );
-	}
-
-	if ( pStage->texture.hasMatrix ) {
-		glMatrixMode( GL_TEXTURE );
-		glLoadIdentity();
-		glMatrixMode( GL_MODELVIEW );
+		renderProgManager.Unbind();
 	}
 }
 
@@ -543,70 +508,48 @@ Sets variables that can be used by all vertex programs
 ==================
 */
 void RB_SetProgramEnvironment( void ) {
-	float	parm[4];
-	int		pot;
-
-	if ( !glConfig.ARBVertexProgramAvailable ) {
-		return;
-	}
-
-#if 0
-	// screen power of two correction factor, one pixel in so we don't get a bilerp
-	// of an uncopied pixel
-	int	 w = backEnd.viewDef->viewport.x2 - backEnd.viewDef->viewport.x1 + 1;
-	pot = globalImages->currentRenderImage->uploadWidth;
-	if ( w == pot ) {
-		parm[0] = 1.0;
-	} else {
-		parm[0] = (float)(w-1) / pot;
-	}
-
-	int	 h = backEnd.viewDef->viewport.y2 - backEnd.viewDef->viewport.y1 + 1;
-	pot = globalImages->currentRenderImage->uploadHeight;
-	if ( h == pot ) {
-		parm[1] = 1.0;
-	} else {
-		parm[1] = (float)(h-1) / pot;
-	}
-
-	parm[2] = 0;
-	parm[3] = 1;
-	glProgramEnvParameter4fvARB( GL_VERTEX_PROGRAM_ARB, 0, parm );
-#else
-	// screen power of two correction factor, assuming the copy to _currentRender
-	// also copied an extra row and column for the bilerp
-	int	 w = backEnd.viewDef->viewport.x2 - backEnd.viewDef->viewport.x1 + 1;
-	pot = globalImages->currentRenderImage->uploadWidth;
-	parm[0] = (float)w / pot;
-
-	int	 h = backEnd.viewDef->viewport.y2 - backEnd.viewDef->viewport.y1 + 1;
-	pot = globalImages->currentRenderImage->uploadHeight;
-	parm[1] = (float)h / pot;
-
-	parm[2] = 0;
-	parm[3] = 1;
-	glProgramEnvParameter4fvARB( GL_VERTEX_PROGRAM_ARB, 0, parm );
-#endif
-
-	glProgramEnvParameter4fvARB( GL_FRAGMENT_PROGRAM_ARB, 0, parm );
-
-	// window coord to 0.0 to 1.0 conversion
-	parm[0] = 1.0 / w;
-	parm[1] = 1.0 / h;
-	parm[2] = 0;
-	parm[3] = 1;
-	glProgramEnvParameter4fvARB( GL_FRAGMENT_PROGRAM_ARB, 1, parm );
-
-	//
-	// set eye position in global space
-	//
-	parm[0] = backEnd.viewDef->renderView.vieworg[0];
-	parm[1] = backEnd.viewDef->renderView.vieworg[1];
-	parm[2] = backEnd.viewDef->renderView.vieworg[2];
-	parm[3] = 1.0;
-	glProgramEnvParameter4fvARB( GL_VERTEX_PROGRAM_ARB, 1, parm );
-
-
+    // screen power of two correction factor (no longer relevant now)
+    float screenCorrectionParm[4];
+    screenCorrectionParm[0] = 1.0f;
+    screenCorrectionParm[1] = 1.0f;
+    screenCorrectionParm[2] = 0.0f;
+    screenCorrectionParm[3] = 1.0f;
+    renderProgManager.SetRenderParm( RENDERPARM_SCREENCORRECTIONFACTOR, screenCorrectionParm ); // rpScreenCorrectionFactor
+    
+    // window coord to 0.0 to 1.0 conversion
+    int	w = backEnd.viewDef->viewport.x2 - backEnd.viewDef->viewport.x1 + 1;
+    int	h = backEnd.viewDef->viewport.y2 - backEnd.viewDef->viewport.y1 + 1;
+    float windowCoordParm[4];
+    windowCoordParm[0] = 1.0f / w;
+    windowCoordParm[1] = 1.0f / h;
+    windowCoordParm[2] = 0.0f;
+    windowCoordParm[3] = 1.0f;
+    renderProgManager.SetRenderParm( RENDERPARM_WINDOWCOORD, windowCoordParm ); // rpWindowCoord
+    
+    // set eye position in global space
+    float parm[4];
+    parm[0] = backEnd.viewDef->renderView.vieworg[0];
+    parm[1] = backEnd.viewDef->renderView.vieworg[1];
+    parm[2] = backEnd.viewDef->renderView.vieworg[2];
+    parm[3] = 1.0f;
+    renderProgManager.SetRenderParm( RENDERPARM_GLOBALEYEPOS, parm ); // rpGlobalEyePos
+    
+    // sets overbright to make world brighter
+    // This value is baked into the specularScale and diffuseScale values so
+    // the interaction programs don't need to perform the extra multiply,
+    // but any other renderprogs that want to obey the brightness value
+    // can reference this.
+    float overbright = r_lightScale.GetFloat() * 0.5f;
+    parm[0] = overbright;
+    parm[1] = overbright;
+    parm[2] = overbright;
+    parm[3] = overbright;
+    renderProgManager.SetRenderParm( RENDERPARM_OVERBRIGHT, parm );
+    
+    // Set Projection Matrix
+    float projMatrixTranspose[16];
+    R_MatrixTranspose( backEnd.viewDef->projectionMatrix, projMatrixTranspose );
+    renderProgManager.SetRenderParms( RENDERPARM_PROJMATRIX_X, projMatrixTranspose, 4 );
 }
 
 /*
@@ -617,35 +560,22 @@ Sets variables related to the current space that can be used by all vertex progr
 ==================
 */
 void RB_SetProgramEnvironmentSpace( void ) {
-	if ( !glConfig.ARBVertexProgramAvailable ) {
-		return;
-	}
-
 	const struct viewEntity_s *space = backEnd.currentSpace;
-	float	parm[4];
-
-	// set eye position in local space
-	R_GlobalPointToLocal( space->modelMatrix, backEnd.viewDef->renderView.vieworg, *(idVec3 *)parm );
-	parm[3] = 1.0;
-	glProgramEnvParameter4fvARB( GL_VERTEX_PROGRAM_ARB, 5, parm );
-
-	// we need the model matrix without it being combined with the view matrix
-	// so we can transform local vectors to global coordinates
-	parm[0] = space->modelMatrix[0];
-	parm[1] = space->modelMatrix[4];
-	parm[2] = space->modelMatrix[8];
-	parm[3] = space->modelMatrix[12];
-	glProgramEnvParameter4fvARB( GL_VERTEX_PROGRAM_ARB, 6, parm );
-	parm[0] = space->modelMatrix[1];
-	parm[1] = space->modelMatrix[5];
-	parm[2] = space->modelMatrix[9];
-	parm[3] = space->modelMatrix[13];
-	glProgramEnvParameter4fvARB( GL_VERTEX_PROGRAM_ARB, 7, parm );
-	parm[0] = space->modelMatrix[2];
-	parm[1] = space->modelMatrix[6];
-	parm[2] = space->modelMatrix[10];
-	parm[3] = space->modelMatrix[14];
-	glProgramEnvParameter4fvARB( GL_VERTEX_PROGRAM_ARB, 8, parm );
+    
+    // set eye position in local space
+    idVec4 localViewOrigin( 1.0f );
+    R_GlobalPointToLocal( space->modelMatrix, backEnd.viewDef->renderView.vieworg, localViewOrigin.ToVec3() );
+    renderProgManager.SetRenderParm( RENDERPARM_LOCALVIEWORIGIN, localViewOrigin.ToFloatPtr() );
+    
+    // set model Matrix
+    float modelMatrixTranspose[16];
+    R_MatrixTranspose( space->modelMatrix, modelMatrixTranspose );
+    renderProgManager.SetRenderParms( RENDERPARM_MODELMATRIX_X, modelMatrixTranspose, 4 );
+    
+    // Set ModelView Matrix
+    float modelViewMatrixTranspose[16];
+    R_MatrixTranspose( space->modelViewMatrix, modelViewMatrixTranspose );
+    renderProgManager.SetRenderParms( RENDERPARM_MODELVIEWMATRIX_X, modelViewMatrixTranspose, 4 );
 }
 
 /*
@@ -660,7 +590,6 @@ void RB_STD_T_RenderShaderPasses( const drawSurf_t *surf ) {
 	const idMaterial	*shader;
 	const shaderStage_t *pStage;
 	const float	*regs;
-	float		color[4];
 	const srfTriangles_t	*tri;
 
 	tri = surf->geo;
@@ -677,7 +606,9 @@ void RB_STD_T_RenderShaderPasses( const drawSurf_t *surf ) {
 	// change the matrix if needed
 	if ( surf->space != backEnd.currentSpace ) {
 		glLoadMatrixf( surf->space->modelViewMatrix );
+        RB_SetMVPMatrix( surf->space );
 		backEnd.currentSpace = surf->space;
+
 		RB_SetProgramEnvironmentSpace();
 	}
 
@@ -723,8 +654,17 @@ void RB_STD_T_RenderShaderPasses( const drawSurf_t *surf ) {
 	idDrawVert *ac = (idDrawVert *)vertexCache.Position( tri->ambientCache );
     glVertexAttribPointer( PC_ATTRIB_INDEX_VERTEX, 3, GL_FLOAT, false, sizeof( idDrawVert ), ac->xyz.ToFloatPtr() );
     glVertexAttribPointer( PC_ATTRIB_INDEX_ST, 2, GL_FLOAT, false, sizeof( idDrawVert ), reinterpret_cast<void *>(&ac->st) );
-
-	for ( stage = 0; stage < shader->GetNumStages() ; stage++ ) {		
+    glVertexAttribPointer( PC_ATTRIB_INDEX_COLOR, 4, GL_UNSIGNED_BYTE, false, sizeof( idDrawVert ), (void *)&ac->color );
+    glVertexAttribPointer( PC_ATTRIB_INDEX_TANGENT, 3, GL_FLOAT, false, sizeof( idDrawVert ), ac->tangents[0].ToFloatPtr() );
+    glVertexAttribPointer( PC_ATTRIB_INDEX_BITANGENT, 3, GL_FLOAT, false, sizeof( idDrawVert ), ac->tangents[1].ToFloatPtr() );
+    glVertexAttribPointer( PC_ATTRIB_INDEX_NORMAL, 3, GL_FLOAT, false, sizeof( idDrawVert ), ac->normal.ToFloatPtr() );
+    
+    glEnableVertexAttribArray( PC_ATTRIB_INDEX_COLOR );
+    glEnableVertexAttribArray( PC_ATTRIB_INDEX_TANGENT );
+    glEnableVertexAttribArray( PC_ATTRIB_INDEX_BITANGENT );
+    glEnableVertexAttribArray( PC_ATTRIB_INDEX_NORMAL );
+    
+	for ( stage = 0; stage < shader->GetNumStages() ; stage++ ) {
 		pStage = shader->GetStage(stage);
 
 		// check the enable condition
@@ -753,21 +693,16 @@ void RB_STD_T_RenderShaderPasses( const drawSurf_t *surf ) {
 			if ( r_skipNewAmbient.GetBool() ) {
 				continue;
 			}
-            glVertexAttribPointer( PC_ATTRIB_INDEX_COLOR, 4, GL_UNSIGNED_BYTE, false, sizeof( idDrawVert ), (void *)&ac->color );
-			glVertexAttribPointer( PC_ATTRIB_INDEX_TANGENT, 3, GL_FLOAT, false, sizeof( idDrawVert ), ac->tangents[0].ToFloatPtr() );
-			glVertexAttribPointer( PC_ATTRIB_INDEX_BITANGENT, 3, GL_FLOAT, false, sizeof( idDrawVert ), ac->tangents[1].ToFloatPtr() );
-            glVertexAttribPointer( PC_ATTRIB_INDEX_NORMAL, 3, GL_FLOAT, false, sizeof( idDrawVert ), ac->normal.ToFloatPtr() );
-
-            glEnableVertexAttribArray( PC_ATTRIB_INDEX_COLOR );
-			glEnableVertexAttribArray( PC_ATTRIB_INDEX_TANGENT );
-			glEnableVertexAttribArray( PC_ATTRIB_INDEX_BITANGENT );
-            glEnableVertexAttribArray( PC_ATTRIB_INDEX_NORMAL );
+            renderLog.OpenBlock( "New Shader Stage" );
 
 			GL_State( pStage->drawStateBits );
 			
-			glBindProgramARB( GL_VERTEX_PROGRAM_ARB, newStage->vertexProgram );
-			glEnable( GL_VERTEX_PROGRAM_ARB );
-                
+            // RB: CRITICAL BUGFIX: changed newStage->glslProgram to vertexProgram and fragmentProgram
+            // otherwise it will result in an out of bounds crash in RB_DrawElementsWithCounters
+            renderProgManager.BindShader( newStage->glslProgram, newStage->vertexProgram, newStage->fragmentProgram, false );
+            // RB end
+
+#if 0
 			// megaTextures bind a lot of images and set a lot of parameters
 			if ( newStage->megaTexture ) {
 				newStage->megaTexture->SetMappingForSurface( tri );
@@ -775,47 +710,46 @@ void RB_STD_T_RenderShaderPasses( const drawSurf_t *surf ) {
 				R_GlobalPointToLocal( surf->space->modelMatrix, backEnd.viewDef->renderView.vieworg, localViewer );
 				newStage->megaTexture->BindForViewOrigin( localViewer );
 			}
+#endif
 
-			for ( int i = 0 ; i < newStage->numVertexParms ; i++ ) {
-				float	parm[4];
-				parm[0] = regs[ newStage->vertexParms[i][0] ];
-				parm[1] = regs[ newStage->vertexParms[i][1] ];
-				parm[2] = regs[ newStage->vertexParms[i][2] ];
-				parm[3] = regs[ newStage->vertexParms[i][3] ];
-				glProgramLocalParameter4fvARB( GL_VERTEX_PROGRAM_ARB, i, parm );
+            for( int j = 0; j < newStage->numVertexParms; j++ )
+            {
+                float parm[4];
+                parm[0] = regs[ newStage->vertexParms[j][0] ];
+                parm[1] = regs[ newStage->vertexParms[j][1] ];
+                parm[2] = regs[ newStage->vertexParms[j][2] ];
+                parm[3] = regs[ newStage->vertexParms[j][3] ];
+                renderProgManager.SetRenderParm( ( renderParm_t )( RENDERPARM_USER + j ), parm );
             }
 
+            // bind texture units
 			for ( int i = 0 ; i < newStage->numFragmentProgramImages ; i++ ) {
 				if ( newStage->fragmentProgramImages[i] ) {
 					GL_SelectTexture( i );
 					newStage->fragmentProgramImages[i]->Bind();
 				}
 			}
-			glBindProgramARB( GL_FRAGMENT_PROGRAM_ARB, newStage->fragmentProgram );
-			glEnable( GL_FRAGMENT_PROGRAM_ARB );
 
 			// draw it
 			RB_DrawElementsWithCounters( tri );
 
-			for ( int i = 1 ; i < newStage->numFragmentProgramImages ; i++ ) {
+            // unbind texture units
+			for ( int i = 0 ; i < newStage->numFragmentProgramImages ; i++ ) {
 				if ( newStage->fragmentProgramImages[i] ) {
 					GL_SelectTexture( i );
 					globalImages->BindNull();
 				}
 			}
+#if 0
 			if ( newStage->megaTexture ) {
 				newStage->megaTexture->Unbind();
 			}
+#endif
 
 			GL_SelectTexture( 0 );
+            renderProgManager.Unbind();
 
-			glDisable( GL_VERTEX_PROGRAM_ARB );
-			glDisable( GL_FRAGMENT_PROGRAM_ARB );
-
-            glDisableVertexAttribArray( PC_ATTRIB_INDEX_COLOR );
-			glDisableVertexAttribArray( PC_ATTRIB_INDEX_TANGENT );
-			glDisableVertexAttribArray( PC_ATTRIB_INDEX_BITANGENT );
-			glDisableVertexAttribArray( PC_ATTRIB_INDEX_NORMAL );
+            renderLog.CloseBlock();
 			continue;
 		}
 
@@ -826,6 +760,7 @@ void RB_STD_T_RenderShaderPasses( const drawSurf_t *surf ) {
 		//--------------------------
 
 		// set the color
+        idVec4 color;
 		color[0] = regs[ pStage->color.registers[0] ];
 		color[1] = regs[ pStage->color.registers[1] ];
 		color[2] = regs[ pStage->color.registers[2] ];
@@ -842,51 +777,22 @@ void RB_STD_T_RenderShaderPasses( const drawSurf_t *surf ) {
 			&& color[3] <= 0 ) {
 			continue;
 		}
-
-		// select the vertex color source
-		if ( pStage->vertexColor == SVC_IGNORE ) {
-			glColor4fv( color );
-		} else {
-            glVertexAttribPointer( PC_ATTRIB_INDEX_COLOR, 4, GL_UNSIGNED_BYTE, false, sizeof( idDrawVert ), (void *)&ac->color );
-            glEnableVertexAttribArray( PC_ATTRIB_INDEX_COLOR );
-
-			if ( pStage->vertexColor == SVC_INVERSE_MODULATE ) {
-				GL_TexEnv( GL_COMBINE_ARB );
-				glTexEnvi( GL_TEXTURE_ENV, GL_COMBINE_RGB_ARB, GL_MODULATE );
-				glTexEnvi( GL_TEXTURE_ENV, GL_SOURCE0_RGB_ARB, GL_TEXTURE );
-				glTexEnvi( GL_TEXTURE_ENV, GL_SOURCE1_RGB_ARB, GL_PRIMARY_COLOR_ARB );
-				glTexEnvi( GL_TEXTURE_ENV, GL_OPERAND0_RGB_ARB, GL_SRC_COLOR );
-				glTexEnvi( GL_TEXTURE_ENV, GL_OPERAND1_RGB_ARB, GL_ONE_MINUS_SRC_COLOR );
-				glTexEnvi( GL_TEXTURE_ENV, GL_RGB_SCALE_ARB, 1 );
-			}
-
-			// for vertex color and modulated color, we need to enable a second
-			// texture stage
-			if ( color[0] != 1 || color[1] != 1 || color[2] != 1 || color[3] != 1 ) {
-				GL_SelectTexture( 1 );
-
-				globalImages->whiteImage->Bind();
-				GL_TexEnv( GL_COMBINE_ARB );
-
-				glTexEnvfv( GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, color );
-
-				glTexEnvi( GL_TEXTURE_ENV, GL_COMBINE_RGB_ARB, GL_MODULATE );
-				glTexEnvi( GL_TEXTURE_ENV, GL_SOURCE0_RGB_ARB, GL_PREVIOUS_ARB );
-				glTexEnvi( GL_TEXTURE_ENV, GL_SOURCE1_RGB_ARB, GL_CONSTANT_ARB );
-				glTexEnvi( GL_TEXTURE_ENV, GL_OPERAND0_RGB_ARB, GL_SRC_COLOR );
-				glTexEnvi( GL_TEXTURE_ENV, GL_OPERAND1_RGB_ARB, GL_SRC_COLOR );
-				glTexEnvi( GL_TEXTURE_ENV, GL_RGB_SCALE_ARB, 1 );
-
-				glTexEnvi( GL_TEXTURE_ENV, GL_COMBINE_ALPHA_ARB, GL_MODULATE );
-				glTexEnvi( GL_TEXTURE_ENV, GL_SOURCE0_ALPHA_ARB, GL_PREVIOUS_ARB );
-				glTexEnvi( GL_TEXTURE_ENV, GL_SOURCE1_ALPHA_ARB, GL_CONSTANT_ARB );
-				glTexEnvi( GL_TEXTURE_ENV, GL_OPERAND0_ALPHA_ARB, GL_SRC_ALPHA );
-				glTexEnvi( GL_TEXTURE_ENV, GL_OPERAND1_ALPHA_ARB, GL_SRC_ALPHA );
-				glTexEnvi( GL_TEXTURE_ENV, GL_ALPHA_SCALE, 1 );
-
-				GL_SelectTexture( 0 );
-			}
-		}
+        
+        stageVertexColor_t svc = pStage->vertexColor;
+        
+        renderLog.OpenBlock( "Old Shader Stage" );
+        GL_Color( color );
+        
+        if( ( pStage->texture.texgen == TG_SCREEN ) || ( pStage->texture.texgen == TG_SCREEN2 ) )
+        {
+            renderProgManager.BindShader_TextureTexGenVertexColor();
+        }
+        else
+        {
+            renderProgManager.BindShader_TextureVertexColor();
+        }
+        
+        RB_SetVertexColorParms( svc );
 
 		// bind the texture
 		RB_BindVariableStageImage( &pStage->texture, regs );
@@ -901,16 +807,13 @@ void RB_STD_T_RenderShaderPasses( const drawSurf_t *surf ) {
 
 		RB_FinishStageTexturing( pStage, surf, ac );
 		
-		if ( pStage->vertexColor != SVC_IGNORE ) {
-            glDisableVertexAttribArray( PC_ATTRIB_INDEX_COLOR );
-
-			GL_SelectTexture( 1 );
-			GL_TexEnv( GL_MODULATE );
-			globalImages->BindNull();
-			GL_SelectTexture( 0 );
-			GL_TexEnv( GL_MODULATE );
-		}
+		renderLog.CloseBlock();
 	}
+    
+    glDisableVertexAttribArray( PC_ATTRIB_INDEX_COLOR );
+    glDisableVertexAttribArray( PC_ATTRIB_INDEX_TANGENT );
+    glDisableVertexAttribArray( PC_ATTRIB_INDEX_BITANGENT );
+    glDisableVertexAttribArray( PC_ATTRIB_INDEX_NORMAL );
 
 	// reset polygon offset
 	if ( shader->TestMaterialFlag(MF_POLYGONOFFSET) ) {
@@ -960,8 +863,6 @@ int RB_STD_DrawShaderPasses( drawSurf_t **drawSurfs, int numDrawSurfs ) {
 	GL_SelectTexture( 0 );
 	glEnableVertexAttribArray( PC_ATTRIB_INDEX_ST );
 
-	RB_SetProgramEnvironment();
-
 	// we don't use RB_RenderDrawSurfListWithFunction()
 	// because we want to defer the matrix load because many
 	// surfaces won't draw any ambient passes
@@ -1010,19 +911,14 @@ the shadow volumes face INSIDE
 */
 static void RB_T_Shadow( const drawSurf_t *surf ) {
 	const srfTriangles_t	*tri;
-
-	// set the light position to project the rear surfaces
+	
 	if ( surf->space != backEnd.currentSpace ) {
-		idVec4 localLight;
-
+        RB_SetMVPMatrix( surf->space );
+        
+        // set the light position to project the rear surfaces
+		idVec4 localLight( 0.0f );
 		R_GlobalPointToLocal( surf->space->modelMatrix, backEnd.vLight->globalLightOrigin, localLight.ToVec3() );
-		localLight.w = 0.0f;
-
 		renderProgManager.SetRenderParm( RENDERPARM_LOCALLIGHTORIGIN, localLight.ToFloatPtr() );
-
-		float mat[16];
-		myGlMultMatrix( surf->space->modelViewMatrix, backEnd.viewDef->projectionMatrix, mat );
-		renderProgManager.SetRenderParms( RENDERPARM_MVPMATRIX_X, mat, 4 );
 	}
 
 	tri = surf->geo;
@@ -1652,11 +1548,6 @@ void RB_STD_CreateDrawInteractions(const drawSurf_t *surf) {
 	for (; surf; surf = surf->nextOnLight) {
 		// perform setup here that will not change over multiple interaction passes
 
-		// set the modelview matrix for the viewer
-		float mat[16];
-		myGlMultMatrix( surf->space->modelViewMatrix, backEnd.viewDef->projectionMatrix, mat );
-		renderProgManager.SetRenderParms( RENDERPARM_MVPMATRIX_X, mat, 4 );
-
 		// set the vertex pointers
 		idDrawVert	*ac = (idDrawVert *)vertexCache.Position(surf->geo->ambientCache);
         glVertexAttribPointer(PC_ATTRIB_INDEX_COLOR, 4, GL_UNSIGNED_BYTE, false, sizeof( idDrawVert ), (void *)&ac->color);
@@ -1705,6 +1596,10 @@ RB_STD_DrawInteractions
 void RB_STD_DrawInteractions(void) {
 	viewLight_t		*vLight;
 	const idMaterial	*lightShader;
+    
+    if ( r_skipInteractions.GetBool() ) {
+        return;
+    }
 
 	renderLog.OpenMainBlock( MRB_DRAW_INTERACTIONS );
 	renderLog.OpenBlock( "RB_DrawInteractions" );
@@ -1828,16 +1723,15 @@ void	RB_STD_DrawView( void ) {
 
 	// clear the z buffer, set the projection matrix, etc
 	RB_BeginDrawingView();
+    
+    // set shader program environment
+    RB_SetProgramEnvironment();
 
-	// fill the depth buffer and clear color buffer to black except on
-	// subviews
+	// fill the depth buffer and clear color buffer to black except on subviews
 	RB_STD_FillDepthBuffer( drawSurfs, numDrawSurfs );
 
 	// main light renderer
 	RB_STD_DrawInteractions();
-
-	// disable stencil shadow test
-	glStencilFunc( GL_ALWAYS, 128, 255 );
 
 	// now draw any non-light dependent shading passes
 	int	processed = RB_STD_DrawShaderPasses( drawSurfs, numDrawSurfs );

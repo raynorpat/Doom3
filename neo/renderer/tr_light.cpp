@@ -120,113 +120,6 @@ void R_CreateVertexProgramShadowCache( srfTriangles_t *tri ) {
 	vertexCache.Alloc( temp, tri->numVerts * 2 * sizeof( shadowCache_t ), &tri->shadowCache );
 }
 
-/*
-==================
-R_SkyboxTexGen
-==================
-*/
-void R_SkyboxTexGen( drawSurf_t *surf, const idVec3 &viewOrg ) {
-	int		i;
-	idVec3	localViewOrigin;
-
-	R_GlobalPointToLocal( surf->space->modelMatrix, viewOrg, localViewOrigin );
-
-	int numVerts = surf->geo->numVerts;
-	int size = numVerts * sizeof( idVec3 );
-	idVec3 *texCoords = (idVec3 *) _alloca16( size );
-
-	const idDrawVert *verts = surf->geo->verts;
-	for ( i = 0; i < numVerts; i++ ) {
-		texCoords[i][0] = verts[i].xyz[0] - localViewOrigin[0];
-		texCoords[i][1] = verts[i].xyz[1] - localViewOrigin[1];
-		texCoords[i][2] = verts[i].xyz[2] - localViewOrigin[2];
-	}
-
-	surf->dynamicTexCoords = vertexCache.AllocFrameTemp( texCoords, size );
-}
-
-/*
-==================
-R_WobbleskyTexGen
-==================
-*/
-void R_WobbleskyTexGen( drawSurf_t *surf, const idVec3 &viewOrg ) {
-	int		i;
-	idVec3	localViewOrigin;
-
-	const int *parms = surf->material->GetTexGenRegisters();
-
-	float	wobbleDegrees = surf->shaderRegisters[ parms[0] ];
-	float	wobbleSpeed = surf->shaderRegisters[ parms[1] ];
-	float	rotateSpeed = surf->shaderRegisters[ parms[2] ];
-
-	wobbleDegrees = wobbleDegrees * idMath::PI / 180;
-	wobbleSpeed = wobbleSpeed * 2 * idMath::PI / 60;
-	rotateSpeed = rotateSpeed * 2 * idMath::PI / 60;
-
-	// very ad-hoc "wobble" transform
-	float	transform[16];
-	float	a = tr.viewDef->floatTime * wobbleSpeed;
-	float	s = sin( a ) * sin( wobbleDegrees );
-	float	c = cos( a ) * sin( wobbleDegrees );
-	float	z = cos( wobbleDegrees );
-
-	idVec3	axis[3];
-
-	axis[2][0] = c;
-	axis[2][1] = s;
-	axis[2][2] = z;
-
-	axis[1][0] = -sin( a * 2 ) * sin( wobbleDegrees );
-	axis[1][2] = -s * sin( wobbleDegrees );
-	axis[1][1] = sqrt( 1.0f - ( axis[1][0] * axis[1][0] + axis[1][2] * axis[1][2] ) );
-
-	// make the second vector exactly perpendicular to the first
-	axis[1] -= ( axis[2] * axis[1] ) * axis[2];
-	axis[1].Normalize();
-
-	// construct the third with a cross
-	axis[0].Cross( axis[1], axis[2] );
-
-	// add the rotate
-	s = sin( rotateSpeed * tr.viewDef->floatTime );
-	c = cos( rotateSpeed * tr.viewDef->floatTime );
-
-	transform[0] = axis[0][0] * c + axis[1][0] * s;
-	transform[4] = axis[0][1] * c + axis[1][1] * s;
-	transform[8] = axis[0][2] * c + axis[1][2] * s;
-
-	transform[1] = axis[1][0] * c - axis[0][0] * s;
-	transform[5] = axis[1][1] * c - axis[0][1] * s;
-	transform[9] = axis[1][2] * c - axis[0][2] * s;
-
-	transform[2] = axis[2][0];
-	transform[6] = axis[2][1];
-	transform[10] = axis[2][2];
-
-	transform[3] = transform[7] = transform[11] = 0.0f;
-	transform[12] = transform[13] = transform[14] = 0.0f;
-
-	R_GlobalPointToLocal( surf->space->modelMatrix, viewOrg, localViewOrigin );
-
-	int numVerts = surf->geo->numVerts;
-	int size = numVerts * sizeof( idVec3 );
-	idVec3 *texCoords = (idVec3 *) _alloca16( size );
-
-	const idDrawVert *verts = surf->geo->verts;
-	for ( i = 0; i < numVerts; i++ ) {
-		idVec3 v;
-
-		v[0] = verts[i].xyz[0] - localViewOrigin[0];
-		v[1] = verts[i].xyz[1] - localViewOrigin[1];
-		v[2] = verts[i].xyz[2] - localViewOrigin[2];
-
-		R_LocalPointToGlobal( transform, v, texCoords[i] );
-	}
-
-	surf->dynamicTexCoords = vertexCache.AllocFrameTemp( texCoords, size );
-}
-
 //=======================================================================================================
 
 /*
@@ -262,7 +155,7 @@ viewEntity_t *R_SetEntityDefViewEntity( idRenderEntityLocal *def ) {
 
 	// we may not have a viewDef if we are just creating shadows at entity creation time
 	if ( tr.viewDef ) {
-		myGlMultMatrix( vModel->modelMatrix, tr.viewDef->worldSpace.modelViewMatrix, vModel->modelViewMatrix );
+		R_MatrixMultiply( vModel->modelMatrix, tr.viewDef->worldSpace.modelViewMatrix, vModel->modelViewMatrix );
 
 		vModel->next = tr.viewDef->viewEntitys;
 		tr.viewDef->viewEntitys = vModel;
@@ -1118,16 +1011,6 @@ void R_AddDrawSurf( const srfTriangles_t *tri, const viewEntity_t *space, const 
 
 	// check for deformations
 	R_DeformDrawSurf( drawSurf );
-
-	// skybox surfaces need a dynamic texgen
-	switch( shader->Texgen() ) {
-		case TG_SKYBOX_CUBE:
-			R_SkyboxTexGen( drawSurf, tr.viewDef->renderView.vieworg );
-			break;
-		case TG_WOBBLESKY_CUBE:
-			R_WobbleskyTexGen( drawSurf, tr.viewDef->renderView.vieworg );
-			break;
-	}
 
 	// check for gui surfaces
 	idUserInterface	*gui = NULL;

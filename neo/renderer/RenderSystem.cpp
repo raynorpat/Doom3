@@ -251,7 +251,7 @@ void R_LockSurfaceScene( viewDef_t *parms ) {
 	// update the view origin and axis, and all
 	// the entity matricies
 	for( vModel = tr.lockSurfacesCmd.viewDef->viewEntitys ; vModel ; vModel = vModel->next ) {
-		myGlMultMatrix( vModel->modelMatrix, 
+		R_MatrixMultiply( vModel->modelMatrix, 
 			tr.lockSurfacesCmd.viewDef->worldSpace.modelViewMatrix,
 			vModel->modelViewMatrix );
 	}
