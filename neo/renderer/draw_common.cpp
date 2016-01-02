@@ -214,30 +214,40 @@ void RB_PrepareStageTexturing( const shaderStage_t *pStage,  const drawSurf_t *s
         renderProgManager.BindShader_WobbleSky();
     }
     else if ( pStage->texture.texgen == TG_SCREEN || pStage->texture.texgen == TG_SCREEN2 ) {
-		glEnable( GL_TEXTURE_GEN_S );
-		glEnable( GL_TEXTURE_GEN_T );
-		glEnable( GL_TEXTURE_GEN_Q );
-
-		float	mat[16], plane[4];
-		R_MatrixMultiply( surf->space->modelViewMatrix, backEnd.viewDef->projectionMatrix, mat );
-
-		plane[0] = mat[0];
-		plane[1] = mat[4];
-		plane[2] = mat[8];
-		plane[3] = mat[12];
-		glTexGenfv( GL_S, GL_OBJECT_PLANE, plane );
-
-		plane[0] = mat[1];
-		plane[1] = mat[5];
-		plane[2] = mat[9];
-		plane[3] = mat[13];
-		glTexGenfv( GL_T, GL_OBJECT_PLANE, plane );
-
-		plane[0] = mat[3];
-		plane[1] = mat[7];
-		plane[2] = mat[11];
-		plane[3] = mat[15];
-		glTexGenfv( GL_Q, GL_OBJECT_PLANE, plane );
+        useTexGenParm[0] = 1.0f;
+        useTexGenParm[1] = 1.0f;
+        useTexGenParm[2] = 1.0f;
+        useTexGenParm[3] = 1.0f;
+        
+        float mat[16];
+        R_MatrixMultiply( surf->space->modelViewMatrix, backEnd.viewDef->projectionMatrix, mat );
+        
+        RENDERLOG_PRINTF( "TexGen : %s\n", ( pStage->texture.texgen == TG_SCREEN ) ? "TG_SCREEN" : "TG_SCREEN2" );
+        renderLog.Indent();
+        
+        float plane[4];
+        plane[0] = mat[0 * 4 + 0];
+        plane[1] = mat[1 * 4 + 0];
+        plane[2] = mat[2 * 4 + 0];
+        plane[3] = mat[3 * 4 + 0];
+        renderProgManager.SetRenderParm( RENDERPARM_TEXGEN_0_S, plane );
+        RENDERLOG_PRINTF( "TEXGEN_S = %4.3f, %4.3f, %4.3f, %4.3f\n",  plane[0], plane[1], plane[2], plane[3] );
+        
+        plane[0] = mat[0 * 4 + 1];
+        plane[1] = mat[1 * 4 + 1];
+        plane[2] = mat[2 * 4 + 1];
+        plane[3] = mat[3 * 4 + 1];
+        renderProgManager.SetRenderParm( RENDERPARM_TEXGEN_0_T, plane );
+        RENDERLOG_PRINTF( "TEXGEN_T = %4.3f, %4.3f, %4.3f, %4.3f\n",  plane[0], plane[1], plane[2], plane[3] );
+        
+        plane[0] = mat[0 * 4 + 3];
+        plane[1] = mat[1 * 4 + 3];
+        plane[2] = mat[2 * 4 + 3];
+        plane[3] = mat[3 * 4 + 3];
+        renderProgManager.SetRenderParm( RENDERPARM_TEXGEN_0_Q, plane );
+        RENDERLOG_PRINTF( "TEXGEN_Q = %4.3f, %4.3f, %4.3f, %4.3f\n",  plane[0], plane[1], plane[2], plane[3] );
+        
+        renderLog.Outdent();
 	}
     else if( pStage->texture.texgen == TG_DIFFUSE_CUBE )
     {

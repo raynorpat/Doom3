@@ -235,7 +235,6 @@
 		E50CC7231C29B1F50050B5B1 /* RenderLog.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E50CC7211C29B1F50050B5B1 /* RenderLog.cpp */; };
 		E50CC7281C29B5920050B5B1 /* RenderProgs_GLSL.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E50CC7251C29B5920050B5B1 /* RenderProgs_GLSL.cpp */; };
 		E50CC7291C29B5920050B5B1 /* RenderProgs.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E50CC7261C29B5920050B5B1 /* RenderProgs.cpp */; };
-		E58A9F551C35E701004B9204 /* draw_arb2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E58A9F541C35E701004B9204 /* draw_arb2.cpp */; };
 		E58A9F591C35EA2F004B9204 /* glew.c in Sources */ = {isa = PBXBuildFile; fileRef = E58A9F581C35EA2F004B9204 /* glew.c */; };
 /* End PBXBuildFile section */
 
@@ -642,7 +641,6 @@
 		E50CC7251C29B5920050B5B1 /* RenderProgs_GLSL.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RenderProgs_GLSL.cpp; sourceTree = "<group>"; };
 		E50CC7261C29B5920050B5B1 /* RenderProgs.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RenderProgs.cpp; sourceTree = "<group>"; };
 		E50CC7271C29B5920050B5B1 /* RenderProgs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RenderProgs.h; sourceTree = "<group>"; };
-		E58A9F541C35E701004B9204 /* draw_arb2.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = draw_arb2.cpp; sourceTree = "<group>"; };
 		E58A9F581C35EA2F004B9204 /* glew.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = glew.c; path = ../../libs/glew/src/glew.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -934,7 +932,6 @@
 				8122570B0912BC79005D34B9 /* Cinematic.cpp */,
 				8122570C0912BC79005D34B9 /* Cinematic.h */,
 				8122570F0912BC79005D34B9 /* draw_common.cpp */,
-				E58A9F541C35E701004B9204 /* draw_arb2.cpp */,
 				812257160912BC79005D34B9 /* GuiModel.cpp */,
 				812257170912BC79005D34B9 /* GuiModel.h */,
 				812257180912BC79005D34B9 /* Image.h */,
@@ -1434,7 +1431,6 @@
 				812258620912BC79005D34B9 /* snd_cache.cpp in Sources */,
 				E50CC7231C29B1F50050B5B1 /* RenderLog.cpp in Sources */,
 				812258630912BC79005D34B9 /* snd_decoder.cpp in Sources */,
-				E58A9F551C35E701004B9204 /* draw_arb2.cpp in Sources */,
 				812258640912BC79005D34B9 /* snd_emitter.cpp in Sources */,
 				812258650912BC79005D34B9 /* snd_shader.cpp in Sources */,
 				812258660912BC79005D34B9 /* snd_system.cpp in Sources */,
